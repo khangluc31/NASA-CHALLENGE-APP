@@ -97,7 +97,7 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
     </div>
     <div role="status" aria-live="polite">
       {texture.status === 'loading' && <p>Loading globe texture…</p>}
-      {texture.status === 'error' && <p>{texture.message} <button type="button" onClick={() => {
+      {texture.status === 'error' && <p>{texture.message} <button type="button" disabled={interactionLocked} onClick={() => {
         setTextureAttempt((value) => value + 1)
       }}>Retry texture</button></p>}
       {contentState.status !== 'ready' && <p>{contentState.message}</p>}

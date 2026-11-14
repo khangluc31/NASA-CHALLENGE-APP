@@ -86,7 +86,7 @@ Mobile uses stacked pages and a short fade instead of rotating a narrow spread.
 
 ## Imagery and data honesty
 
-All three chapters use the local Blue Marble January 2004 reference background; Night Lights also uses it for its static preview. Night Lights will receive light patterns only from the future verified dataset layer, not from baked-in Black Marble imagery. See public/textures/README.md for provenance. Official chapter links are recorded in chapters.ts. Decorative cover and landing imagery still use remote NASA SVS 4019 assets; Google Fonts also require network access.
+All three chapters use the local Blue Marble January 2004 with topography/bathymetry reference background; Night Lights also uses it for its static preview. Night Lights will receive light patterns only from the future verified dataset layer, not from baked-in Black Marble imagery. See public/textures/README.md for provenance. Official chapter links are recorded in chapters.ts. Decorative cover and landing imagery still use remote NASA SVS 4019 assets; Google Fonts also require network access.
 
 ## Run and acceptance
 

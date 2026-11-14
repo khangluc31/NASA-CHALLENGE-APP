@@ -31,7 +31,7 @@ Import `GlobeViewer` and its types from this folder's `index.ts`.
 - `interactionLocked` disables pointer, keyboard-button and form interactions.
 - `surfaceTexture` accepts an approved equirectangular image's public-relative
   `path`, textual `attribution`, and optional `sourceUrl`. When omitted, it uses
-  the bundled January 2004 Blue Marble base map (2048 x 1024 JPEG, about 302 KiB).
+  the bundled January 2004 Blue Marble with topography and bathymetry (2048 x 1024 JPEG, about 422 KiB).
   Paths use `import.meta.env.BASE_URL`.
   Images need longitude -180..180 from left to right and north at the top.
   Loading/errors block interaction; failed loads can be retried. Textures are
@@ -63,7 +63,7 @@ Import `GlobeViewer` and its types from this folder's `index.ts`.
 
 The approved surface is a cloud-free January 2004 composite, not live Earth
 observations or the timestamp of an EIC chapter's data. It provides geographic
-context beneath chapter layers. It does not supply elevations, dynamic clouds,
+context beneath chapter layers. Topography and bathymetry shading is baked into the image; it does not supply actual 3D elevations, dynamic clouds,
 street-level imagery or scientific sample values. Uniform illumination preserves
 the image colors without a decorative day/night mask hiding chapter overlays.
 
@@ -98,3 +98,5 @@ The optional `embedded` prop enables plain lower-right coordinate output and low
 The Canvas preserves its drawing buffer for the book’s outgoing page snapshots. Check the performance tradeoff and visual continuity in the target browser; no second live scene is created.
 
 The red globe marker is a camera-facing flat teardrop with a white center. Its tip anchors the location; the entire pin hides when its anchor rotates to Earth’s far side, and depth testing preserves surface occlusion. Focus the globe for arrow-key rotation, +/− zoom, or Home reset; dragging remains the pointer rotation control.
+
+Pin scale is recalculated locally from camera-space depth, projection scale and canvas height to maintain about 22 CSS pixels of height when zooming. It stays tip-anchored and camera-facing. The book host supplies the black scene background; the historical Blue Marble texture includes NASA’s baked-in topography and bathymetry shading.

@@ -17,6 +17,7 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
   if (chapter.viewer === 'media') return <VisualizationPreview chapter={chapter} />
   const views = chapter.supportedViews ?? [chapter.viewer]
   const activeView = view && views.includes(view) ? view : chapter.viewer
+  const nextView = views.find(item => item !== activeView)
   const locked = !isActive || interactionDisabled
   // Lights must come from the future data layer, not baked-in reference imagery.
   const surface = BLUE_MARBLE_TEXTURE
@@ -27,10 +28,11 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
   return <section className="book-visualization" aria-label="Chapter visualization">
     <div className="book-visualization__toolbar">
       <span>REFERENCE EARTH</span>
-      {views.length > 1 ? <div role="group" aria-label="Visualization view">{views.map(item =>
-        <button key={item} type="button" aria-pressed={activeView === item} disabled={locked}
-          onClick={() => onViewChange(item)}>{item === 'globe' ? 'Globe' : 'Map'}</button>)}</div>
-        : <span>{activeView === 'globe' ? 'GLOBE' : 'MAP'}</span>}
+      {nextView ? <button className="book-visualization__mode" type="button" disabled={locked}
+        aria-label={`Current view: ${activeView}. Switch to ${nextView} view`}
+        title={`Switch to ${nextView} view`} onClick={() => onViewChange(nextView)}>
+        {activeView === 'globe' ? 'GLOBE' : 'MAP'}
+      </button> : <span className="book-visualization__mode">{activeView === 'globe' ? 'GLOBE' : 'MAP'}</span>}
     </div>
     {activeView === 'globe'
       ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />

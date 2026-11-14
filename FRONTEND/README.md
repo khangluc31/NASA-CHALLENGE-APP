@@ -6,13 +6,13 @@ A React + Vite + TypeScript interactive science atlas. The existing dark book de
 
 | Order | Chapter / official resource | Views | Reference background |
 | --- | --- | --- | --- |
-| 01 | [Night Lights 2012–2023](https://svs.gsfc.nasa.gov/5313/) | Map | Blue Marble January 2004 |
-| 02 | [Sea Surface Currents and Temperature](https://svs.gsfc.nasa.gov/3912/) | Globe (default), Map | Blue Marble January 2004 |
-| 03 | [DYAMOND Global Carbon Dioxide](https://svs.gsfc.nasa.gov/5196/) | Globe | Blue Marble January 2004 |
+| 01 | [Night Lights 2012–2023](https://svs.gsfc.nasa.gov/5313/) | Map | Blue Marble January 2004 with topography/bathymetry |
+| 02 | [Sea Surface Currents and Temperature](https://svs.gsfc.nasa.gov/3912/) | Globe (default), Map | Blue Marble January 2004 with topography/bathymetry |
+| 03 | [DYAMOND Global Carbon Dioxide](https://svs.gsfc.nasa.gov/5196/) | Globe | Blue Marble January 2004 with topography/bathymetry |
 
 The book opens on Night Lights. These are interactive geographic foundations, not completed scientific visualizations. Chapter layers, measurement datasets, and sonification are not connected. Audio controls remain disabled for the Sound teammate's integration. Reference imagery must never be sampled as scientific measurements.
 
-Ocean's compact Globe/Map toggle preserves selection. View choice and coordinates are remembered per chapter until refresh, including page turns and closing/reopening. Camera/pan/zoom remain local and reset on viewer unmount. Coordinates appear as plain text at the visualization’s lower right. The right page remains explanatory chapter content. Borderless −/+ zoom tools sit at the lower left beside a drag/select hint. A discreet Select coordinates action opens keyboard coordinate entry; background image attribution remains in the texture documentation; the right page retains the chapter source link. Red teardrop pins with white centers mark both viewers; each pin tip anchors the selected coordinate. The scenes sit in black, borderless viewports; narrow layouts wrap the footer to prevent overlap.
+Ocean's clickable current-mode label preserves selection. View choice and coordinates are remembered per chapter until refresh, including page turns and closing/reopening. Camera/pan/zoom remain local and reset on viewer unmount. Coordinates appear as plain text at the visualization’s lower right. The right page remains explanatory chapter content. Borderless −/+ zoom tools sit at the lower left beside a drag/select hint. A discreet Select coordinates action opens keyboard coordinate entry; background image attribution remains in the texture documentation; the right page retains the chapter source link. Red teardrop pins with white centers mark both viewers; each pin tip anchors the selected coordinate. The scenes sit in black, borderless viewports; narrow layouts wrap the footer to prevent overlap.
 
 ## Development
 

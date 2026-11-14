@@ -3,11 +3,12 @@ import { locationToPosition } from '../utils/coordinates'
 import { Billboard } from '@react-three/drei'
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Shape, Vector3 } from 'three'
+import { PerspectiveCamera, Shape, Vector3 } from 'three'
 import type { Group } from 'three'
 
 export function SelectionMarker({ location }: { location: GlobeLocation }) {
   const marker = useRef<Group>(null)
+  const pin = useRef<Group>(null)
   const position = useMemo(() => new Vector3(...locationToPosition(location, 1.008)), [location])
   const toCamera = useMemo(() => new Vector3(), [])
   const shape = useMemo(() => {
@@ -19,13 +20,19 @@ export function SelectionMarker({ location }: { location: GlobeLocation }) {
     pin.closePath()
     return pin
   }, [])
-  useFrame(({ camera }) => {
+  useFrame(({ camera, size }) => {
     // Hide the entire pin when its anchor is on Earth's far side.
     if (marker.current) marker.current.visible = position.dot(toCamera.copy(camera.position).sub(position)) > 0
+    if (pin.current && camera instanceof PerspectiveCamera && size.height > 0) {
+      // Match the map's zoom-independent pin size in CSS pixels, not world units.
+      const depth = Math.abs(toCamera.copy(position).applyMatrix4(camera.matrixWorldInverse).z)
+      const worldPerPixel = 2 * depth / (camera.projectionMatrix.elements[5] * size.height)
+      pin.current.scale.setScalar(22 * worldPerPixel / 33)
+    }
   })
   return <Billboard ref={marker} position={position}>
     {/* The pin's tip, rather than its center, anchors the selected coordinate. */}
-    <group scale={0.0035}>
+    <group ref={pin} scale={0.0035}>
       <mesh raycast={() => {}}>
         <shapeGeometry args={[shape]} />
         <meshBasicMaterial color="#ea4335" toneMapped={false} />

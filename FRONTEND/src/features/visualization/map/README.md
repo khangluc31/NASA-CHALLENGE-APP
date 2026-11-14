@@ -42,7 +42,7 @@ Import `MapViewer` and its types from `./index`.
   `loading`, `error`, `empty` or `missing`, with a caller-provided message for
   non-ready states. Only ready content renders chapter layers and permits
   selection. Chapter error/empty/missing states still permit reference browsing.
-- `surfaceImage` defaults to the globe's bundled January 2004 Blue Marble image
+- `surfaceImage` defaults to the globe's bundled January 2004 Blue Marble image with topography and bathymetry
   and its existing attribution. This historical context is not live imagery or
   the timestamp of chapter observations. Provenance is recorded in
   [the texture README](../../../../public/textures/README.md).
