@@ -25,3 +25,15 @@ NASA notes limitations including cloud/snow discrimination and a uniform deep
 ocean color. Chapter overlays and measurements must retain their own provenance,
 timestamps and units. The source-resolution file is not bundled; the URL above
 allows it to be retrieved again.
+
+## Black Marble 2016
+
+`black-marble-2016-3600.jpg` is the official 3600 × 1800 NASA Black Marble 2016 color global map, bundled unchanged (779,638 bytes).
+
+- Collection: https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/
+- Exact JPEG: https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/144000/144898/BlackMarble_2016_01deg.jpg
+- Credit: NASA Earth Observatory images by Joshua Stevens, using Suomi NPP VIIRS data from Miguel Román, NASA GSFC (credit recorded by the selected SVS 5313 resource).
+- Full-world equirectangular reference image: west to east −180..180°, north at top; no cropping, resizing, recoloring, or other processing.
+- SHA-256: `d87de751a264e4f8ff69c68de5dab9606daee87a6f15ae743c93200743bd7ec1`.
+
+Used only as Night Lights' historical background/preview. This is 2016 imagery, not either endpoint or the 2012–2023 change layer. No pixel-to-measurement sampling is implemented. Verify landmark alignment in the presentation browser before adding scientific overlays.

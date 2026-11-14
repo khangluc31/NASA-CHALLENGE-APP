@@ -3,7 +3,7 @@
 FE B's reusable 2D geographic foundation. `MapViewer` uses an equirectangular
 SVG surface with local pan/zoom, controlled coordinate selection and chapter
 layer composition. No map dependency, measurement dataset or audio engine is
-introduced. Book integration remains the integration owner's responsibility.
+introduced. Book integration is provided by the feature-level VisualizationHost.
 
 - Choose the projection and sampling behavior to match the verified dataset.
 - Resolve geographic selection through the agreed data contract so the map,
@@ -111,3 +111,7 @@ bounds. On book integration, recheck pointer/touch/keyboard behavior, layer
 alignment, transition locks, asset failure/retry, narrow layouts and repeated
 chapter switches in the presentation browser. There is no development-only
 preview route in the application.
+
+## Book embedding
+
+The optional `embedded` prop enables a scene-corner coordinate output and collapsible controls/credits. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.

@@ -1,9 +1,7 @@
 # Earth Jukebox — book integration
 
 The book implements the supplied dark scientific-atlas design. The cover opens
-on chapter 02 to match the reference screenshot; chapter 01 remains reachable.
-All ten chapters are draft content. No scientific measurements, mapped audio,
-or interactive Earth viewer are implemented by this feature.
+on chapter 01, Night Lights. The approved scope is three chapters in the existing relative order: Night Lights → Ocean Currents and Temperature → DYAMOND CO2. Interactive reference viewers are connected; scientific measurements, layers, and mapped audio remain unimplemented.
 
 ## Files and ownership
 
@@ -17,8 +15,7 @@ or interactive Earth viewer are implemented by this feature.
 - `../../styles/book.css`: geometry, paper, binding, responsive styles.
 - `../../App.tsx`: composition point for FE A and FE B.
 
-The visualization folder, audio engine, shared store and scientific types have
-not been created or modified. Agree their contracts with FE B/Data/Sound.
+App now connects FE B’s VisualizationHost through BookExperience.bookProps. No audio engine, shared store, or scientific data schema is introduced; agree future contracts with Data/Sound.
 Motion drives cover opening and forward/backward page turns. No flipbook SDK
 or iframe is required; React content remains interactive on the actual pages.
 The page turn uses a two-sided 3D sheet, not a deformable paper-curl simulation.
@@ -89,19 +86,7 @@ Mobile uses stacked pages and a short fade instead of rotating a narrow spread.
 
 ## Imagery and data honesty
 
-The decorative preview is the 2012 Earth-at-night composite from NASA SVS 4019:
-https://svs.gsfc.nasa.gov/4019/
-Credit: NASA's Goddard Space Flight Center Scientific Visualization Studio /
-Earth Observatory. It is NOT the 2012–2023 comparison dataset. Other chapters
-show viewer-type skeletons; source URLs and real data await verification.
-Caldwell 73 is retained as the design's reference chapter, explicitly flagged
-as astronomical and needing eligibility confirmation.
-
-Image download was unavailable in the task terminal. The preview currently
-loads from NASA and shows a labeled globe-icon fallback if unavailable. Before
-an offline demo, download the credited image into `public/media/`, set
-`EARTH_PREVIEW` to `${import.meta.env.BASE_URL}media/<filename>`, and preserve
-credits. The background uses the credited Earth-at-day composite from the same NASA SVS source; it is decorative, not chapter data.
+The Night Lights chapter uses a locally bundled NASA Black Marble 2016 background and preview. It is not the 2012–2023 comparison layer. Ocean and CO2 use the existing local Blue Marble January 2004 background. See public/textures/README.md for provenance. Official chapter links are recorded in chapters.ts. Decorative cover and landing imagery still use remote NASA SVS 4019 assets; Google Fonts also require network access.
 
 ## Run and acceptance
 
@@ -113,8 +98,8 @@ must still be run on the presentation laptop.
 Manual checks:
 
 1. Open via cover and text CTA; close via toolbar and wordmark.
-2. Flip 02→03, 03→02, 02→10; rapid-click bookmarks during the turn.
-3. Navigate all ten chapters; verify first/last navigation is disabled.
+2. Flip 01→02, 02→01, 01→03; rapid-click bookmarks during the turn.
+3. Navigate all three chapters; verify first/last navigation is disabled.
 4. Switch note sections and scroll; connected viewer must stay mounted.
 5. OS/user reduced motion, Tab/Enter, arrow navigation and bookmark focus titles.
 6. Desktop at 1440×900, tablet, mobile at 390px, and browser zoom at 200%.
@@ -172,3 +157,7 @@ load through Google Fonts with system fallbacks. The decorative lower-center
 Earth uses `EARTH_DAY` from NASA SVS 4019, with restrained atmospheric shading.
 These remote assets require network access; vendor fonts and the credited image
 locally before an offline presentation. Terminal downloading remained unavailable.
+
+## Viewer integration behavior
+
+The `viewer` field remains the default; `supportedViews` allows Ocean's Globe/Map switch. The compact host retains selected coordinates and per-chapter view choice above the slot through flips/close until refresh. Coordinates appear in a viewer corner, never as a right-page measurement inspector. The right page remains explanatory content; audio remains the unchanged disabled placeholder. Embedded controls and image credits expand within the viewer rather than changing book geometry. Live scene snapshots use preserved WebGL drawing buffers; manual visual/performance acceptance is still required.

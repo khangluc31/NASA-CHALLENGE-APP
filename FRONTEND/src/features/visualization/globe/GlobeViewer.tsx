@@ -10,6 +10,7 @@ import { GlobeCameraControls } from './components/GlobeCameraControls'
 import type { CameraAction, GlobeCameraHandle } from './components/GlobeCameraControls'
 import { GlobeErrorBoundary } from './components/GlobeErrorBoundary'
 import { BLUE_MARBLE_TEXTURE } from './surfaceTexture'
+import { CoordinateReadout } from '../CoordinateReadout'
 import './globe.css'
 
 const CAMERA_ACTIONS: { action: CameraAction; label: string }[] = [
@@ -28,7 +29,7 @@ export function GlobeViewer({ className = '', label = 'Interactive globe', ...pr
   </section>
 }
 
-function GlobeContent({ interactionLocked = false, selectedLocation = null, onLocationSelect,
+function GlobeContent({ embedded = false, interactionLocked = false, selectedLocation = null, onLocationSelect,
   surfaceTexture = BLUE_MARBLE_TEXTURE, layers, contentState = { status: 'ready' }, layerDescription }: GlobeViewerProps) {
   const [textureAttempt, setTextureAttempt] = useState(0)
   const texture = useSurfaceTexture(surfaceTexture?.path, textureAttempt)
@@ -53,11 +54,11 @@ function GlobeContent({ interactionLocked = false, selectedLocation = null, onLo
   }
 
   return <>
-    <p id={instructionsId}>Drag to rotate; scroll or pinch to zoom. Use the buttons for keyboard navigation.
+    <p className={embedded ? 'viewer-instructions-sr' : undefined} id={instructionsId}>Drag to rotate; scroll or pinch to zoom. Use the buttons for keyboard navigation.
       {onLocationSelect && ' Click the surface or enter coordinates to select a location.'}</p>
     <div className="globe-viewer__scene" aria-describedby={instructionsId} aria-label="Globe rendering">
       <Canvas camera={{ position: [0, 0, 3.4], fov: 45, near: 0.01, far: 30 }}
-        dpr={[1, 1.5]} frameloop="demand"
+        dpr={[1, 1.5]} frameloop="demand" gl={{ preserveDrawingBuffer: embedded }}
         onCreated={() => setCanvasReady(true)}
         fallback={<p role="alert">This browser does not support WebGL. Coordinate selection is available below.</p>}>
         <ContextMonitor onLost={() => setContextLost(true)} />
@@ -70,6 +71,7 @@ function GlobeContent({ interactionLocked = false, selectedLocation = null, onLo
         })}
         <GlobeCameraControls ref={camera} locked={locked} />
       </Canvas>
+      {embedded && <CoordinateReadout location={selection} />}
     </div>
     <div role="status" aria-live="polite">
       {texture.status === 'loading' && <p>Loading globe texture…</p>}
@@ -78,33 +80,37 @@ function GlobeContent({ interactionLocked = false, selectedLocation = null, onLo
       }}>Retry texture</button></p>}
       {contentState.status !== 'ready' && <p>{contentState.message}</p>}
       {interactionLocked && <p>Globe interaction is paused during the page transition.</p>}
-      <p>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
+      <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
     </div>
-    <fieldset disabled={locked || !canvasReady}>
-      <legend>Globe navigation</legend>
-      <div className="globe-viewer__controls">{CAMERA_ACTIONS.map(({ action, label }) =>
-        <button key={action} type="button" onClick={() => camera.current?.act(action)}>{label}</button>)}
-      </div>
-    </fieldset>
-    {onLocationSelect && <form onSubmit={submitLocation}>
-      <fieldset disabled={!canSelect}>
-        <legend>Select geographic coordinates</legend>
-        <div className="globe-viewer__controls">
-          <label htmlFor={latitudeId}>Latitude (−90 to 90°)</label>
-          <input id={latitudeId} name="latitude" type="number" min={-90} max={90} step="any" required />
-          <label htmlFor={longitudeId}>Longitude (−180 to 180°)</label>
-          <input id={longitudeId} name="longitude" type="number" min={-180} max={180} step="any" required />
-          <button type="submit">Select location</button>
-          <button type="button" disabled={!selection} onClick={() => onLocationSelect(null)}>Clear selection</button>
+    <details className="viewer-options" open={embedded ? undefined : true}>
+      <summary>Controls &amp; image credits</summary>
+      {embedded && <p>Drag to rotate; scroll or pinch to zoom. Click to select a location.</p>}
+      <fieldset disabled={locked || !canvasReady}>
+        <legend>Globe navigation</legend>
+        <div className="globe-viewer__controls">{CAMERA_ACTIONS.map(({ action, label }) =>
+          <button key={action} type="button" onClick={() => camera.current?.act(action)}>{label}</button>)}
         </div>
       </fieldset>
-    </form>}
-    {!surfaceTexture && <p>Untextured reference globe; no scientific data is represented by its surface.</p>}
-    {surfaceTexture && <p>{surfaceTexture.attribution}{surfaceTexture.sourceUrl && <>
-      {' '}<a href={surfaceTexture.sourceUrl}>Image source</a>
-    </>}</p>}
-    {layerDescription && <p>{layerDescription}</p>}
-    {onLocationSelect && <p>A selected coordinate must be resolved by the chapter’s data adapter before displaying measurements or playing audio.</p>}
+      {onLocationSelect && <form onSubmit={submitLocation}>
+        <fieldset disabled={!canSelect}>
+          <legend>Select geographic coordinates</legend>
+          <div className="globe-viewer__controls">
+            <label htmlFor={latitudeId}>Latitude (−90 to 90°)</label>
+            <input id={latitudeId} name="latitude" type="number" min={-90} max={90} step="any" required />
+            <label htmlFor={longitudeId}>Longitude (−180 to 180°)</label>
+            <input id={longitudeId} name="longitude" type="number" min={-180} max={180} step="any" required />
+            <button type="submit">Select location</button>
+            <button type="button" disabled={!selection} onClick={() => onLocationSelect(null)}>Clear selection</button>
+          </div>
+        </fieldset>
+      </form>}
+      {!surfaceTexture && <p>Untextured reference globe; no scientific data is represented by its surface.</p>}
+      {surfaceTexture && <p>{surfaceTexture.attribution}{surfaceTexture.sourceUrl && <>
+        {' '}<a href={surfaceTexture.sourceUrl}>Image source</a>
+      </>}</p>}
+      {layerDescription && <p>{layerDescription}</p>}
+      {onLocationSelect && <p>A selected coordinate must be resolved by the chapter’s data adapter before displaying measurements or playing audio.</p>}
+    </details>
   </>
 }
 

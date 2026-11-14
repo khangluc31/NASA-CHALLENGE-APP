@@ -1,0 +1,33 @@
+/* The host adapts the reusable viewers to the existing atlas page geometry. */
+.book-visualization {
+  --text: #b9cdd7;
+  --text-h: var(--book-ink, #eef3f8);
+  --bg: #0d1e2b;
+  --border: var(--book-rule, #526a7c);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--text);
+  font-size: 10px;
+}
+.book-visualization__toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; flex-shrink: 0; font-size: 9px; letter-spacing: .4px; }
+.book-visualization__toolbar [role=group] { display: flex; gap: 4px; }
+.book-visualization__toolbar button { min-height: 30px; padding: 4px 9px; border: 1px solid var(--border); border-radius: 3px; background: var(--bg); color: var(--text); }
+.book-visualization__toolbar button[aria-pressed=true] { background: var(--book-accent); color: #08252e; }
+.book-visualization > :is(.globe-viewer, .map-viewer) { display: flex; flex-direction: column; position: relative; flex: 1; min-height: 0; gap: 0; padding-bottom: 32px; }
+.book-visualization .globe-viewer__scene { flex: 1; height: auto; min-height: 140px; }
+.map-viewer__viewport { position: relative; }
+.book-visualization .map-viewer__viewport { display: grid; align-items: center; flex: 1; min-height: 140px; }
+.book-visualization .map-viewer__surface { max-height: 100%; }
+.viewer-coordinate { position: absolute; bottom: 8px; left: 8px; max-width: calc(100% - 16px); padding: 5px 7px; background: #07131de8; border: 1px solid #526a7c88; border-radius: 3px; color: #d1e7eb; font-size: 9px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.book-visualization .viewer-options { position: absolute; bottom: 0; left: 0; right: 0; max-height: 80%; overflow-y: auto; z-index: 1; background: #102332f5; border-top: 1px solid var(--border); padding: 0 8px 4px; }
+.viewer-options > summary { cursor: pointer; padding: 7px 0; }
+.book-visualization .viewer-options > summary { position: sticky; top: 0; background: #102332; }
+.book-visualization .viewer-options p { margin: 8px 0; line-height: 1.5; }
+.book-visualization .viewer-options fieldset { padding: 6px; margin-bottom: 6px; }
+.book-visualization :is(.globe-viewer__controls, .map-viewer__controls) { gap: 5px; }
+.book-visualization :is(button, input) { font-size: 10px; }
+.book-visualization [role=status] p { margin: 4px 8px; }
+.book-visualization__caption { flex-shrink: 0; margin: 0; padding: 6px 10px; font-size: 8px; line-height: 1.4; }
+.viewer-instructions-sr { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 900px) { .book-visualization { min-height: 340px; } }

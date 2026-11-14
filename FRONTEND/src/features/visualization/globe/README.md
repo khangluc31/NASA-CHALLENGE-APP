@@ -3,7 +3,7 @@
 FE B's home for React Three Fiber scenes, globe layers, geographic picking and
 camera controls. `GlobeViewer` provides the reusable foundation with NASA Blue
 Marble imagery as its default surface; no chapter measurement dataset is bundled.
-Book integration is deferred. The temporary browser preview was removed after
+Book integration is provided by the feature-level VisualizationHost. The temporary browser preview was removed after
 manual testing; no development-only route is included.
 
 - Scope the Canvas to the active viewer and keep its identity stable within a
@@ -90,3 +90,9 @@ antimeridian coordinates, invalid inputs and agreement with actual Three.js
 sphere UVs. An approved texture still needs a visual landmark check when
 integrated. Drag/zoom/touch, keyboard behavior, WebGL failures and repeated
 mount/unmount should be checked again when integrating the globe into the book.
+
+## Book embedding
+
+The optional `embedded` prop enables a scene-corner coordinate output and collapsible controls/credits. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.
+
+The Canvas preserves its drawing buffer for the book’s outgoing page snapshots. Check the performance tradeoff and visual continuity in the target browser; no second live scene is created.
