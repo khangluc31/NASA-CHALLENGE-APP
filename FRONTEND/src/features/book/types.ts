@@ -7,6 +7,7 @@ export interface BookChapter {
   shortTitle: string
   category: string
   viewer: 'globe' | 'map' | 'media'
+  supportedViews?: readonly ('globe' | 'map')[]
   introduction: string
   previewUrl?: string
   sourceUrl?: string

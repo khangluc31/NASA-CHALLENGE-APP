@@ -1,7 +1,8 @@
 import { ArrowUpRight, Headphones } from 'lucide-react'
 import { EarthArtwork } from './EarthArtwork'
+import { BOOK_CHAPTERS } from '../chapters'
 
-export function BookCover({ onOpen, active = true, chapterCount = 3 }: { onOpen: () => void; active?: boolean; chapterCount?: number }) {
+export function BookCover({ onOpen, active = true, chapterCount = BOOK_CHAPTERS.length }: { onOpen: () => void; active?: boolean; chapterCount?: number }) {
   return <main id={active ? 'main-content' : undefined} className="landing grid items-center gap-12 lg:grid-cols-2">
     <section className="landing-copy">
       <p className="eyebrow">AN INTERACTIVE SCIENTIFIC ATLAS</p>

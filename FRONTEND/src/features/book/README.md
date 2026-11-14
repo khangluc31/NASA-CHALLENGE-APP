@@ -1,9 +1,10 @@
 # Earth Jukebox — book integration
 
-The book implements the supplied dark scientific-atlas design. The cover opens on chapter 01 (DYAMOND Global Carbon Dioxide).
-The three selected resources are CO₂, ocean currents/temperature, and night lights.
-All three chapters are draft content. A demo audio player is implemented; scientific data mapping and the interactive
-Earth viewer are still awaiting integration.
+The book implements the supplied dark scientific-atlas design. The cover opens
+on chapter 01, DYAMOND Global Carbon Dioxide, followed by Ocean Currents and
+Temperature and Night Lights. Interactive reference viewers and an independent
+demo audio player are connected. Scientific measurements, layers, and mapped
+audio remain unimplemented. All chapter notes are draft content.
 
 ## Files and ownership
 
@@ -17,8 +18,9 @@ Earth viewer are still awaiting integration.
 - `../../styles/book.css`: geometry, paper, binding, responsive styles.
 - `../../App.tsx`: composition point for FE A and FE B.
 
-The visualization folder, shared store and scientific types have not been modified.
-The user-authorized demo audio player lives in `features/audio`. Agree their contracts with FE B/Data/Sound.
+App connects FE B’s VisualizationHost through BookExperience.bookProps.
+The user-authorized demo audio player lives in features/audio. No shared store
+or scientific data schema is introduced; agree future contracts with Data/Sound.
 Motion drives cover opening and forward/backward page turns. No flipbook SDK
 or iframe is required; React content remains interactive on the actual pages.
 The page turn uses a two-sided 3D sheet, not a deformable paper-curl simulation.
@@ -89,18 +91,7 @@ Mobile uses stacked pages and a short fade instead of rotating a narrow spread.
 
 ## Imagery and data honesty
 
-The decorative preview is the 2012 Earth-at-night composite from NASA SVS 4019:
-https://svs.gsfc.nasa.gov/4019/
-Credit: NASA's Goddard Space Flight Center Scientific Visualization Studio /
-Earth Observatory. It is NOT the 2012–2023 comparison dataset. Other chapters
-show viewer-type skeletons; source URLs and real data await verification.
-Only the three resources selected by the team remain in the registry.
-
-Image download was unavailable in the task terminal. The preview currently
-loads from NASA and shows a labeled globe-icon fallback if unavailable. Before
-an offline demo, download the credited image into `public/media/`, set
-`EARTH_PREVIEW` to `${import.meta.env.BASE_URL}media/<filename>`, and preserve
-credits. The background uses the credited Earth-at-day composite from the same NASA SVS source; it is decorative, not chapter data.
+All three chapters use the local Blue Marble January 2004 with topography/bathymetry reference background; Night Lights also uses it for its static preview. Night Lights will receive light patterns only from the future verified dataset layer, not from baked-in Black Marble imagery. See public/textures/README.md for provenance. Official chapter links are recorded in chapters.ts. Decorative cover and landing imagery still use remote NASA SVS 4019 assets; Google Fonts also require network access.
 
 ## Run and acceptance
 
@@ -112,7 +103,7 @@ must still be run on the presentation laptop.
 Manual checks:
 
 1. Open via cover and text CTA; close via toolbar and wordmark.
-2. Flip 02→03, 03→02, 01→03; rapid-click bookmarks during the turn.
+2. Flip 01→02, 02→01, 01→03; rapid-click bookmarks during the turn.
 3. Navigate all three chapters; verify first/last navigation is disabled.
 4. Switch note sections and scroll; connected viewer must stay mounted.
 5. OS/user reduced motion, Tab/Enter, arrow navigation and bookmark focus titles.
@@ -203,3 +194,7 @@ The renderer uses real post-volume FFT data and respects mute/pause/reduced moti
 The default chime clip replaces the former steady sine so changes are audible
 and visible. Silence/mute/pause gives a dotted baseline. This visualization does
 not alter the audio itself. Reduced motion deliberately disables animation.
+
+## Viewer integration behavior
+
+The `viewer` field remains the default; `supportedViews` allows Ocean's Globe/Map switch. The compact host retains selected coordinates and per-chapter view choice above the slot through flips/close until refresh. Coordinates appear as unboxed text at the viewer’s lower right, never as a right-page measurement inspector. The right page remains explanatory content; audio uses the independent demo player until scientific mapping is ready. Embedded viewers use lower-left −/+ tools, drag/select hints, an optional coordinate-entry popover, with image attribution retained in the texture documentation. Red pins with contrasting white centers mark selection by their tips. Keyboard arrows still rotate/pan without visible directional buttons. Scene backgrounds are black and borderless; footer contents wrap on narrow pages. Live scene snapshots use preserved WebGL drawing buffers; manual visual/performance acceptance is still required.

@@ -3,7 +3,7 @@
 FE B's reusable 2D geographic foundation. `MapViewer` uses an equirectangular
 SVG surface with local pan/zoom, controlled coordinate selection and chapter
 layer composition. No map dependency, measurement dataset or audio engine is
-introduced. Book integration remains the integration owner's responsibility.
+introduced. Book integration is provided by the feature-level VisualizationHost.
 
 - Choose the projection and sampling behavior to match the verified dataset.
 - Resolve geographic selection through the agreed data contract so the map,
@@ -42,7 +42,7 @@ Import `MapViewer` and its types from `./index`.
   `loading`, `error`, `empty` or `missing`, with a caller-provided message for
   non-ready states. Only ready content renders chapter layers and permits
   selection. Chapter error/empty/missing states still permit reference browsing.
-- `surfaceImage` defaults to the globe's bundled January 2004 Blue Marble image
+- `surfaceImage` defaults to the globe's bundled January 2004 Blue Marble image with topography and bathymetry
   and its existing attribution. This historical context is not live imagery or
   the timestamp of chapter observations. Provenance is recorded in
   [the texture README](../../../../public/textures/README.md).
@@ -81,7 +81,7 @@ Wheel events outside the focused map retain page scrolling. Arrow keys pan,
 +/− zoom and Home resets; buttons and a validated coordinate form provide
 keyboard alternatives. A drag over five CSS pixels and multitouch gestures
 cannot select a location. Selection is announced as text and marked by a
-contrasting crosshair. Navigation is immediate without inertia or animations,
+red teardrop pin with a white center. Navigation is immediate without inertia or animations,
 including for reduced-motion users. The SVG scales with the book page width.
 
 ## Structure
@@ -111,3 +111,7 @@ bounds. On book integration, recheck pointer/touch/keyboard behavior, layer
 alignment, transition locks, asset failure/retry, narrow layouts and repeated
 chapter switches in the presentation browser. There is no development-only
 preview route in the application.
+
+## Book embedding
+
+The optional `embedded` prop enables plain lower-right coordinate output and lower-left −/+ zoom tools, with a discreet coordinate-entry popover. The old navigation board is absent in the book; standalone viewers retain their full controls. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.

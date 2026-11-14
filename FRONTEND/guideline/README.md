@@ -186,29 +186,19 @@ Transition sequence: idle -> leaving (lock navigation/model, fade/stop audio) ->
 
 ## 5. EIC chapter coverage and references
 
-**Scope update (2026-11-14, user/team decision):** The current implementation
-contains only these three chapters, in order: DYAMOND Global Carbon Dioxide;
-Global Sea Surface Currents and Temperature; Change in Night Lights between
-2012 and 2023. The ten-resource list below records the earlier design scope.
+**Scope update (2026-11-14):** The merged implementation contains three chapters
+in order: DYAMOND Global Carbon Dioxide; Global Sea Surface Currents and
+Temperature; Change in Night Lights between 2012 and 2023. It opens on CO₂.
 The team also authorized temporary demo audio and long sample chapter text.
+Preserve the viewer capabilities supplied by the visualization integration:
 
+| Chapter / reference | Approved views | Reference background |
+| --- | --- | --- |
+| [DYAMOND Global Carbon Dioxide, SVS 5196](https://svs.gsfc.nasa.gov/5196/) | Globe | Blue Marble January 2004 with topography/bathymetry |
+| [Sea Surface Currents and Temperature, SVS 3912](https://svs.gsfc.nasa.gov/3912/#media_group_349716) | Globe (default) / Map | Blue Marble January 2004 with topography/bathymetry |
+| [Night Lights 2012–2023, SVS 5313](https://svs.gsfc.nasa.gov/5313/) | Map | Blue Marble January 2004 with topography/bathymetry |
 
-The team's design lists these ten EIC references. Treat them as intended scope; verify official challenge resource eligibility, data availability and usage rights before committing each chapter. The viewer choices are provisional; do not force every source onto a globe.
-
-| Chapter / reference | Candidate viewer |
-| --- | --- |
-| Data Sonification: Caldwell 73 | Media (astronomical sonification reference; verify whether eligible as an Earth chapter) |
-| Change in Night Lights between 2012 and 2023 - EIC Version | Globe / map |
-| Global Sea Surface Currents and Temperature | Globe / map / media |
-| GEOS Aerosols | Globe / media |
-| Air Quality Model Runs | Globe / map / media |
-| Perpetual Ocean 2: Western Boundary Currents | Globe / media |
-| DYAMOND Global Carbon Dioxide | Globe / media |
-| Lightning Events Detected from the ISS 2017-2023 | Globe / map |
-| A 3D View of an Atmospheric River from an Earth System Model | Media or specialized 3D |
-| GEDI Forest Height | Map / globe |
-
-References: [EIC](https://earth.gov/), [NASA SVS](https://svs.gsfc.nasa.gov/), [NASA Earthdata](https://www.earthdata.nasa.gov/). The original project design PDF remains the authoritative visual reference. Record exact source links and credits per chapter. Do not claim all ten are implemented when only previews or mock data exist. Prioritize one complete real-data chapter, then expand via the registry; any reduced scope must be agreed by the team.
+Globe/Map switching preserves coordinates and remembers the chapter's view until refresh; only one view mounts. Coordinates appear as unboxed lower-right text; lower-left −/+ tools replace the navigation board, with keyboard rotation/pan retained. Both viewers use red selection pins with contrasting white centers on borderless black viewports. The right page remains explanatory paper-style content for this phase; the earlier synchronized inspector guidance applies when scientific sample integration is agreed. An independent demo audio player is available; scientific sound mapping remains owned by the Sound teammate. Scientific layers and datasets are deferred; background imagery is historical geographic context, not measurements or evidence that source videos are directly reprojectable. Blue Marble is the approved default for all three chapters. Night Lights must receive lights from its future verified data layer; the previously sourced Black Marble asset is retained for provenance but is not used by the book. The original ten references are no longer the current delivery scope.
 
 ## 6. Implementation conventions
 

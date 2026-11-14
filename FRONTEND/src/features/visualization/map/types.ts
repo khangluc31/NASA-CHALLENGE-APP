@@ -20,6 +20,7 @@ export interface MapLayerContext {
 }
 
 export interface MapViewerProps {
+  embedded?: boolean
   className?: string
   label?: string
   interactionLocked?: boolean
