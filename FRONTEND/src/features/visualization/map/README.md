@@ -123,7 +123,8 @@ images. The layer is always enabled. A horizontal 2012–2023 range scrubber
 crossfades adjacent source years in either direction, without remounting the map,
 changing its navigation, or creating an independent playback timeline. Fractional
 years are display transitions only; the coarse cell lookup uses the nearest actual
-year. Year resets on chapter remount; selection retains existing host persistence.
+year. The book host controls year and selection, retaining both across chapter
+remounts until refresh. Standalone viewers retain a local year default.
 
 The original 180 × 90 JSON supplies validated cell lookup, with zero, missing and
 partial coverage kept distinct. It does not contain city-scale detail. The visual
@@ -137,7 +138,8 @@ retry. Transition locks disable the scrubber as well.
 Only the scrubber and year endpoints are visible below the map. Technical
 metadata and source credits live in the data/media READMEs and the existing
 right-page source link. Accessible encoding and sample text remain available to
-assistive technology. No right-page or sound contract changes are introduced.
+assistive technology. The existing right-page inspector slot now shows selected
+area history; sound remains independent. See `features/chapter/README.md`.
 The top-left reference label and historical-background caption were removed.
 
 See `public/data/night-lights/README.md` for extraction provenance and

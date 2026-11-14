@@ -12,9 +12,11 @@ interface HostProps extends BookSlotProps {
   location: GlobeLocation | null
   onViewChange: (view: 'globe' | 'map') => void
   onLocationSelect: (location: GlobeLocation | null) => void
+  nightLightsYear?: number
+  onNightLightsYearChange?: (year: number) => void
 }
 
-export function VisualizationHost({ chapter, isActive, interactionDisabled, view, location, onViewChange, onLocationSelect }: HostProps) {
+export function VisualizationHost({ chapter, isActive, interactionDisabled, view, location, onViewChange, onLocationSelect, nightLightsYear, onNightLightsYearChange }: HostProps) {
   if (chapter.viewer === 'media') return <VisualizationPreview chapter={chapter} />
   const views = chapter.supportedViews ?? [chapter.viewer]
   const activeView = view && views.includes(view) ? view : chapter.viewer
@@ -38,7 +40,7 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
     {activeView === 'globe'
       ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />
       : chapter.id === 'night-lights'
-        ? <NightLightsMap key={`${chapter.id}:map`} {...common} surfaceImage={surface} />
+        ? <NightLightsMap key={`${chapter.id}:map`} {...common} surfaceImage={surface} year={nightLightsYear} onYearChange={onNightLightsYearChange} />
         : <MapViewer key={`${chapter.id}:map`} {...common} surfaceImage={surface} />}
   </section>
 }

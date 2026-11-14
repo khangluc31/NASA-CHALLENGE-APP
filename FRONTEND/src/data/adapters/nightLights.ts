@@ -79,3 +79,19 @@ export function sampleNightLights(frame: NightLightsFrame, location: GlobeLocati
   return { year: frame.year, row, column, coverage: frame.coverage[index],
     value: frame.coverage[index] > 0 ? frame.values[index] : null }
 }
+
+/** One immutable series drives the inspector numbers and chart. No interpolation. */
+export function getNightLightsArea(data: NightLightsData, location: GlobeLocation, year: number) {
+  if (!isGlobeLocation(location) || !Number.isFinite(year)) return null
+  const series = data.frames.map(frame => sampleNightLights(frame, location)).filter(sample => sample !== null)
+  const current = series.find(sample => sample.year === Math.round(year))
+  const baseline = series.find(sample => sample.year === 2012)
+  if (!current || !baseline) return null
+  const comparable = current.value !== null && baseline.value !== null && current.coverage === 1 && baseline.coverage === 1
+  return {
+    series, current,
+    delta: comparable && current.value !== null && baseline.value !== null ? current.value - baseline.value : null,
+    bounds: { north: 90 - current.row * 2, south: 88 - current.row * 2,
+      west: -180 + current.column * 2, east: -178 + current.column * 2 },
+  }
+}

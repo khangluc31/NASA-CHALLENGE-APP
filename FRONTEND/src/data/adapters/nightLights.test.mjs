@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { parseNightLights, sampleNightLights } from './nightLights.ts'
+import { parseNightLights, sampleNightLights, getNightLightsArea } from './nightLights.ts'
 
 const asset = JSON.parse(readFileSync(new URL('../../../public/data/night-lights/map.json', import.meta.url), 'utf8'))
 const data = parseNightLights(asset)
@@ -12,6 +12,38 @@ test('actual asset contains all annual grids with normalized values and coverage
   assert.equal(data.frames.at(-1).year, 2023)
   assert.equal(data.frames[0].values.length, 16200)
   assert.ok(data.frames.some(frame => frame.coverage.some(cover => cover === 0)))
+})
+
+test('area series and comparison come from the same cell and nearest actual year', () => {
+  const location = { latitude: 21, longitude: 105 }
+  const area = getNightLightsArea(data, location, 2022.75)
+  assert.equal(area.current.year, 2023)
+  assert.equal(area.series.length, 12)
+  for (let i = 0; i < 12; i++) assert.deepEqual(area.series[i], sampleNightLights(data.frames[i], location))
+  assert.deepEqual(area.bounds, { north: 22, south: 20, west: 104, east: 106 })
+  if (area.current.coverage === 1 && area.series[0].coverage === 1) {
+    assert.equal(area.delta, area.current.value - area.series[0].value)
+  }
+  assert.equal(getNightLightsArea(data, { latitude: 91, longitude: 0 }, 2023), null)
+  assert.equal(getNightLightsArea(data, location, NaN), null)
+  assert.equal(getNightLightsArea(data, location, 2024), null)
+})
+
+test('comparison preserves negative changes and valid zeros; partial/missing years are not compared', () => {
+  const source = structuredClone(data)
+  for (const frame of source.frames) { frame.values[0] = 0.8; frame.coverage[0] = 1 }
+  const location = { latitude: 90, longitude: -180 }
+  source.frames[11].values[0] = 0
+  assert.equal(getNightLightsArea(source, location, 2023).delta, -0.8)
+  source.frames[11].coverage[0] = 0.5
+  assert.equal(getNightLightsArea(source, location, 2023).current.value, 0)
+  assert.equal(getNightLightsArea(source, location, 2023).delta, null)
+  source.frames[11].coverage[0] = 1
+  source.frames[0].coverage[0] = 0
+  const area = getNightLightsArea(source, location, 2023)
+  assert.equal(area.delta, null)
+  assert.equal(area.series[0].value, null)
+  assert.equal(area.series[11].value, 0)
 })
 
 test('adapter rejects malformed schema, years, grid lengths and nonfinite values', () => {

@@ -81,3 +81,11 @@ The visible background image-source link is removed from the book by agreement. 
 The embedded scene background is black (`#000`) for both globe canvas surroundings and map viewport/reference-grid background, using the same host CSS variable. Both viewers use the locally optimized NASA January 2004 Blue Marble with topography and bathymetry. Its brighter ocean shading is part of the source image; it is not a chapter measurement layer or actual 3D relief. Texture/image and viewer-recovery retry buttons fit their labels with 5px/8px padding and a 30px minimum height. Texture retry remains disabled during transition locks.
 
 Night Lights presentation refinement: the layer is always visible. A horizontal year scrubber crossfades adjacent NASA annual lights-only images from SVS 5276; JSON remains the coarse lookup source. Numeric descriptions are hidden from the visual controls. Host top-left reference labels and historical-background captions are removed; view switching remains upper-right. See public/media/night-lights/README.md.
+
+Selected-area integration: `useBookVisualization` supplies the existing
+`renderInspector` slot with `ChapterNotes` and its optional selected-area view.
+Night Lights year and coordinates share feature-owned per-chapter state, without
+a new global store, book slot or audio mapping. The pure `getNightLightsArea`
+adapter derives current brightness, annual series and coverage-aware comparison.
+Selections open the inspector, notes remain accessible, and Clear returns to
+Overview. See `features/chapter/README.md`.

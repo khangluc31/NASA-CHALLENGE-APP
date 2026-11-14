@@ -7,10 +7,16 @@ import { NightLightsLayer } from './layers/NightLightsLayer'
 import { sampleNightLights } from '../../../data/adapters/nightLights'
 import './night-lights.css'
 
-export function NightLightsMap(props: Omit<MapViewerProps, 'layers' | 'contentState' | 'layerDescription'>) {
+interface NightLightsMapProps extends Omit<MapViewerProps, 'layers' | 'contentState' | 'layerDescription'> {
+  year?: number
+  onYearChange?: (year: number) => void
+}
+
+export function NightLightsMap({ year: controlledYear, onYearChange, ...props }: NightLightsMapProps) {
   const { result, retry } = useNightLights()
   const imagery = useNightLightsImages()
-  const [year, setYear] = useState(2012)
+  const [localYear, setLocalYear] = useState(2012)
+  const year = controlledYear ?? localYear
   const yearId = useId()
   const frame = result.status === 'ready' ? result.data.frames.find((frame) => frame.year === Math.round(year)) : undefined
   const sample = frame && props.selectedLocation ? sampleNightLights(frame, props.selectedLocation) : null
@@ -31,7 +37,7 @@ export function NightLightsMap(props: Omit<MapViewerProps, 'layers' | 'contentSt
         <output htmlFor={yearId}>{Math.round(year)}</output>
         <input id={yearId} type="range" min={2012} max={2023} step={0.01} value={year} disabled={locked}
           aria-valuetext={Number.isInteger(year) ? `${year}` : `Transition from ${Math.floor(year)} to ${Math.ceil(year)}`}
-          onChange={(event) => setYear(Number(event.target.value))} />
+          onChange={(event) => { const next = Number(event.target.value); if (onYearChange) onYearChange(next); else setLocalYear(next) }} />
         {failed && <button type="button" disabled={props.interactionLocked} onClick={() => {
           if (result.status === 'error') retry()
           if (imagery.result.status === 'error') imagery.retry()
