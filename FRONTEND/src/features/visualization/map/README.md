@@ -81,7 +81,7 @@ Wheel events outside the focused map retain page scrolling. Arrow keys pan,
 +/− zoom and Home resets; buttons and a validated coordinate form provide
 keyboard alternatives. A drag over five CSS pixels and multitouch gestures
 cannot select a location. Selection is announced as text and marked by a
-bright gold dot. Navigation is immediate without inertia or animations,
+red teardrop pin with a white center. Navigation is immediate without inertia or animations,
 including for reduced-motion users. The SVG scales with the book page width.
 
 ## Structure

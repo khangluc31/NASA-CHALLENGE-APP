@@ -35,8 +35,6 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
     {activeView === 'globe'
       ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />
       : <MapViewer key={`${chapter.id}:map`} {...common} surfaceImage={surface} />}
-    <p className="book-visualization__caption"><span>Historical background · Layers pending</span>
-      <a href={surface.sourceUrl} target="_blank" rel="noreferrer" title={surface.attribution} aria-label={`Image source: ${surface.attribution}`}>Image source ↗</a>
-    </p>
+    <p className="book-visualization__caption">Historical background · Layers pending</p>
   </section>
 }

@@ -59,6 +59,14 @@ the browser and report actual results.
 
 `useBookVisualization.tsx` owns per-chapter view/coordinate state above the disposable slots. App supplies it through `BookExperience.bookProps`. State survives flips and cover closing, and resets on refresh. Only the active viewer mounts; switching view resets local camera/pan/zoom but retains coordinates. Both `!isActive` and `interactionDisabled` lock the viewer. The existing shell unmounts scenes during flips and while closed.
 
-`embedded` enables compact viewer presentation: plain lower-right coordinates, lower-left −/+ zoom tools, drag/select hints, an optional coordinate-entry popover, and a separate image-source link. The host CSS uses the atlas palette; no page geometry changes. Globe drawing buffers are preserved so existing DOM snapshots can copy the outgoing scene without a second Canvas. Verify snapshot appearance and performance in the presentation browser.
+`embedded` enables compact viewer presentation: plain lower-right coordinates, lower-left −/+ zoom tools, drag/select hints, an optional coordinate-entry popover, with image attribution retained in the texture documentation. The host CSS uses the atlas palette; no page geometry changes. Globe drawing buffers are preserved so existing DOM snapshots can copy the outgoing scene without a second Canvas. Verify snapshot appearance and performance in the presentation browser.
 
 Future layers use the existing globe R3F `layers(context)` or map SVG `layers(context)` callback. Resolve coordinates through Data's future adapter before supplying measurements or Sound. Current ready state means a usable reference viewer only; no chapter layer or numerical dataset is claimed. The right-page notes remain explanatory; audio is unchanged and disabled.
+
+## Compact controls refinement
+
+The view selector floats over the upper-right scene corner; the entire header is an overlay, so chapters with/without switching use the same scene height. Header labels pass pointer events through, while toggle buttons remain interactive. Lower-left zoom tools and plain lower-right coordinates remain unchanged.
+
+Coordinate entry wraps its contents rather than filling the scene width. Numeric fields have a fixed 12ch width with internal scrolling for longer values, no native spinner, and modest padding. Select/Clear buttons fit their labels. The field/button grid stays bounded by the viewer on narrow screens. Keyboard focus on the map/globe uses the atlas cyan; pointer focus shows no frame. Selection pins are flat red teardrops with contrasting centers. The globe pin is camera-facing, tip-anchored and hidden on the far side; the map pin retains its size across zoom levels.
+
+The visible background image-source link is removed from the book by agreement. Provenance remains in public/textures/README.md; chapter source links remain on the right page. Standalone viewers retain their full attribution and control interfaces.

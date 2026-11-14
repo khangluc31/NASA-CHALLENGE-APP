@@ -52,8 +52,8 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
         <input id={latitudeId} name="latitude" type="number" min={-90} max={90} step="any" required />
         <label htmlFor={longitudeId}>Longitude (−180 to 180°)</label>
         <input id={longitudeId} name="longitude" type="number" min={-180} max={180} step="any" required />
-        <button type="submit">Select location</button>
-        <button type="button" disabled={!selection} onClick={() => onLocationSelect(null)}>Clear selection</button>
+        <button type="submit">{embedded ? 'Select' : 'Select location'}</button>
+        <button type="button" disabled={!selection} onClick={() => onLocationSelect(null)}>{embedded ? 'Clear' : 'Clear selection'}</button>
       </div>
     </fieldset>
   </form>

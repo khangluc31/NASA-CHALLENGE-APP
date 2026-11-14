@@ -97,4 +97,4 @@ The optional `embedded` prop enables plain lower-right coordinate output and low
 
 The Canvas preserves its drawing buffer for the book’s outgoing page snapshots. Check the performance tradeoff and visual continuity in the target browser; no second live scene is created.
 
-The gold globe marker is a camera-facing flat disc with depth testing, so Earth occludes selections on its far side. Focus the globe for arrow-key rotation, +/− zoom, or Home reset; dragging remains the pointer rotation control.
+The red globe marker is a camera-facing flat teardrop with a white center. Its tip anchors the location; the entire pin hides when its anchor rotates to Earth’s far side, and depth testing preserves surface occlusion. Focus the globe for arrow-key rotation, +/− zoom, or Home reset; dragging remains the pointer rotation control.
