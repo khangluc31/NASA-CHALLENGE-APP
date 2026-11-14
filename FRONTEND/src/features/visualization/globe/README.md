@@ -93,6 +93,8 @@ mount/unmount should be checked again when integrating the globe into the book.
 
 ## Book embedding
 
-The optional `embedded` prop enables a scene-corner coordinate output and collapsible controls/credits. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.
+The optional `embedded` prop enables plain lower-right coordinate output and lower-left −/+ zoom tools, with a discreet coordinate-entry popover. The old navigation board is absent in the book; standalone viewers retain their full controls. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.
 
 The Canvas preserves its drawing buffer for the book’s outgoing page snapshots. Check the performance tradeoff and visual continuity in the target browser; no second live scene is created.
+
+The gold globe marker is a camera-facing flat disc with depth testing, so Earth occludes selections on its far side. Focus the globe for arrow-key rotation, +/− zoom, or Home reset; dragging remains the pointer rotation control.

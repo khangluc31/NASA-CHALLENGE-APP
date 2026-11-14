@@ -81,7 +81,7 @@ Wheel events outside the focused map retain page scrolling. Arrow keys pan,
 +/− zoom and Home resets; buttons and a validated coordinate form provide
 keyboard alternatives. A drag over five CSS pixels and multitouch gestures
 cannot select a location. Selection is announced as text and marked by a
-contrasting crosshair. Navigation is immediate without inertia or animations,
+bright gold dot. Navigation is immediate without inertia or animations,
 including for reduced-motion users. The SVG scales with the book page width.
 
 ## Structure
@@ -114,4 +114,4 @@ preview route in the application.
 
 ## Book embedding
 
-The optional `embedded` prop enables a scene-corner coordinate output and collapsible controls/credits. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.
+The optional `embedded` prop enables plain lower-right coordinate output and lower-left −/+ zoom tools, with a discreet coordinate-entry popover. The old navigation board is absent in the book; standalone viewers retain their full controls. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.

@@ -9,7 +9,7 @@ import { MapSurface } from './components/MapSurface'
 import { MapNavigationControls } from './components/MapNavigationControls'
 import { SelectionMarker } from './components/SelectionMarker'
 import { MapErrorBoundary } from './components/MapErrorBoundary'
-import { CoordinateReadout } from '../CoordinateReadout'
+import { ViewerTools } from '../ViewerTools'
 import './map.css'
 
 export function MapViewer({ className = '', label = 'Interactive map', ...props }: MapViewerProps) {
@@ -44,6 +44,20 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
     if (isMapLocation(location)) onLocationSelect?.(location)
   }
 
+  const coordinateForm = onLocationSelect && <form onSubmit={submitLocation}>
+    <fieldset disabled={!canSelect}>
+      <legend>Select geographic coordinates</legend>
+      <div className="map-viewer__controls">
+        <label htmlFor={latitudeId}>Latitude (−90 to 90°)</label>
+        <input id={latitudeId} name="latitude" type="number" min={-90} max={90} step="any" required />
+        <label htmlFor={longitudeId}>Longitude (−180 to 180°)</label>
+        <input id={longitudeId} name="longitude" type="number" min={-180} max={180} step="any" required />
+        <button type="submit">Select location</button>
+        <button type="button" disabled={!selection} onClick={() => onLocationSelect(null)}>Clear selection</button>
+      </div>
+    </fieldset>
+  </form>
+
   return <>
     <p className={embedded ? 'viewer-instructions-sr' : undefined} id={instructionsId}>Drag to pan; pinch to zoom. Focus the map to zoom with the scroll wheel.
       Use arrow keys to pan, +/− to zoom, and Home to reset, or use the buttons below.
@@ -59,7 +73,6 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
       })}
       {selection && <SelectionMarker location={selection} zoom={navigation.view.zoom} />}
     </MapSurface>
-    {embedded && <CoordinateReadout location={selection} />}
     </div>
     <div role="status" aria-live="polite">
       {image.status === 'loading' && <p>Loading reference map…</p>}
@@ -69,23 +82,13 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
       {interactionLocked && <p>Map interaction is paused during the page transition.</p>}
       <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
     </div>
-    <details className="viewer-options" open={embedded ? undefined : true}>
+    {embedded && <ViewerTools locked={locked} location={selection} onZoom={navigation.act}
+      hint="Drag to pan · Click to select">{coordinateForm}</ViewerTools>}
+    {embedded && layerDescription && <p className="viewer-instructions-sr">{layerDescription}</p>}
+    {!embedded && <details className="viewer-options" open>
       <summary>Controls &amp; image credits</summary>
-      {embedded && <p>Drag to pan; pinch to zoom. Focus the map for wheel zoom. Arrow keys pan; +/− zoom; Home resets. Click to select a location.</p>}
       <MapNavigationControls locked={locked} view={navigation.view} onAction={navigation.act} />
-      {onLocationSelect && <form onSubmit={submitLocation}>
-        <fieldset disabled={!canSelect}>
-          <legend>Select geographic coordinates</legend>
-          <div className="map-viewer__controls">
-            <label htmlFor={latitudeId}>Latitude (−90 to 90°)</label>
-            <input id={latitudeId} name="latitude" type="number" min={-90} max={90} step="any" required />
-            <label htmlFor={longitudeId}>Longitude (−180 to 180°)</label>
-            <input id={longitudeId} name="longitude" type="number" min={-180} max={180} step="any" required />
-            <button type="submit">Select location</button>
-            <button type="button" disabled={!selection} onClick={() => onLocationSelect(null)}>Clear selection</button>
-          </div>
-        </fieldset>
-      </form>}
+      {coordinateForm}
       {!surfaceImage && <p>Reference coordinate grid; no scientific data is represented by its surface.</p>}
       {surfaceImage && <p>{surfaceImage.attribution}{surfaceImage.sourceUrl && <>
         {' '}<a href={surfaceImage.sourceUrl}>Image source</a>
@@ -93,6 +96,6 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
       <p>Equirectangular projection; polar regions are distorted. The reference surface supplies geographic context, not chapter measurements.</p>
       {layerDescription && <p>{layerDescription}</p>}
       {onLocationSelect && <p>A selected coordinate must be resolved by the chapter’s data adapter before displaying measurements or playing audio.</p>}
-    </details>
+    </details>}
   </>
 }

@@ -86,7 +86,7 @@ Mobile uses stacked pages and a short fade instead of rotating a narrow spread.
 
 ## Imagery and data honesty
 
-The Night Lights chapter uses a locally bundled NASA Black Marble 2016 background and preview. It is not the 2012–2023 comparison layer. Ocean and CO2 use the existing local Blue Marble January 2004 background. See public/textures/README.md for provenance. Official chapter links are recorded in chapters.ts. Decorative cover and landing imagery still use remote NASA SVS 4019 assets; Google Fonts also require network access.
+All three chapters use the local Blue Marble January 2004 reference background; Night Lights also uses it for its static preview. Night Lights will receive light patterns only from the future verified dataset layer, not from baked-in Black Marble imagery. See public/textures/README.md for provenance. Official chapter links are recorded in chapters.ts. Decorative cover and landing imagery still use remote NASA SVS 4019 assets; Google Fonts also require network access.
 
 ## Run and acceptance
 
@@ -160,4 +160,4 @@ locally before an offline presentation. Terminal downloading remained unavailabl
 
 ## Viewer integration behavior
 
-The `viewer` field remains the default; `supportedViews` allows Ocean's Globe/Map switch. The compact host retains selected coordinates and per-chapter view choice above the slot through flips/close until refresh. Coordinates appear in a viewer corner, never as a right-page measurement inspector. The right page remains explanatory content; audio remains the unchanged disabled placeholder. Embedded controls and image credits expand within the viewer rather than changing book geometry. Live scene snapshots use preserved WebGL drawing buffers; manual visual/performance acceptance is still required.
+The `viewer` field remains the default; `supportedViews` allows Ocean's Globe/Map switch. The compact host retains selected coordinates and per-chapter view choice above the slot through flips/close until refresh. Coordinates appear as unboxed text at the viewer’s lower right, never as a right-page measurement inspector. The right page remains explanatory content; audio remains the unchanged disabled placeholder. Embedded viewers use lower-left −/+ tools, drag/select hints, an optional coordinate-entry popover, and a discreet image-source link. Gold dots mark selection. Keyboard arrows still rotate/pan without visible directional buttons. Scene backgrounds are black and borderless; footer contents wrap on narrow pages. Live scene snapshots use preserved WebGL drawing buffers; manual visual/performance acceptance is still required.

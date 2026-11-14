@@ -36,4 +36,4 @@ allows it to be retrieved again.
 - Full-world equirectangular reference image: west to east −180..180°, north at top; no cropping, resizing, recoloring, or other processing.
 - SHA-256: `d87de751a264e4f8ff69c68de5dab9606daee87a6f15ae743c93200743bd7ec1`.
 
-Used only as Night Lights' historical background/preview. This is 2016 imagery, not either endpoint or the 2012–2023 change layer. No pixel-to-measurement sampling is implemented. Verify landmark alignment in the presentation browser before adding scientific overlays.
+Retained as an unused sourced asset for provenance. The book now uses Blue Marble for Night Lights background/preview; light patterns will come only from a verified dataset layer. This is 2016 imagery, not either endpoint or the 2012–2023 change layer. No pixel-to-measurement sampling is implemented. Verify landmark alignment in the presentation browser before adding scientific overlays.

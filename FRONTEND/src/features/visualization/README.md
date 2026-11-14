@@ -55,10 +55,10 @@ the browser and report actual results.
 
 ## Approved three-chapter integration
 
-`VisualizationHost.tsx` adapts `BookSlotProps` to viewer props: Night Lights is map-only with Black Marble 2016; Ocean defaults to globe and supports map; CO2 is globe-only with Blue Marble. `BookChapter.viewer` is the default and optional `supportedViews` lists permitted geographic views. These are presentation contracts, not scientific data contracts.
+`VisualizationHost.tsx` adapts `BookSlotProps` to viewer props: Night Lights is map-only with Blue Marble January 2004; Ocean defaults to globe and supports map; CO2 is globe-only with Blue Marble. `BookChapter.viewer` is the default and optional `supportedViews` lists permitted geographic views. These are presentation contracts, not scientific data contracts.
 
 `useBookVisualization.tsx` owns per-chapter view/coordinate state above the disposable slots. App supplies it through `BookExperience.bookProps`. State survives flips and cover closing, and resets on refresh. Only the active viewer mounts; switching view resets local camera/pan/zoom but retains coordinates. Both `!isActive` and `interactionDisabled` lock the viewer. The existing shell unmounts scenes during flips and while closed.
 
-`embedded` enables compact viewer presentation: corner coordinate output and a disclosure for controls/credits. The host CSS uses the atlas palette; no page geometry changes. Globe drawing buffers are preserved so existing DOM snapshots can copy the outgoing scene without a second Canvas. Verify snapshot appearance and performance in the presentation browser.
+`embedded` enables compact viewer presentation: plain lower-right coordinates, lower-left −/+ zoom tools, drag/select hints, an optional coordinate-entry popover, and a separate image-source link. The host CSS uses the atlas palette; no page geometry changes. Globe drawing buffers are preserved so existing DOM snapshots can copy the outgoing scene without a second Canvas. Verify snapshot appearance and performance in the presentation browser.
 
 Future layers use the existing globe R3F `layers(context)` or map SVG `layers(context)` callback. Resolve coordinates through Data's future adapter before supplying measurements or Sound. Current ready state means a usable reference viewer only; no chapter layer or numerical dataset is claimed. The right-page notes remain explanatory; audio is unchanged and disabled.
