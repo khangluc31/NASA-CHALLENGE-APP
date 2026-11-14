@@ -4,13 +4,13 @@
 const cache = new WeakMap(); // img -> canvas (không vẽ lại mỗi lần bấm)
 
 function getCanvas(img) {
-  let c = cache.get(img);
+  let c = cache.get(img);//check xem đã có canvas cho img chưa, nếu chưa thì tạo mới và vẽ img lên canvas
   if (!c) {
-    c = document.createElement("canvas");
-    c.width = img.naturalWidth;
+    c = document.createElement("canvas"); // create canvas
+    c.width = img.naturalWidth; // kích thước gốc thực tế của file ảnh
     c.height = img.naturalHeight;
     c.getContext("2d", { willReadFrequently: true }).drawImage(img, 0, 0);
-    cache.set(img, c);
+    cache.set(img, c); // lưu vào weakmap
   }
   return c;
 }
@@ -38,14 +38,15 @@ function rgbToHsv(r, g, b) {
  * Lưu ý: giả định ảnh hiển thị đủ khung, không bị object-fit: cover cắt mất.
  */
 export function pickFromImage(img, event, grid) {
-  const rect = img.getBoundingClientRect();
-  const fx = (event.clientX - rect.left) / rect.width;   // 0..1 trên ảnh hiển thị
-  const fy = (event.clientY - rect.top) / rect.height;
+  const rect = img.getBoundingClientRect(); // lấy left,top w,h của img
+  const fx = (event.clientX - rect.left) / rect.width;    // 0..1 trên ảnh hiển thị
+  const fy = (event.clientY - rect.top) / rect.height;    // chia rect.height để ra tỷ lệ tương đối của ảnh
+              // tọa độ mouse (mouse Event)
   const px = Math.min(img.naturalWidth - 1, Math.max(0, Math.floor(fx * img.naturalWidth)));
   const py = Math.min(img.naturalHeight - 1, Math.max(0, Math.floor(fy * img.naturalHeight)));
 
   // Lấy trung bình vùng 5x5 quanh điểm bấm: pixel đơn lẻ dễ trúng nhiễu
-  const R = 2;
+  const R = 2; // radius = 2px, mở rộng 2px trên dưới trái phải + 1 px ở giữa => 5px
   const x0 = Math.max(0, px - R), y0 = Math.max(0, py - R);
   const w = Math.min(img.naturalWidth - x0, 2 * R + 1);
   const h = Math.min(img.naturalHeight - y0, 2 * R + 1);
@@ -60,6 +61,6 @@ export function pickFromImage(img, event, grid) {
   const col = Math.min(grid.cols - 1, Math.max(0, Math.floor(((px - cx0) / (cx1 - cx0)) * grid.cols)));
   const row = Math.min(grid.rows - 1, Math.max(0, Math.floor(((py - cy0) / (cy1 - cy0)) * grid.rows)));
   const rowFrac = 1 - row / Math.max(1, grid.rows - 1);
-
+  
   return { ...color, rowFrac, col, row, inGrid };
 }
