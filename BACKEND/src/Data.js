@@ -105,7 +105,7 @@ export function normalizeFrame(
       warmRatio: 0,
       edgeDensity: frame.stats?.edge ?? 0,
       urgency: frame.stats?.urgency ?? (maxDelta > 0 ? Math.min(1, delta / maxDelta) : 0),
-      // SỬA ĐỔI #9: số ô đổi so với năm gốc (null nếu không bật nhấn mạnh thay đổi)
+      // SỬA ĐỔI #09: số ô đổi so với năm gốc (null nếu không bật nhấn mạnh thay đổi)
       change: base ? { up, down, since: base.year ?? null } : null,
     },
   };

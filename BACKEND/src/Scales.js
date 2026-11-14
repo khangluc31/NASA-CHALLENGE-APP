@@ -1,4 +1,4 @@
-// scales.js — thang âm, đổi hàng ảnh thành cao độ, đổi hue thành độ ấm
+// scales.js : thang âm, đổi hàng ảnh thành cao độ, đổi hue thành độ ấm
 
 /* 1. THANG ÂM (semitone offsets so với root)                          */
 export const SCALES = {

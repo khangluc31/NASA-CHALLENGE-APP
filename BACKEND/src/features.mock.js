@@ -1,4 +1,4 @@
-// features.mock.js — dữ liệu giả giống ảnh night lights (nền tối + vài cụm sáng)
+// features.mock.jss — dữ liệu giả giống ảnh night lights (nền tối + vài cụm sáng)
 // Dùng để test audio.js ngay, không cần chờ Người 3 phân tích ảnh.
 
 export function makeMockFeatures(cols = 96, rows = 16) {

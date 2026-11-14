@@ -17,10 +17,6 @@ export class AudioEngine {
   constructor({ baseBpm = 90 } = {}) {
     this.baseBpm = baseBpm;
     this.features = null;
-
-  // ════════════════════════════════════════════════════════════════
-  // SỬA ĐỔI #1: TRẠNG THÁI MỚI TRONG constructor (dữ liệu nhiều năm, timeline, nhấn mạnh thay đổi)
-  // ════════════════════════════════════════════════════════════════
     this.data = null; // dữ liệu thô nhiều năm (null nếu nạp dạng cũ)
     this.frameIndex = 0; // frame (năm) đang chọn
     this._maxDelta = 0; // deltaFromPrev dương lớn nhất, để chuẩn hóa mức cấp bách
@@ -30,7 +26,6 @@ export class AudioEngine {
     this._ending = false; // đã phát cột cuối, đang chờ stop() (chặn lặp lại cột cuối)
     this.frameListeners = new Set(); // callback onFrame
     this.changeEmphasis = false; // true = làm nổi ô đổi so với năm gốc
-  // ─────────────── HẾT SỬA ĐỔI #1 ───────────────
 
     this.col = 0;
     this.speed = 1;

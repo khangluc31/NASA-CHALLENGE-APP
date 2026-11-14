@@ -260,7 +260,7 @@ $("scale").onchange = (e) => { engine.setScale(e.target.value); log("Thang âm: 
 $("urgency").onchange = (e) => { engine.setUrgencyMode(e.target.checked); log("Cấp bách: " + (e.target.checked ? "BẬT" : "tắt")); };
 
 $("hueByLight").onchange = (e) => {
-  // mờ = lam đậm (230°), sáng = vàng rực (58°). Chỉ để nghe thử, chưa phải quyết định cuối.
+  // mờ = lam đậm (230°), sáng = vàng rực (58°). Chỉ để nghe thử, chưa phải quyết định cuối..
   engine.setHueMapper(e.target.checked ? (light) => 230 - 172 * light : null);
   if (engine.features) showFeatures(e.target.checked ? "hue theo độ sáng: BẬT" : "hue cố định");
   log("Hue theo độ sáng: " + (e.target.checked ? "BẬT (mờ=lam đậm, sáng=vàng rực)" : "tắt (hue cố định 45)"));

@@ -1,4 +1,4 @@
-// notes.js — featuresToNotes: một cột dữ liệu -> tối đa N nốt
+// notes.js — featuresToNotes: một cột dữ liệu --> tối đa N nốt
 import { quantize, rowToMidi, hueToWarmth } from "./Scales.js";
 
 /* 2. featuresToNotes: 1 cột ảnh -> tối đa N nốt                       */

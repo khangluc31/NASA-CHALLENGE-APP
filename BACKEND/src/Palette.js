@@ -1,4 +1,4 @@
-// palette.js — 10 điểm neo màu -> âm sắc (họa âm, FM, filter, ADSR) và colorToVoice
+// palette.js — 10 điểm neo màu --> âm sắc (họa âm, FM, filter, ADSR) và colorToVoice
 import { LOW_MIDI, HIGH_MIDI, quantize, hueToWarmth } from "./Scales.js";
 
 /* 1B. BẢNG 10 ĐIỂM NEO MÀU SẮC TRÊN VÒNG TRÒN HUE (0° - 360°)        */

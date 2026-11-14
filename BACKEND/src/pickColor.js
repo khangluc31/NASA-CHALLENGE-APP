@@ -34,7 +34,7 @@ function rgbToHsv(r, g, b) {
  * @param event  sự kiện click (hoặc pointerdown)
  * @param grid   { cols:96, rows:16, crop:[x0,y0,x1,y1] }  PHẢI trùng CROP lúc tạo features
  * @returns      { hue, sat, light, rowFrac, col, row, inGrid }
- *
+ 
  * Lưu ý: giả định ảnh hiển thị đủ khung, không bị object-fit: cover cắt mất.
  */
 export function pickFromImage(img, event, grid) {
