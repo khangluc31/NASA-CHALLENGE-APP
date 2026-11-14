@@ -1,0 +1,49 @@
+{
+  "sourceUrl": "https://svs.gsfc.nasa.gov/5313/",
+  "originalSha256": "31ae9bcf9d1a1ad50c15f45bf0a4702d6e941258c86b6f2400922fb1b652481a",
+  "source": {
+    "video": "night_lights.mp4",
+    "fps": 29.97002997002997,
+    "width": 4096,
+    "height": 2048
+  },
+  "calibration": {
+    "method": "global_percentile",
+    "background_frame": 960,
+    "background_subtraction": "clip(current - background, 0, 255)",
+    "bg": 0,
+    "ref": 37,
+    "normalization": "clip((value - bg) / (ref - bg), 0, 1)"
+  },
+  "mask": {
+    "boxes": [
+      [
+        1000,
+        1085,
+        640,
+        1000
+      ],
+      [
+        1000,
+        1085,
+        1665,
+        2020
+      ],
+      [
+        1000,
+        1085,
+        2730,
+        3085
+      ],
+      [
+        1000,
+        1085,
+        3745,
+        4096
+      ]
+    ],
+    "valid_pixels": 8267823,
+    "excluded_pixels": 120785
+  },
+  "processing": "Lossless column-major to row-major conversion of data grid; no rounding. Audio grids and global statistics omitted. Video-derived normalized brightness, not radiance."
+}

@@ -1,7 +1,7 @@
 # Visualization — FE B
 
 FE B owns this feature. Follow [the project guideline](../../../guideline/README.md)
-before adding implementation. Globe and map foundations are integrated through the book’s visualization slot. Scientific layers and media playback remain unimplemented.
+before adding implementation. Globe and map foundations are integrated through the book’s visualization slot. Night Lights now has an annual video-derived brightness layer; Ocean/CO₂ layers and scientific media playback remain unimplemented.
 
 ## Structure
 
@@ -63,6 +63,13 @@ the browser and report actual results.
 
 Future layers use the existing globe R3F `layers(context)` or map SVG `layers(context)` callback. Resolve coordinates through Data's future adapter before supplying measurements or Sound. Current ready state means a usable reference viewer only; no chapter layer or numerical dataset is claimed. The right-page notes remain explanatory; audio is unchanged and disabled.
 
+Night Lights update: its host now uses `NightLightsMap`, with validated annual
+brightness grids, NASA detailed annual overlays, a continuous year scrubber and coordinate-to-cell lookup.
+Ready state includes this video-derived visual proxy, not radiance measurements.
+Other chapters retain reference-only viewers. Right-page content and the
+independent demo audio remain unchanged. See `map/README.md` and
+`public/data/night-lights/README.md` for extraction and display limitations.
+
 ## Compact controls refinement
 
 All chapters display the current mode as text in the same upper-right overlay position. In Ocean, this is a borderless cyan text action that cycles Globe ↔ Map, with a hover/focus treatment and an accessible label naming the next view. Single-view chapters show a noninteractive label with the same spacing. The native button semantics remain for keyboard access; there is no segmented button group. The header passes pointer events through except on the mode action. Scene height is unchanged by mode availability.
@@ -72,3 +79,5 @@ Coordinate entry wraps its contents rather than filling the scene width. Numeric
 The visible background image-source link is removed from the book by agreement. Provenance remains in public/textures/README.md; chapter source links remain on the right page. Standalone viewers retain their full attribution and control interfaces.
 
 The embedded scene background is black (`#000`) for both globe canvas surroundings and map viewport/reference-grid background, using the same host CSS variable. Both viewers use the locally optimized NASA January 2004 Blue Marble with topography and bathymetry. Its brighter ocean shading is part of the source image; it is not a chapter measurement layer or actual 3D relief. Texture/image and viewer-recovery retry buttons fit their labels with 5px/8px padding and a 30px minimum height. Texture retry remains disabled during transition locks.
+
+Night Lights presentation refinement: the layer is always visible. A horizontal year scrubber crossfades adjacent NASA annual lights-only images from SVS 5276; JSON remains the coarse lookup source. Numeric descriptions are hidden from the visual controls. Host top-left reference labels and historical-background captions are removed; view switching remains upper-right. See public/media/night-lights/README.md.

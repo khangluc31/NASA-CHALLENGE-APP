@@ -3,6 +3,7 @@ import { VisualizationPreview } from '../book/components/BookPlaceholders'
 import { GlobeViewer } from './globe'
 import type { GlobeLocation } from './globe'
 import { MapViewer } from './map'
+import { NightLightsMap } from './map/NightLightsMap'
 import { BLUE_MARBLE_TEXTURE } from './globe/surfaceTexture'
 import './visualization.css'
 
@@ -19,7 +20,7 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
   const activeView = view && views.includes(view) ? view : chapter.viewer
   const nextView = views.find(item => item !== activeView)
   const locked = !isActive || interactionDisabled
-  // Lights must come from the future data layer, not baked-in reference imagery.
+  // Chapter layers remain separate from the shared geographic reference imagery.
   const surface = BLUE_MARBLE_TEXTURE
   const common = {
     embedded: true, interactionLocked: locked, selectedLocation: location,
@@ -27,7 +28,7 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
   }
   return <section className="book-visualization" aria-label="Chapter visualization">
     <div className="book-visualization__toolbar">
-      <span>REFERENCE EARTH</span>
+      <span aria-hidden="true" />
       {nextView ? <button className="book-visualization__mode" type="button" disabled={locked}
         aria-label={`Current view: ${activeView}. Switch to ${nextView} view`}
         title={`Switch to ${nextView} view`} onClick={() => onViewChange(nextView)}>
@@ -36,7 +37,8 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
     </div>
     {activeView === 'globe'
       ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />
-      : <MapViewer key={`${chapter.id}:map`} {...common} surfaceImage={surface} />}
-    <p className="book-visualization__caption">Historical background · Layers pending</p>
+      : chapter.id === 'night-lights'
+        ? <NightLightsMap key={`${chapter.id}:map`} {...common} surfaceImage={surface} />
+        : <MapViewer key={`${chapter.id}:map`} {...common} surfaceImage={surface} />}
   </section>
 }
