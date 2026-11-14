@@ -1,0 +1,11 @@
+@import "tailwindcss";
+:root { --font-book: 'Poppins', 'Segoe UI', Arial, sans-serif; --font-display: 'Audiowide', 'Space Grotesk', sans-serif; --font-interface: 'Space Grotesk', 'Segoe UI', Arial, sans-serif; font-family: var(--font-interface); color: #eef3f8; background: #02070e; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+a { color: inherit; }
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px solid #92e5de; outline-offset: 5px; }
+button { -webkit-tap-highlight-color: transparent; }
+::selection { background: #88dad3; color: #07181f; }
