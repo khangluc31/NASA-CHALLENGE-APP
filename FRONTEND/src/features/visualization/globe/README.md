@@ -3,7 +3,7 @@
 FE B's home for React Three Fiber scenes, globe layers, geographic picking and
 camera controls. `GlobeViewer` provides the reusable foundation with NASA Blue
 Marble imagery as its default surface; no chapter measurement dataset is bundled.
-Book integration is deferred. The temporary browser preview was removed after
+Book integration is provided by the feature-level VisualizationHost. The temporary browser preview was removed after
 manual testing; no development-only route is included.
 
 - Scope the Canvas to the active viewer and keep its identity stable within a
@@ -31,7 +31,7 @@ Import `GlobeViewer` and its types from this folder's `index.ts`.
 - `interactionLocked` disables pointer, keyboard-button and form interactions.
 - `surfaceTexture` accepts an approved equirectangular image's public-relative
   `path`, textual `attribution`, and optional `sourceUrl`. When omitted, it uses
-  the bundled January 2004 Blue Marble base map (2048 x 1024 JPEG, about 302 KiB).
+  the bundled January 2004 Blue Marble with topography and bathymetry (2048 x 1024 JPEG, about 422 KiB).
   Paths use `import.meta.env.BASE_URL`.
   Images need longitude -180..180 from left to right and north at the top.
   Loading/errors block interaction; failed loads can be retried. Textures are
@@ -63,7 +63,7 @@ Import `GlobeViewer` and its types from this folder's `index.ts`.
 
 The approved surface is a cloud-free January 2004 composite, not live Earth
 observations or the timestamp of an EIC chapter's data. It provides geographic
-context beneath chapter layers. It does not supply elevations, dynamic clouds,
+context beneath chapter layers. Topography and bathymetry shading is baked into the image; it does not supply actual 3D elevations, dynamic clouds,
 street-level imagery or scientific sample values. Uniform illumination preserves
 the image colors without a decorative day/night mask hiding chapter overlays.
 
@@ -90,3 +90,13 @@ antimeridian coordinates, invalid inputs and agreement with actual Three.js
 sphere UVs. An approved texture still needs a visual landmark check when
 integrated. Drag/zoom/touch, keyboard behavior, WebGL failures and repeated
 mount/unmount should be checked again when integrating the globe into the book.
+
+## Book embedding
+
+The optional `embedded` prop enables plain lower-right coordinate output and lower-left −/+ zoom tools, with a discreet coordinate-entry popover. The old navigation board is absent in the book; standalone viewers retain their full controls. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.
+
+The Canvas preserves its drawing buffer for the book’s outgoing page snapshots. Check the performance tradeoff and visual continuity in the target browser; no second live scene is created.
+
+The red globe marker is a camera-facing flat teardrop with a white center. Its tip anchors the location; the entire pin hides when its anchor rotates to Earth’s far side, and depth testing preserves surface occlusion. Focus the globe for arrow-key rotation, +/− zoom, or Home reset; dragging remains the pointer rotation control.
+
+Pin scale is recalculated locally from camera-space depth, projection scale and canvas height to maintain about 22 CSS pixels of height when zooming. It stays tip-anchored and camera-facing. The book host supplies the black scene background; the historical Blue Marble texture includes NASA’s baked-in topography and bathymetry shading.

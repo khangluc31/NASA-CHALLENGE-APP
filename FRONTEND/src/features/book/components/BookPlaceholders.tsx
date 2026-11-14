@@ -6,8 +6,8 @@ export function VisualizationPreview({ chapter, loading = false }: { chapter: Bo
   const Icon = chapter.viewer === 'globe' ? Globe2 : chapter.viewer === 'map' ? Map : Image
   return <div className="viewer-preview">
     <div className="viewer-label"><Icon size={14} /><span>{chapter.category}</span><span className="preview-badge">PREVIEW</span></div>
-    {chapter.previewUrl ? <EarthArtwork src={chapter.previewUrl} /> : <div className="viewer-empty"><Icon strokeWidth={0.6} /><span>{chapter.viewer === 'media' ? 'Visual story' : chapter.viewer === 'map' ? 'Map exploration' : 'Earth exploration'}</span><p>The interactive {chapter.viewer} will appear here.</p></div>}
-    <div className="viewer-caption">{loading ? 'Preparing the next chapter…' : 'Static preview · Interactive visualization coming soon'}</div>
+    {chapter.previewUrl ? <EarthArtwork src={chapter.previewUrl} /> : <div className="viewer-empty"><Icon strokeWidth={0.6} /><span>{chapter.viewer === 'media' ? 'Visual story' : chapter.viewer === 'map' ? 'Map exploration' : 'Earth exploration'}</span><p>Reference {chapter.viewer} view · Scientific layers pending.</p></div>}
+    <div className="viewer-caption">{loading ? 'Preparing the next chapter…' : 'Static preview · Reference viewer activates when the book is ready'}</div>
   </div>
 }
 export function AudioPlaceholder() {
