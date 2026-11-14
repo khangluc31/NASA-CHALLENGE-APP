@@ -4,7 +4,6 @@ import type { Ref, RefObject } from 'react'
 import { BookCover } from './BookCover'
 import { EarthBook } from './EarthBook'
 import { PageSnapshot } from './PageSnapshot'
-import { BOOK_CHAPTERS } from '../chapters'
 import { capturePage } from '../capture-page'
 import type { EarthBookProps } from '../types'
 
@@ -28,6 +27,7 @@ export function BookExperience({ reduceMotion, ref, bookProps }: { reduceMotion:
   const landing = useRef<HTMLDivElement>(null)
   const reader = useRef<HTMLDivElement>(null)
   const locked = useRef(false)
+  const restoreLandingFocus = useRef(false)
   const [phase, setPhase] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed')
   const [journey, setJourney] = useState<Journey | null>(null)
   const systemReduced = useReducedMotion()
@@ -39,6 +39,7 @@ export function BookExperience({ reduceMotion, ref, bookProps }: { reduceMotion:
     const leftPage = reader.current?.querySelector<HTMLElement>('.left-page')
     // A chapter turn must finish before the cover can fold over it.
     if (!cover || !spread || !leftPage || (direction === 'close' && spread.getAttribute('aria-busy') === 'true')) return
+    restoreLandingFocus.current = direction === 'close'
     locked.current = true
     setJourney({ direction, compact: window.matchMedia('(max-width: 900px)').matches, cover: capturePage(cover), spread: capturePage(spread), leftPage: capturePage(leftPage), source: measure(cover), destination: measure(spread) })
     setPhase(direction === 'open' ? 'opening' : 'closing')
@@ -46,7 +47,10 @@ export function BookExperience({ reduceMotion, ref, bookProps }: { reduceMotion:
 
   useImperativeHandle(ref, () => ({ close: () => start('close') }))
   useEffect(() => {
-    if (phase === 'closed') landing.current?.querySelector<HTMLElement>('.open-link')?.focus({ preventScroll: true })
+    if (phase === 'closed' && restoreLandingFocus.current) {
+      landing.current?.querySelector<HTMLElement>('.open-link')?.focus({ preventScroll: true })
+      restoreLandingFocus.current = false
+    }
   }, [phase])
 
   function finish() {
@@ -58,7 +62,7 @@ export function BookExperience({ reduceMotion, ref, bookProps }: { reduceMotion:
 
   return <div className={`atlas-stage atlas-stage-${phase}`} aria-busy={Boolean(journey)}>
     <div ref={landing} className="landing-layer" inert={phase !== 'closed'} aria-hidden={phase !== 'closed'}>
-      <BookCover chapterCount={(bookProps?.chapters ?? BOOK_CHAPTERS).length} active={phase === 'closed'} onOpen={() => start('open')} />
+      <BookCover active={phase === 'closed'} onOpen={() => start('open')} />
     </div>
     <div ref={reader} className="reader-layer" inert={phase !== 'open'} aria-hidden={phase !== 'open'}>
       <EarthBook initialChapterId="carbon-dioxide" {...bookProps} presented={phase === 'open'} onClose={() => start('close')} />
@@ -109,7 +113,7 @@ function CoverJourney({ journey, landing, reduceMotion, onFinish }: { journey: J
     }
     const fadeCopy = (visible: boolean) => {
       if (!copy) return Promise.resolve()
-      const control = animate(copy, { opacity: visible ? [0, 1] : [1, 0], y: reduceMotion ? 0 : visible ? [10, 0] : [0, -10] }, { duration: reduceMotion ? 0.12 : 0.25 })
+      const control = animate(copy, { opacity: visible ? [0, 1] : [1, 0] }, { duration: reduceMotion ? 0.12 : 0.25 })
       running.push(control)
       return control
     }

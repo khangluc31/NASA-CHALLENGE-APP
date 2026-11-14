@@ -1,3 +1,4 @@
+import { claimForegroundAudio } from './audio-priority'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { MotionConfigContext, useReducedMotion } from 'motion/react'
 import { AudioLines, Pause, Play, Square, Volume2, VolumeX } from 'lucide-react'
@@ -72,9 +73,9 @@ export function DemoSonification({ disabled = false }: { disabled?: boolean }) {
       }
       context.clearRect(0, 0, width, height)
       const gradient = context.createLinearGradient(0, 0, width, 0)
-      gradient.addColorStop(0, '#368aaf')
-      gradient.addColorStop(0.5, '#c2fff0')
-      gradient.addColorStop(1, '#368aaf')
+      gradient.addColorStop(0, '#ffffff')
+      gradient.addColorStop(0.5, '#ffffff')
+      gradient.addColorStop(1, '#ffffff')
       context.strokeStyle = gradient
       context.lineCap = 'round'
       const count = bandCount * 2
@@ -99,6 +100,10 @@ export function DemoSonification({ disabled = false }: { disabled?: boolean }) {
     draw(0)
     return () => cancelAnimationFrame(frame)
   }, [status, reduced, muted, volume])
+
+  useEffect(() => {
+    if (!disabled && (status === 'loading' || status === 'playing')) return claimForegroundAudio()
+  }, [disabled, status])
 
   async function toggle() {
     const player = engine.current

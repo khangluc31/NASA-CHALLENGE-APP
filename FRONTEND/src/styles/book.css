@@ -39,7 +39,7 @@
 .reader { max-width: 1380px; margin: 0 auto; padding: 0 66px 0 28px; }
 .reader-toolbar { margin-bottom: 15px; height: 26px; }
 .quiet-button { display: inline-flex; align-items: center; gap: 8px; border: 0; padding: 7px 0; background: transparent; color: #b7cdd5; font-size: 12px; }
-.quiet-button:hover:not(:disabled) { color: #9bf4e8; }
+.quiet-button:hover:not(:disabled) { color: #ffffff; }
 .quiet-button:disabled { opacity: .35; }
 .toolbar-caption { display: flex; align-items: center; gap: 9px; font-size: 9px; letter-spacing: 1.2px; color: #819faa; }
 .chapter-counter { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--book-accent); }
@@ -206,3 +206,243 @@
 .demo-audio .audio-disclaimer { line-height: 1.5; }
 .demo-audio .audio-disclaimer a { text-decoration: underline; text-underline-offset: 2px; }
 @media (max-width: 1100px) { .demo-audio-controls { gap: 8px; flex-wrap: wrap; } }
+
+/* SpaceX reference typography, scoped to text outside the book. */
+.site-header, .landing-copy, .site-footer {
+  --font-landing: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-landing);
+  color: #dedede;
+}
+.site-header .wordmark {
+  font-family: var(--font-landing);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #f2f2f2;
+  -webkit-text-stroke: 0;
+}
+.site-header .header-right, .site-header .motion-toggle {
+  font-family: var(--font-landing);
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #d4d4d4;
+}
+.landing-copy h1 {
+  font-family: var(--font-landing);
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: #d4d4d4;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+}
+.landing-copy { text-shadow: none; }
+.landing-copy > .eyebrow {
+  font-family: var(--font-landing);
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #dedede;
+}
+.landing-copy .landing-description {
+  font-family: var(--font-landing);
+  font-weight: 400;
+  color: #dedede;
+}
+.landing-copy .open-link, .landing-copy .landing-hint {
+  font-family: var(--font-landing);
+  font-weight: 500;
+  color: #dedede;
+}
+.landing-copy .open-link:hover { color: #ffffff; }
+.site-footer, .site-footer .footer-dot { color: #c4c4c4; }
+
+.skip-link { font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; }
+.site-footer a:hover { color: #ffffff; }
+
+/* Monochrome actions, including the motion toggle's pressed state. */
+.landing-copy .open-link,
+.site-header .motion-toggle {
+  color: #f1f0f7;
+  background: #111111;
+  border: 1px solid #ffffff99;
+  border-radius: 5px;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.landing-copy .open-link { padding: 14px 24px; }
+.site-header .motion-toggle[aria-pressed=true] { border-color: #ffffff; }
+.landing-copy .open-link:hover,
+.site-header .motion-toggle:hover {
+  color: #111111;
+  background: #f1f0f8;
+  border-color: #f1f0f8;
+}
+.landing-copy .open-link:focus-visible,
+.site-header .motion-toggle:focus-visible,
+.quiet-button:focus-visible { outline-color: #ffffff; }
+@media (prefers-reduced-motion: reduce) {
+  .landing-copy .open-link, .site-header .motion-toggle { transition: none; }
+}
+.reduce-motion .open-link, .reduce-motion .motion-toggle { transition: none; }
+
+/* The supplied full-frame image already contains stars and the Earth horizon. */
+.atlas-app { background: none; }
+.atlas-app::before { content: none; }
+.earth-backdrop { background: #000; }
+.earth-backdrop-photo {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  transform: none;
+  mix-blend-mode: normal;
+  filter: none;
+  mask-image: none;
+}
+/* Keep keyboard focus visible using the button border, without an outer ring. */
+.landing-copy .open-link:focus-visible {
+  outline: none;
+  border-color: #fff;
+  box-shadow: inset 0 0 0 1px #fff;
+}
+
+/* Background and landing interface share viewport coordinates; only the book travels. */
+.atlas-app { padding-top: 92px; }
+.site-header { position: fixed; inset: 0 0 auto; z-index: 20; }
+.landing-copy {
+  position: fixed;
+  left: max(43px, calc((100vw - 1270px) / 2 + 43px));
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(520px, calc(50vw - 67px));
+}
+.landing > .book-cover { grid-column: 2; }
+@media (max-width: 1000px) and (min-width: 901px) {
+  .landing-copy { left: 48px; width: calc(50vw - 66px); }
+}
+@media (max-width: 900px) {
+  .atlas-app { padding-top: 76px; }
+  .landing-copy { left: 25px; top: 106px; transform: none; width: calc(100% - 50px); }
+  .landing { padding-top: 420px; }
+  .atlas-stage-closed .book-cover { z-index: 1; }
+}
+
+/* Slightly larger landing labels and controls. */
+.site-header .wordmark { margin-left: 14px; }
+.landing-copy > .eyebrow { font-size: 15px; }
+.site-header .header-right { font-size: 14px; }
+.site-header .motion-toggle { font-size: 13px; padding: 9px 14px; }
+@media (max-width: 900px) {
+  .site-header .wordmark { margin-left: 6px; }
+  .site-header .motion-toggle { font-size: 11px; padding: 8px 10px; }
+}
+
+/* Satin midnight cover: restrained horizon reflection on a thin magazine edge. */
+.book-cover {
+  background-color: #101b27;
+  background-image:
+    linear-gradient(90deg, rgb(190 217 234 / 23%) 0%, rgb(5 12 20 / 45%) 1%, transparent 2.2%, transparent 98.8%, rgb(165 197 218 / 12%) 100%),
+    radial-gradient(ellipse at 18% 108%, rgb(125 173 202 / 23%) 0%, transparent 65%),
+    linear-gradient(155deg, #1b2937 0%, #101b27 48%, #172b3b 100%);
+  background-blend-mode: normal;
+  border: 1px solid rgb(164 193 212 / 23%);
+  border-radius: 1px 3px 3px 1px;
+  box-shadow:
+    inset 0 1px 0 rgb(219 234 244 / 8%),
+    inset 0 -1px 1px rgb(174 213 237 / 26%),
+    -2px 1px 0 #080e16,
+    2px 2px 0 -1px #667888,
+    3px 4px 0 -1px #111b26,
+    0 24px 48px rgb(0 0 0 / 60%);
+  transition: border-color 240ms ease, box-shadow 240ms ease;
+}
+.book-cover:hover {
+  border-color: rgb(182 212 232 / 40%);
+  box-shadow:
+    inset 0 1px 0 rgb(219 234 244 / 12%),
+    inset 0 -1px 1px rgb(174 213 237 / 35%),
+    -2px 1px 0 #080e16,
+    2px 2px 0 -1px #667888,
+    3px 4px 0 -1px #111b26,
+    0 26px 52px rgb(0 0 0 / 65%);
+}
+.cover-spine { width: 7px; background: transparent; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .book-cover { transition: none; } }
+.reduce-motion .book-cover { transition: none; }
+
+/* Temporarily disable book shadows consistently in live pages and snapshots. */
+.book-cover, .book-cover:hover, .cover-spine,
+.book-spread, .cover-scene-back,
+.bookmark[aria-current], .bookmark-tooltip { box-shadow: none; }
+.book-cover { transition: border-color 240ms ease; }
+.book-binding { background: none; }
+.left-page { background: linear-gradient(100deg, #293b4d, #243545); }
+
+.background-music-control { position: relative; flex-shrink: 0; }
+.music-credit { position: absolute; top: calc(100% + 3px); right: 0; white-space: nowrap; font-size: 9px; color: #bbb; }
+.site-header .header-right { gap: 14px; }
+@media (max-width: 600px) {
+  .site-header { flex-wrap: wrap; height: auto; gap: 8px; }
+  .site-header .wordmark { font-size: 14px; }
+  .site-header .header-right { gap: 8px; }
+  .site-header .motion-toggle { font-size: 10px; padding: 7px 8px; }
+}
+
+/* Star-paper edition, using the team's supplied artwork. */
+.music-credit { font-size: 12px; }
+.atlas-app {
+  --book-ink: #fff;
+  --book-muted: #e5e5e5;
+  --book-accent: #ffffff;
+  --book-rule: #ffffff55;
+}
+.book-cover, .book-cover:hover {
+  padding: 0;
+  background: #08060f var(--book-cover-paper-image) center / cover no-repeat;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  container-type: inline-size;
+}
+.book-cover .cover-spine { width: 2%; background: #ffffff0d; z-index: 3; }
+.magazine-title {
+  position: absolute; top: 16.7%; left: 8%; right: 6%; z-index: 2;
+  color: #fff; font-family: var(--font-book); font-weight: 700;
+  font-size: 9.5cqw; line-height: 1.15; letter-spacing: -.5px; white-space: nowrap;
+}
+.magazine-earth {
+  position: absolute; left: -82%; top: 38%; width: 164%; aspect-ratio: 1;
+  border: 5cqw solid #ffffff24; border-radius: 50%; overflow: hidden;
+}
+.magazine-earth img { width: 100%; height: 100%; object-fit: cover; object-position: 44% center; }
+.book-spread { border-color: #464646; border-radius: 0; background: #141414; }
+.book-page, .left-page, .right-page {
+  background: #141414 var(--book-paper-image) center / cover no-repeat;
+  color: #fff;
+}
+.left-page { background-image: linear-gradient(#ffffff0b, #ffffff0b), var(--book-paper-image); }
+.cover-scene-back { background: #464646; border-radius: 0; }
+.book-page .eyebrow, .book-page .notes-source, .book-page .draft-label,
+.book-page .notes-body p, .book-page .observation-fields dd,
+.book-page .notes-tabs button { color: #fff; }
+.notes-content h2 { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 700; text-transform: uppercase; }
+.notes-tabs button[aria-pressed=true] { color: #fff; border-bottom-color: #fff; }
+.draft-label { background: #ffffff0a; border-color: #ffffff40; }
+.notes-body { scrollbar-color: #fff #202020; }
+.notes-body::-webkit-scrollbar-track { background: #202020; }
+.notes-body::-webkit-scrollbar-thumb { background: #fff; border-color: #202020; }
+.notes-body::-webkit-scrollbar-thumb:hover { background: #e5e5e5; }
+.bookmark { background: #292929; border-color: #ffffff40; color: #fff; }
+.bookmark[aria-current] { background: #d6d6d6; color: #171717; }
+.bookmark:hover:not(:disabled) { background: #484848; color: #fff; }
+.bookmark[aria-current]:hover { background: #f5f5f5; color: #171717; }
+.bookmark-tooltip { background: #171717f5; color: #fff; border-color: #ffffff55; }
+.demo-audio, .audio-placeholder { background: #171717e8; color: #ffffff; }
+.demo-audio .eyebrow, .demo-audio-status, .demo-audio .audio-disclaimer,
+.audio-placeholder .eyebrow, .audio-controls button { color: #ffffff; }
+.audio-line { stroke: #ffffff; }
+.audio-progress, .demo-audio-controls input { accent-color: #ffffff; }
+.audio-progress::-webkit-progress-bar { background: #404040; }
+.audio-progress::-webkit-progress-value { background: #ffffff; }
+.demo-audio-controls button { color: #ffffff; }
+.demo-audio-controls button:hover { color: #fff; }
+.book-page :focus-visible, .bookmark:focus-visible { outline-color: #fff; }
+.toolbar-caption, .navigation-hint, .quiet-button { color: #e5e5e5; }
