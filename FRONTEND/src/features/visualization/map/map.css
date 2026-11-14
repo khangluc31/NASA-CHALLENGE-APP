@@ -1,1 +1,55 @@
-/* Map viewer styling will be added during implementation. */
+.map-viewer {
+  color: var(--text);
+  text-align: start;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.map-viewer__surface {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.map-viewer__surface:active { cursor: grabbing; }
+.map-viewer__surface--locked { cursor: default; touch-action: auto; }
+
+.map-viewer__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.map-viewer fieldset {
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+  min-width: 0;
+}
+
+.map-viewer :is(button, input) {
+  font: inherit;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.6rem;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+}
+
+.map-viewer input { width: 8rem; max-width: 100%; }
+.map-viewer button { cursor: pointer; }
+.map-viewer :disabled { opacity: 0.55; cursor: default; }
+.map-viewer :is(button, input, svg):focus-visible {
+  outline: 2px solid var(--text-h);
+  outline-offset: 3px;
+}
