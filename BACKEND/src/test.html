@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Earth Jukebox – Audio Test Bench</title>
+
+<!-- audio.js import "tone" (bare specifier) nên cần import map khi chạy không qua Vite -->
+<script type="importmap">
+{ "imports": { "tone": "https://cdn.jsdelivr.net/npm/tone@14.7.77/+esm" } }
+</script>
+
+<style>
+  body { background:#101018; color:#e8e8f0; font:15px/1.5 system-ui, sans-serif; max-width:900px; margin:0 auto; padding:16px; }
+  h1 { font-size:20px; } h2 { font-size:15px; margin:22px 0 8px; color:#9fb4ff; }
+  button, select, input[type=text] { background:#1e1e2e; color:#e8e8f0; border:1px solid #556; border-radius:6px; padding:8px 12px; font:inherit; }
+  button { cursor:pointer; } button:hover { background:#2a2a40; }
+  :focus-visible { outline:3px solid #ffd54a; outline-offset:2px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:6px 0; }
+  canvas { width:100%; background:#000; border:1px solid #445; border-radius:6px; image-rendering:pixelated; cursor:crosshair; }
+  #swatches button { width:64px; height:44px; border:2px solid #fff3; }
+  #img { max-width:100%; border:1px solid #445; cursor:crosshair; display:block; margin-top:8px; }
+  #log { background:#08080e; border:1px solid #334; border-radius:6px; padding:8px; height:200px; overflow:auto; font:12.5px/1.45 ui-monospace, monospace; white-space:pre-wrap; }
+  .ok { color:#6fe28a; } .bad { color:#ff7a7a; } .dim { color:#8a8aa0; }
+  small { color:#8a8aa0; }
+</style>
+</head>
+<body>
+
+<h1>Earth Jukebox – Audio Test Bench</h1>
+<small>Chạy bằng server tĩnh (xem hướng dẫn). Bấm một nút bất kỳ trước, trình duyệt chỉ cho phát âm sau khi người dùng tương tác.</small>
+
+<h2>1. Nguồn dữ liệu</h2>
+<div class="row">
+  <button id="btnMock">Nạp dữ liệu giả (mock)</button>
+  <input id="url" type="text" value="./features.json" size="28" aria-label="Đường dẫn file features JSON">
+  <button id="btnLoad">Nạp file JSON</button>
+  <button id="btnCheck">Kiểm tra JSON</button>
+</div>
+<div id="info" class="dim">Chưa nạp dữ liệu.</div>
+
+<h2>2. Phát (quét ảnh từ trái sang phải)</h2>
+<div class="row">
+  <button id="btnPlay">▶ Play</button>
+  <button id="btnPause">⏸ Pause</button>
+  <button id="btnStop">⏹ Stop</button>
+  <label>Tốc độ <input id="speed" type="range" min="0.5" max="2" step="0.1" value="1"> <span id="speedV">1.0x</span></label>
+  <label>Âm lượng <input id="vol" type="range" min="0" max="1" step="0.05" value="0.8"></label>
+</div>
+<div class="row">
+  <label>Thang âm
+    <select id="scale">
+      <option value="pentatonic">pentatonic</option>
+      <option value="dorian">dorian</option>
+      <option value="tension">tension (harmonic minor)</option>
+    </select>
+  </label>
+  <label><input id="urgency" type="checkbox"> Chế độ cấp bách</label>
+  <span id="prog" class="dim">0%</span>
+</div>
+
+<h2>3. Lưới features (bấm hoặc dùng phím mũi tên để nghe từng ô)</h2>
+<canvas id="grid" tabindex="0" aria-label="Lưới features. Dùng phím mũi tên để chọn ô, Space để phát hoặc tạm dừng."></canvas>
+<small>Ô sáng = có tiếng (light &gt; 0.12). Vạch trắng = playhead. Khung vàng = ô đang chọn.</small>
+
+<h2>4. Bấm màu để nghe</h2>
+<div id="swatches" class="row"></div>
+<small>Cam/vàng nên nghe gắt (sawtooth), tím/lam nên nghe mềm (sine), lục ở giữa (triangle).</small>
+
+<h2>5. Thử với ảnh thật (chọn file từ máy, bấm vào ảnh)</h2>
+<div class="row"><input id="file" type="file" accept="image/*" aria-label="Chọn ảnh"></div>
+<img id="img" alt="" hidden>
+
+<h2>Nhật ký</h2>
+<div id="log" role="log" aria-live="polite"></div>
+
+<script type="module">
+import { engine, SCALES, hueToWarmth } from "./audio.js";
+import { makeMockFeatures } from "./features.mock.js";
+import { pickFromImage } from "./pickColor.js";
+
+const $ = (id) => document.getElementById(id);
+const logEl = $("log");
+function log(msg, cls = "") {
+  const d = document.createElement("div");
+  if (cls) d.className = cls;
+  d.textContent = `${new Date().toLocaleTimeString()}  ${msg}`;
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+window.addEventListener("error", (e) => log("LỖI: " + e.message, "bad"));
+window.addEventListener("unhandledrejection", (e) => log("LỖI: " + (e.reason?.message ?? e.reason), "bad"));
+
+/* ---------- trạng thái ---------- */
+let features = null;
+let playCol = -1;
+let cursor = { col: 0, row: 0 };
+const canvas = $("grid");
+const ctx = canvas.getContext("2d");
+const CELL_W = 8, CELL_H = 20;
+
+/* ---------- kiểm tra JSON theo contracts.md ---------- */
+function validate(f, cols = 96, rows = 16) {
+  const errs = [];
+  if (!Array.isArray(f?.columns)) return ["thiếu columns"];
+  if (f.columns.length !== cols) errs.push(`số cột ${f.columns.length}, cần ${cols}`);
+  f.columns.forEach((c, i) => {
+    if (c.rows?.length !== rows) errs.push(`cột ${i}: số hàng ${c.rows?.length}, cần ${rows}`);
+    for (const k of ["sat", "light", "edge"])
+      if (!(c[k] >= 0 && c[k] <= 1)) errs.push(`cột ${i}: ${k}=${c[k]} ngoài 0..1`);
+    if (!(c.hue >= 0 && c.hue <= 360)) errs.push(`cột ${i}: hue=${c.hue} ngoài 0..360`);
+    c.rows?.forEach((r, j) => {
+      if (!(r.light >= 0 && r.light <= 1) || !(r.hue >= 0 && r.hue <= 360))
+        errs.push(`ô (${i},${j}): ${JSON.stringify(r)}`);
+    });
+  });
+  for (const k of ["meanHue", "meanLight", "warmRatio", "edgeDensity"])
+    if (typeof f.stats?.[k] !== "number") errs.push(`stats.${k} thiếu`);
+  return errs;
+}
+
+function summarize(f) {
+  let lit = 0, total = 0, warm = 0;
+  for (const c of f.columns) for (const r of c.rows) {
+    total++;
+    if (r.light > 0.12) { lit++; if (hueToWarmth(r.hue) === 1) warm++; }
+  }
+  const litCols = f.columns.filter((c) => c.rows.some((r) => r.light > 0.12)).length;
+  return `${f.title ?? f.id} | ${f.columns.length}x${f.columns[0].rows.length} | ô có tiếng: ${lit}/${total} (${(100 * lit / total).toFixed(1)}%) | cột có tiếng: ${litCols}/${f.columns.length} | ấm/sáng: ${lit ? (100 * warm / lit).toFixed(0) : 0}% | warmRatio=${f.stats?.warmRatio}`;
+}
+
+function setFeatures(f, label) {
+  features = f;
+  engine.load(f);
+  cursor = { col: 0, row: 0 };
+  playCol = -1;
+  canvas.width = f.columns.length * CELL_W;
+  canvas.height = f.columns[0].rows.length * CELL_H;
+  $("info").textContent = summarize(f);
+  log(`Đã nạp: ${label}`, "ok");
+  draw();
+}
+
+/* ---------- vẽ lưới ---------- */
+function draw() {
+  if (!features) return;
+  const cols = features.columns;
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  cols.forEach((c, i) => c.rows.forEach((r, j) => {
+    if (r.light > 0.12) ctx.fillStyle = `hsl(${r.hue} 85% ${20 + r.light * 55}%)`;
+    else ctx.fillStyle = "#14141c";
+    ctx.fillRect(i * CELL_W, j * CELL_H, CELL_W - 1, CELL_H - 1);
+  }));
+  if (playCol >= 0) {
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    ctx.fillRect(playCol * CELL_W, 0, 2, canvas.height);
+  }
+  ctx.strokeStyle = "#ffd54a"; ctx.lineWidth = 2;
+  ctx.strokeRect(cursor.col * CELL_W + 1, cursor.row * CELL_H + 1, CELL_W - 3, CELL_H - 3);
+}
+
+async function probeCell(col, row) {
+  const cell = features.columns[col].rows[row];
+  const v = await engine.playCell(col, row);
+  const note = cell.light > 0.12 ? "" : "  (ô tối, tiếng rất nhỏ)";
+  log(`ô (${col},${row}) hue=${cell.hue} light=${cell.light} -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}${note}`);
+}
+
+/* ---------- sự kiện ---------- */
+$("btnMock").onclick = () => setFeatures(makeMockFeatures(), "dữ liệu giả");
+
+$("btnLoad").onclick = async () => {
+  const url = $("url").value.trim();
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} khi tải ${url}`);
+    const f = await res.json();
+    const errs = validate(f);
+    if (errs.length) { log(`JSON có ${errs.length} lỗi, xem nút "Kiểm tra JSON". Vẫn thử nạp.`, "bad"); }
+    setFeatures(f, url);
+  } catch (e) { log("Không nạp được: " + e.message, "bad"); }
+};
+
+$("btnCheck").onclick = () => {
+  if (!features) return log("Chưa nạp dữ liệu.", "bad");
+  const errs = validate(features);
+  if (!errs.length) log("JSON hợp lệ theo contracts.md ✔", "ok");
+  else { log(`${errs.length} lỗi:`, "bad"); errs.slice(0, 15).forEach((m) => log("  " + m, "bad")); }
+};
+
+$("btnPlay").onclick = async () => {
+  if (!features) return log("Hãy nạp dữ liệu trước.", "bad");
+  await engine.play();
+  log("▶ play");
+};
+$("btnPause").onclick = () => { engine.pause(); log("⏸ pause"); };
+$("btnStop").onclick = () => { engine.stop(); log("⏹ stop"); };
+
+$("speed").oninput = (e) => { engine.setSpeed(+e.target.value); $("speedV").textContent = (+e.target.value).toFixed(1) + "x"; };
+$("vol").oninput = (e) => engine.setVolume(+e.target.value);
+$("scale").onchange = (e) => { engine.setScale(e.target.value); log("Thang âm: " + e.target.value); };
+$("urgency").onchange = (e) => { engine.setUrgencyMode(e.target.checked); log("Cấp bách: " + (e.target.checked ? "BẬT" : "tắt")); };
+
+engine.onPlayhead((i, p) => {
+  playCol = i;
+  $("prog").textContent = `cột ${i} · ${(p * 100).toFixed(0)}%`;
+  draw();
+});
+
+canvas.addEventListener("click", (e) => {
+  if (!features) return;
+  const r = canvas.getBoundingClientRect();
+  const col = Math.min(features.columns.length - 1, Math.floor(((e.clientX - r.left) / r.width) * features.columns.length));
+  const row = Math.min(features.columns[0].rows.length - 1, Math.floor(((e.clientY - r.top) / r.height) * features.columns[0].rows.length));
+  cursor = { col, row }; draw(); probeCell(col, row);
+});
+
+canvas.addEventListener("keydown", (e) => {
+  if (!features) return;
+  const maxC = features.columns.length - 1, maxR = features.columns[0].rows.length - 1;
+  const moves = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  if (moves[e.key]) {
+    e.preventDefault();
+    cursor.col = Math.max(0, Math.min(maxC, cursor.col + moves[e.key][0]));
+    cursor.row = Math.max(0, Math.min(maxR, cursor.row + moves[e.key][1]));
+    draw(); probeCell(cursor.col, cursor.row);
+  } else if (e.key === " ") {
+    e.preventDefault();
+    $("btnPlay").click();
+  }
+});
+
+/* ---------- ô màu ---------- */
+const SWATCHES = [
+  ["cam", 30, 0.9, 0.8], ["vàng", 55, 0.9, 0.9], ["lục", 130, 0.8, 0.7],
+  ["lam", 215, 0.8, 0.7], ["tím", 280, 0.7, 0.8], ["trắng", 0, 0, 1],
+];
+for (const [name, h, s, l] of SWATCHES) {
+  const b = document.createElement("button");
+  b.style.background = `hsl(${h} ${s * 100}% ${l * 50}%)`;
+  b.setAttribute("aria-label", `Màu ${name}`);
+  b.title = name;
+  b.onclick = async () => {
+    const v = await engine.playColor({ hue: h, sat: s, light: l, rowFrac: 0.5 });
+    log(`màu ${name} (hue ${h}) -> ${v.osc}, cutoff ${Math.round(v.cutoff)}Hz, vel ${v.velocity.toFixed(2)}`);
+  };
+  $("swatches").appendChild(b);
+}
+
+/* ---------- ảnh thật ---------- */
+$("file").onchange = (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const img = $("img");
+  img.onload = () => { img.hidden = false; log(`Ảnh ${img.naturalWidth}x${img.naturalHeight}. Bấm vào ảnh để nghe màu.`, "ok"); };
+  img.src = URL.createObjectURL(f);
+};
+$("img").addEventListener("click", async (e) => {
+  const img = $("img");
+  const grid = { cols: 96, rows: 16, crop: [0, 0, img.naturalWidth, img.naturalHeight] };
+  const c = pickFromImage(img, e, grid);
+  const v = await engine.playColor(c);
+  log(`pixel hue=${c.hue.toFixed(0)} sat=${c.sat.toFixed(2)} V=${c.light.toFixed(2)} ô(${c.col},${c.row}) -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}`);
+});
+
+log("Sẵn sàng. Bấm 'Nạp dữ liệu giả' rồi Play.", "dim");
+</script>
+</body>
+</html>
