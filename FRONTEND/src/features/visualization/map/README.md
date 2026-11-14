@@ -90,7 +90,7 @@ including for reduced-motion users. The SVG scales with the book page width.
 - `components/`: geographic surface, navigation, marker and error boundary.
 - `hooks/`: local navigation and reference-image loading lifecycle.
 - `utils/`: projection and bounded navigation helpers with focused checks.
-- `layers/`: reserved for verified chapter visualizations; no invented overlays.
+- `layers/`: chapter visualizations; currently the annual Night Lights raster.
 
 `MapLocation`, coordinate validation, content states and image metadata reuse
 the existing globe viewer contracts. These are viewer interfaces, not a new
@@ -115,3 +115,36 @@ preview route in the application.
 ## Book embedding
 
 The optional `embedded` prop enables plain lower-right coordinate output and lower-left −/+ zoom tools, with a discreet coordinate-entry popover. The old navigation board is absent in the book; standalone viewers retain their full controls. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.
+
+## Annual Night Lights
+
+`NightLightsMap` loads the extracted grid and NASA's detailed annual lights-only
+images. The layer is always enabled. A horizontal 2012–2023 range scrubber
+crossfades adjacent source years in either direction, without remounting the map,
+changing its navigation, or creating an independent playback timeline. Fractional
+years are display transitions only; the coarse cell lookup uses the nearest actual
+year. The book host controls year and selection, retaining both across chapter
+remounts until refresh. Standalone viewers retain a local year default.
+
+The original 180 × 90 JSON supplies validated cell lookup, with zero, missing and
+partial coverage kept distinct. It does not contain city-scale detail. The visual
+layer instead uses locally optimized NASA annual images from SVS 5276. They share
+the global map extent and existing pan/zoom transform. Black image backgrounds
+screen-blend over the dimmed reference surface; only two annual overlays render
+at once. Both loaders ignore stale results; image requests are abortable and
+temporary decode URLs are revoked. Loading disables interaction; failures offer
+retry. Transition locks disable the scrubber as well.
+
+Only the scrubber and year endpoints are visible below the map. Technical
+metadata and source credits live in the data/media READMEs and the existing
+right-page source link. Accessible encoding and sample text remain available to
+assistive technology. The existing right-page inspector slot now shows selected
+area history; sound remains independent. See `features/chapter/README.md`.
+The top-left reference label and historical-background caption were removed.
+
+See `public/data/night-lights/README.md` for extraction provenance and
+`public/media/night-lights/README.md` for imagery provenance and processing.
+
+```sh
+node --experimental-strip-types --test src/data/adapters/nightLights.test.mjs
+```

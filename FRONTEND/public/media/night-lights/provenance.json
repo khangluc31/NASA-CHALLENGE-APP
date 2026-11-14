@@ -1,0 +1,62 @@
+[
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2012.tif",
+    "year": 2012,
+    "sourceSha256": "f03753c231cc24a0c45cc376304af4761e52a02d67c86c6e5dda6851d8111c6c"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2013.tif",
+    "year": 2013,
+    "sourceSha256": "06a25a7399bf8154372533de0b08b1a1948ca4e6999266f9219721905c11a039"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2014.tif",
+    "year": 2014,
+    "sourceSha256": "4dbbf9f6f24c8a8f7a06ec5b215ba0070472c96ff1dc4f38b46514217bbba4fa"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2015.tif",
+    "year": 2015,
+    "sourceSha256": "3f458f4bde955962575bbe6adfedf265398e0f21002378fbb39352e5706a2b9a"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2016.tif",
+    "year": 2016,
+    "sourceSha256": "a0d0bce37dd8806137d709f673cb4d957b93ad923452b712862cc397f552a8ee"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2017.tif",
+    "year": 2017,
+    "sourceSha256": "509385c5428a2a69243fd216b50850d903ea6c85782bcda95a7374321fc99206"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2018.tif",
+    "year": 2018,
+    "sourceSha256": "070630bc42f81780091431a8a706427a680598d3f2f67c88d4c07932de8f7ee4"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2019.tif",
+    "year": 2019,
+    "sourceSha256": "301c2a2a8385b780b778ff07db74788834c05f7095115dea660e4eed14080708"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2020.tif",
+    "year": 2020,
+    "sourceSha256": "822f872dc67de6c08e35f2b120b536fb9f82acf9f024a0ca190f7820ac27d354"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2021.tif",
+    "year": 2021,
+    "sourceSha256": "804f0284f658bf84c39b468b480fbe7a1e450cbc80d298d78c5138431d8d0387"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2022.tif",
+    "year": 2022,
+    "sourceSha256": "3d47cdc5192607ae685a9e25ccb1e670fe9d7d3e729df090aad06576e6ffa9ca"
+  },
+  {
+    "sourceUrl": "https://svs.gsfc.nasa.gov/vis/a000000/a005200/a005276/frames/7680x4320_16x9_3p/nightlights_flat_2012-2023_only_lights/nightlights_flat_series_stills_8k_only_lights.2023.tif",
+    "year": 2023,
+    "sourceSha256": "2ce960101d4a8c2dbbdb78d9c0624f608c9fe920652764e5c1f6ad24076b2734"
+  }
+]
