@@ -58,6 +58,9 @@
   </label>
   <label><input id="urgency" type="checkbox"> Chế độ cấp bách</label>
   <label><input id="hueByLight" type="checkbox"> Hue theo độ sáng (thử gam màu với night_lights)</label>
+  <label><input id="emphasis" type="checkbox"> Nhấn mạnh thay đổi so với năm đầu</label>
+  <label><input id="timeline" type="checkbox" disabled> Phát xuyên suốt các năm</label>
+  <input id="tlYears" type="text" size="30" placeholder="năm phát, vd 2012,2015,2018,2021,2023 (trống = tất cả)" aria-label="Danh sách năm phát trong timeline">
   <span id="prog" class="dim">0%</span>
 </div>
 
@@ -115,7 +118,7 @@ function validateRaw(d) {
     if (!Number.isFinite(fr.year)) errs.push(`${tag}: thiếu year`);
     if (!Array.isArray(fr.audioColumns)) { errs.push(`${tag}: thiếu audioColumns`); return; }
     if (fr.audioColumns.length !== nCols) errs.push(`${tag}: ${fr.audioColumns.length} cột, frame đầu có ${nCols}`);
-    for (const k of ["mean", "edge", "deltaFromPrev"])
+    for (const k of ["mean", "deltaFromPrev"])
       if (typeof fr.stats?.[k] !== "number") errs.push(`${tag}: stats.${k} thiếu`);
     fr.audioColumns.forEach((c, ci) => {
       if (c.rows?.length !== nRows) errs.push(`${tag} cột ${ci}: ${c.rows?.length} hàng, cần ${nRows}`);
@@ -156,6 +159,7 @@ function refreshYears() {
   sel.innerHTML = "";
   years.forEach(({ index, year }) => sel.add(new Option(String(year), index)));
   sel.hidden = years.length === 0;
+  $("timeline").disabled = years.length < 2;
   sel.value = engine.frameIndex;
 }
 
@@ -181,7 +185,7 @@ function setData(raw, label) {
 function draw() {
   if (!features) return;
   const cols = features.columns;
-  const useHue = !engine.data || !!engine.hueOf;
+  const useHue = !engine.data || !!engine.hueOf || engine.changeEmphasis;
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   cols.forEach((c, i) => c.rows.forEach((r, j) => {
@@ -214,7 +218,11 @@ $("btnLoad").onclick = async () => {
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status} khi tải ${url}`);
-    const raw = await res.json();
+    const text = await res.text();
+    const mb = text.length / 1048576;
+    const raw = JSON.parse(text);
+    log(`Đã tải ${mb.toFixed(1)} MB`, "dim");
+    if (mb > 5) log(`Cảnh báo: file ${mb.toFixed(1)} MB. Audio chỉ cần frames[].audioColumns (nhỏ hơn nhiều), nên xin Người 3 xuất bản gọn cho web.`, "dim");
     if (Array.isArray(raw.frames)) {
       const errs = validateRaw(raw);
       if (errs.length) log(`JSON có ${errs.length} lỗi, bấm "Kiểm tra JSON" để xem. Vẫn thử nạp.`, "bad");
@@ -258,9 +266,42 @@ $("hueByLight").onchange = (e) => {
   log("Hue theo độ sáng: " + (e.target.checked ? "BẬT (mờ=lam đậm, sáng=vàng rực)" : "tắt (hue cố định 45)"));
 };
 
-engine.onPlayhead((i, p) => {
+$("emphasis").onchange = (e) => {
+  engine.setChangeEmphasis(e.target.checked);
+  if (engine.features) showFeatures(e.target.checked ? "nhấn mạnh thay đổi: BẬT" : "nhấn mạnh thay đổi: tắt");
+  log("Nhấn mạnh thay đổi: " + (e.target.checked ? "BẬT (vàng = sáng thêm, lam = tối đi, xanh lá = nền)" : "tắt"));
+};
+
+function applyTimeline() {
+  const on = $("timeline").checked;
+  let idx = null;
+  const txt = $("tlYears").value.trim();
+  if (on && txt) {
+    const want = txt.split(/[\s,;]+/).map(Number);
+    idx = engine.getYears().filter((y) => want.includes(y.year)).map((y) => y.index);
+  }
+  engine.setTimeline(on, idx);
+  $("year").disabled = on;
+  refreshYears();
+  if (engine.features) showFeatures(on ? `timeline ${engine._timelineIdx?.length ?? 0} năm` : "timeline tắt");
+  log(on ? `Timeline BẬT: ${(engine._timelineIdx ?? []).map((i) => engine.data.frames[i].year).join(", ")}` : "Timeline tắt");
+}
+$("timeline").onchange = applyTimeline;
+$("tlYears").onchange = () => { if ($("timeline").checked) applyTimeline(); };
+
+engine.onFrame((fi, year, change) => {
+  features = engine.features;
+  $("year").value = fi;
+  $("info").textContent = summarize(features);
+  log(`Năm ${year}` + (change ? `: ${change.up} ô sáng thêm, ${change.down} ô tối đi (so với ${change.since})` : ""), "ok");
+  draw();
+});
+
+engine.onPlayhead((i, p, info) => {
   playCol = i;
-  $("prog").textContent = `cột ${i} · ${(p * 100).toFixed(0)}%`;
+  $("prog").textContent = info
+    ? `${info.year ?? ""}${info.timeline ? ` (${info.yearPos + 1}/${info.yearCount})` : ""} · cột ${i} · tổng ${(info.total * 100).toFixed(0)}%`
+    : `cột ${i} · ${(p * 100).toFixed(0)}%`;
   draw();
 });
 
