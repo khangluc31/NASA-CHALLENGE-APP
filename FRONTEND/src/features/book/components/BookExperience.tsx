@@ -4,6 +4,7 @@ import type { Ref, RefObject } from 'react'
 import { BookCover } from './BookCover'
 import { EarthBook } from './EarthBook'
 import { PageSnapshot } from './PageSnapshot'
+import { BOOK_CHAPTERS } from '../chapters'
 import { capturePage } from '../capture-page'
 import type { EarthBookProps } from '../types'
 
@@ -57,10 +58,10 @@ export function BookExperience({ reduceMotion, ref, bookProps }: { reduceMotion:
 
   return <div className={`atlas-stage atlas-stage-${phase}`} aria-busy={Boolean(journey)}>
     <div ref={landing} className="landing-layer" inert={phase !== 'closed'} aria-hidden={phase !== 'closed'}>
-      <BookCover active={phase === 'closed'} onOpen={() => start('open')} />
+      <BookCover chapterCount={(bookProps?.chapters ?? BOOK_CHAPTERS).length} active={phase === 'closed'} onOpen={() => start('open')} />
     </div>
     <div ref={reader} className="reader-layer" inert={phase !== 'open'} aria-hidden={phase !== 'open'}>
-      <EarthBook initialChapterId="night-lights" {...bookProps} presented={phase === 'open'} onClose={() => start('close')} />
+      <EarthBook initialChapterId="carbon-dioxide" {...bookProps} presented={phase === 'open'} onClose={() => start('close')} />
     </div>
     {journey && <CoverJourney journey={journey} landing={landing} reduceMotion={Boolean(reduceMotion || systemReduced || journey.compact)} onFinish={finish} />}
     <span className="sr-only" aria-live="polite">{phase === 'opening' ? 'Opening the atlas' : phase === 'closing' ? 'Closing the atlas' : ''}</span>

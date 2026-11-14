@@ -1,14 +1,14 @@
 import { ArrowUpRight, Headphones } from 'lucide-react'
 import { EarthArtwork } from './EarthArtwork'
 
-export function BookCover({ onOpen, active = true }: { onOpen: () => void; active?: boolean }) {
+export function BookCover({ onOpen, active = true, chapterCount = 3 }: { onOpen: () => void; active?: boolean; chapterCount?: number }) {
   return <main id={active ? 'main-content' : undefined} className="landing grid items-center gap-12 lg:grid-cols-2">
     <section className="landing-copy">
       <p className="eyebrow">AN INTERACTIVE SCIENTIFIC ATLAS</p>
       <h1>Listen to our<br />changing planet.</h1>
       <p className="landing-description">Explore NASA visualizations and discover<br className="desktop-break" /> how scientific data can become sound.</p>
       <button className="open-link inline-flex items-center gap-3" onClick={onOpen}>Open the atlas <ArrowUpRight size={20} /></button>
-      <p className="landing-hint">Click the cover to explore <span>•</span> 10 chapters</p>
+      <p className="landing-hint">Click the cover to explore <span>•</span> {chapterCount} chapters</p>
     </section>
     <button className="book-cover" onClick={onOpen} aria-label="Open Earth Jukebox atlas">
       <span className="cover-spine" />

@@ -186,6 +186,13 @@ Transition sequence: idle -> leaving (lock navigation/model, fade/stop audio) ->
 
 ## 5. EIC chapter coverage and references
 
+**Scope update (2026-11-14, user/team decision):** The current implementation
+contains only these three chapters, in order: DYAMOND Global Carbon Dioxide;
+Global Sea Surface Currents and Temperature; Change in Night Lights between
+2012 and 2023. The ten-resource list below records the earlier design scope.
+The team also authorized temporary demo audio and long sample chapter text.
+
+
 The team's design lists these ten EIC references. Treat them as intended scope; verify official challenge resource eligibility, data availability and usage rights before committing each chapter. The viewer choices are provisional; do not force every source onto a globe.
 
 | Chapter / reference | Candidate viewer |

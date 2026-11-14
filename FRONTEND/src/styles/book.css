@@ -165,7 +165,7 @@
 }
 /* Letterforms echo the supplied space-poster reference; body copy stays readable. */
 .wordmark { font-family: var(--font-display); font-size: clamp(15px, 1.65vw, 23px); font-weight: 400; letter-spacing: 0; }
-.landing h1 { font-family: var(--font-display); font-size: clamp(36px, 3.7vw, 56px); font-weight: 400; line-height: 1.2; letter-spacing: -1.6px; text-transform: uppercase; color: #e6ddff; text-shadow: 0 2px 28px #8d6ec32b; }
+.landing h1 { font-family: var(--font-display); font-size: clamp(36px, 3.7vw, 56px); font-weight: 400; line-height: 1.2; letter-spacing: -1.6px; text-transform: uppercase; color: #f5edd9; text-shadow: 0 2px 12px #020710; }
 .landing-copy > .eyebrow { font-family: var(--font-interface); font-weight: 600; letter-spacing: 2px; color: #a5deda; }
 .landing-description { font-family: var(--font-interface); font-size: clamp(17px, 1.5vw, 22px); color: #c1ccd9; }
 .landing-copy { text-shadow: 0 2px 12px #020710; }
@@ -181,3 +181,28 @@
   .earth-backdrop-photo { width: 1200px; transform: translate(-50%, 52%); }
   .notes-body p { font-size: 13px; }
 }
+
+/* Audiowide ships one weight: a fine stroke adds weight without changing metrics. */
+.wordmark { -webkit-text-stroke: .45px currentColor; }
+.landing h1 { -webkit-text-stroke: .6px currentColor; }
+.notes-body { overflow-y: scroll; scrollbar-gutter: stable; overscroll-behavior: contain; padding-right: 12px; scrollbar-color: #86bfc3 #152634; }
+.notes-body::-webkit-scrollbar { width: 7px; }
+.notes-body::-webkit-scrollbar-track { background: #152634; border-radius: 4px; }
+.notes-body::-webkit-scrollbar-thumb { background: #86bfc3; border: 1px solid #152634; border-radius: 4px; }
+.notes-body::-webkit-scrollbar-thumb:hover { background: #a1e4de; }
+.demo-audio { padding: 12px 15px 10px; border-radius: 5px; background: #172838; color: #bed3dc; }
+.demo-audio .eyebrow { font-size: 9px; }
+.demo-waveform { display: block; width: 100%; height: 48px; margin: 5px 0; }
+.audio-progress { display: block; width: 100%; height: 3px; margin: 5px 0 10px; accent-color: #83d8d2; border: 0; }
+.audio-progress::-webkit-progress-bar { background: #39525f; }
+.audio-progress::-webkit-progress-value { background: #83d8d2; }
+.demo-audio-controls { display: flex; align-items: center; gap: 12px; }
+.demo-audio-controls button { display: inline-flex; align-items: center; gap: 5px; background: transparent; border: 0; color: #d7e9ef; font-size: 11px; padding: 4px 0; }
+.demo-audio-controls button:hover { color: #99f2e4; }
+.demo-audio-controls button:disabled { opacity: .5; }
+.audio-time { margin-right: auto; font-size: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.demo-audio-controls input { min-width: 35px; width: 58px; accent-color: #83d8d2; }
+.demo-audio-status { font-size: 9px; color: #a8c2cc; margin-top: 6px; }
+.demo-audio .audio-disclaimer { line-height: 1.5; }
+.demo-audio .audio-disclaimer a { text-decoration: underline; text-underline-offset: 2px; }
+@media (max-width: 1100px) { .demo-audio-controls { gap: 8px; flex-wrap: wrap; } }
