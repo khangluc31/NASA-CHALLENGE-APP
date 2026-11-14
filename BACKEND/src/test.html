@@ -18,7 +18,7 @@
   :focus-visible { outline:3px solid #ffd54a; outline-offset:2px; }
   .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:6px 0; }
   canvas { width:100%; background:#000; border:1px solid #445; border-radius:6px; image-rendering:pixelated; cursor:crosshair; }
-  #swatches button { width:64px; height:44px; border:2px solid #fff3; }
+  #swatches button { width:78px; height:48px; border:2px solid #fff3; color:#fff; font-size:11px; text-shadow:0 0 3px #000; }
   #img { max-width:100%; border:1px solid #445; cursor:crosshair; display:block; margin-top:8px; }
   #log { background:#08080e; border:1px solid #334; border-radius:6px; padding:8px; height:200px; overflow:auto; font:12.5px/1.45 ui-monospace, monospace; white-space:pre-wrap; }
   .ok { color:#6fe28a; } .bad { color:#ff7a7a; } .dim { color:#8a8aa0; }
@@ -33,9 +33,10 @@
 <h2>1. Nguồn dữ liệu</h2>
 <div class="row">
   <button id="btnMock">Nạp dữ liệu giả (mock)</button>
-  <input id="url" type="text" value="./features.json" size="28" aria-label="Đường dẫn file features JSON">
+  <input id="url" type="text" value="./night_lights.json" size="28" aria-label="Đường dẫn file features JSON">
   <button id="btnLoad">Nạp file JSON</button>
   <button id="btnCheck">Kiểm tra JSON</button>
+  <select id="year" hidden aria-label="Chọn năm"></select>
 </div>
 <div id="info" class="dim">Chưa nạp dữ liệu.</div>
 
@@ -56,16 +57,17 @@
     </select>
   </label>
   <label><input id="urgency" type="checkbox"> Chế độ cấp bách</label>
+  <label><input id="hueByLight" type="checkbox"> Hue theo độ sáng (thử gam màu với night_lights)</label>
   <span id="prog" class="dim">0%</span>
 </div>
 
 <h2>3. Lưới features (bấm hoặc dùng phím mũi tên để nghe từng ô)</h2>
 <canvas id="grid" tabindex="0" aria-label="Lưới features. Dùng phím mũi tên để chọn ô, Space để phát hoặc tạm dừng."></canvas>
-<small>Ô sáng = có tiếng (light &gt; 0.12). Vạch trắng = playhead. Khung vàng = ô đang chọn.</small>
+<small>Ô sáng = có tiếng (light &gt; 0.12). Thang xám = độ sáng (dữ liệu mới không có màu); có màu khi bật "Hue theo độ sáng". Vạch trắng = playhead. Khung vàng = ô đang chọn.</small>
 
 <h2>4. Bấm màu để nghe</h2>
 <div id="swatches" class="row"></div>
-<small>Cam/vàng nên nghe gắt (sawtooth), tím/lam nên nghe mềm (sine), lục ở giữa (triangle).</small>
+<small>10 điểm neo màu của audio.js, nội suy mượt ở giữa. "Mây" có độ bão hòa thấp nên pha thêm tiếng gió. Nhật ký in tên giọng, cutoff, Q, attack, FM.</small>
 
 <h2>5. Thử với ảnh thật (chọn file từ máy, bấm vào ảnh)</h2>
 <div class="row"><input id="file" type="file" accept="image/*" aria-label="Chọn ảnh"></div>
@@ -76,7 +78,7 @@
 
 <script type="module">
 import { engine, SCALES, hueToWarmth } from "./audio.js";
-import { makeMockFeatures } from "./features.mock.js";
+import { makeMockNightLights } from "./features.mock.js";
 import { pickFromImage } from "./pickColor.js";
 
 const $ = (id) => document.getElementById(id);
@@ -93,62 +95,99 @@ window.addEventListener("unhandledrejection", (e) => log("LỖI: " + (e.reason?.
 
 /* ---------- trạng thái ---------- */
 let features = null;
+let rawData = null;
 let playCol = -1;
 let cursor = { col: 0, row: 0 };
 const canvas = $("grid");
 const ctx = canvas.getContext("2d");
 const CELL_W = 8, CELL_H = 20;
 
-/* ---------- kiểm tra JSON theo contracts.md ---------- */
-function validate(f, cols = 96, rows = 16) {
+/* ---------- kiểm tra JSON theo contracts.md (định dạng mới) ---------- */
+function validateRaw(d) {
   const errs = [];
-  if (!Array.isArray(f?.columns)) return ["thiếu columns"];
-  if (f.columns.length !== cols) errs.push(`số cột ${f.columns.length}, cần ${cols}`);
-  f.columns.forEach((c, i) => {
-    if (c.rows?.length !== rows) errs.push(`cột ${i}: số hàng ${c.rows?.length}, cần ${rows}`);
-    for (const k of ["sat", "light", "edge"])
-      if (!(c[k] >= 0 && c[k] <= 1)) errs.push(`cột ${i}: ${k}=${c[k]} ngoài 0..1`);
-    if (!(c.hue >= 0 && c.hue <= 360)) errs.push(`cột ${i}: hue=${c.hue} ngoài 0..360`);
-    c.rows?.forEach((r, j) => {
-      if (!(r.light >= 0 && r.light <= 1) || !(r.hue >= 0 && r.hue <= 360))
-        errs.push(`ô (${i},${j}): ${JSON.stringify(r)}`);
+  if (!Array.isArray(d?.frames) || !d.frames.length) return ["thiếu frames[]"];
+  if (typeof d.calibration?.bg !== "number" || typeof d.calibration?.ref !== "number")
+    errs.push("calibration.bg / calibration.ref thiếu");
+  const nCols = d.frames[0].audioColumns?.length;
+  const nRows = d.frames[0].audioColumns?.[0]?.rows?.length;
+  d.frames.forEach((fr, fi) => {
+    const tag = `frame ${fi} (năm ${fr.year})`;
+    if (!Number.isFinite(fr.year)) errs.push(`${tag}: thiếu year`);
+    if (!Array.isArray(fr.audioColumns)) { errs.push(`${tag}: thiếu audioColumns`); return; }
+    if (fr.audioColumns.length !== nCols) errs.push(`${tag}: ${fr.audioColumns.length} cột, frame đầu có ${nCols}`);
+    for (const k of ["mean", "edge", "deltaFromPrev"])
+      if (typeof fr.stats?.[k] !== "number") errs.push(`${tag}: stats.${k} thiếu`);
+    fr.audioColumns.forEach((c, ci) => {
+      if (c.rows?.length !== nRows) errs.push(`${tag} cột ${ci}: ${c.rows?.length} hàng, cần ${nRows}`);
+      c.rows?.forEach((r, ri) => {
+        if (!(r.value >= 0 && r.value <= 1)) errs.push(`${tag} ô (${ci},${ri}): value=${r.value} ngoài 0..1`);
+        if (!(r.cover >= 0 && r.cover <= 1)) errs.push(`${tag} ô (${ci},${ri}): cover=${r.cover} ngoài 0..1`);
+      });
     });
   });
-  for (const k of ["meanHue", "meanLight", "warmRatio", "edgeDensity"])
-    if (typeof f.stats?.[k] !== "number") errs.push(`stats.${k} thiếu`);
   return errs;
 }
 
-function summarize(f) {
-  let lit = 0, total = 0, warm = 0;
-  for (const c of f.columns) for (const r of c.rows) {
-    total++;
-    if (r.light > 0.12) { lit++; if (hueToWarmth(r.hue) === 1) warm++; }
-  }
-  const litCols = f.columns.filter((c) => c.rows.some((r) => r.light > 0.12)).length;
-  return `${f.title ?? f.id} | ${f.columns.length}x${f.columns[0].rows.length} | ô có tiếng: ${lit}/${total} (${(100 * lit / total).toFixed(1)}%) | cột có tiếng: ${litCols}/${f.columns.length} | ấm/sáng: ${lit ? (100 * warm / lit).toFixed(0) : 0}% | warmRatio=${f.stats?.warmRatio}`;
+// Cảnh báo (không phải lỗi): gợi ý dữ liệu có vẻ nhiễu
+function warningsRaw(d) {
+  const w = [];
+  const cols = d.frames?.[0]?.audioColumns;
+  if (!cols?.length) return w;
+  const last = cols[0].rows.length - 1;
+  const frac = cols.filter((c) => c.rows[last].value > 0.12).length / cols.length;
+  if (frac > 0.3)
+    w.push(`hàng cuối (thấp nhất) vượt 0.12 ở ${(100 * frac).toFixed(0)}% cột, có thể là nhiễu mép dưới ảnh chưa mask`);
+  const covers = d.frames[0].audioColumns.flatMap((c) => c.rows.map((r) => r.cover));
+  if (covers.every((x) => x === 1)) w.push("cover luôn bằng 1 ở frame đầu: chưa kiểm chứng được ý nghĩa của cover");
+  return w;
 }
 
-function setFeatures(f, label) {
-  features = f;
-  engine.load(f);
+function summarize(f) {
+  let lit = 0, total = 0;
+  for (const c of f.columns) for (const r of c.rows) { total++; if (r.light > 0.12) lit++; }
+  const litCols = f.columns.filter((c) => c.rows.some((r) => r.light > 0.12)).length;
+  const years = engine.getYears();
+  return `${f.title ?? f.id} | ${f.columns.length} cột x ${f.columns[0].rows.length} hàng | ô có tiếng: ${lit}/${total} (${(100 * lit / total).toFixed(1)}%) | cột có tiếng: ${litCols}/${f.columns.length} | urgency=${(f.stats?.urgency ?? f.stats?.warmRatio ?? 0).toFixed(2)}${years.length ? ` | ${years.length} năm` : ""}`;
+}
+
+function refreshYears() {
+  const sel = $("year");
+  const years = engine.getYears();
+  sel.innerHTML = "";
+  years.forEach(({ index, year }) => sel.add(new Option(String(year), index)));
+  sel.hidden = years.length === 0;
+  sel.value = engine.frameIndex;
+}
+
+function showFeatures(label) {
+  features = engine.features;
   cursor = { col: 0, row: 0 };
   playCol = -1;
-  canvas.width = f.columns.length * CELL_W;
-  canvas.height = f.columns[0].rows.length * CELL_H;
-  $("info").textContent = summarize(f);
+  canvas.width = features.columns.length * CELL_W;
+  canvas.height = features.columns[0].rows.length * CELL_H;
+  $("info").textContent = summarize(features);
   log(`Đã nạp: ${label}`, "ok");
   draw();
+}
+
+function setData(raw, label) {
+  rawData = raw;
+  engine.load(raw);          // engine tự nhận định dạng mới (frames) hoặc cũ (columns)
+  refreshYears();
+  showFeatures(label);
 }
 
 /* ---------- vẽ lưới ---------- */
 function draw() {
   if (!features) return;
   const cols = features.columns;
+  const useHue = !engine.data || !!engine.hueOf;
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   cols.forEach((c, i) => c.rows.forEach((r, j) => {
-    if (r.light > 0.12) ctx.fillStyle = `hsl(${r.hue} 85% ${20 + r.light * 55}%)`;
+    // Dữ liệu night_lights không có màu (hue cố định 45 = luôn vàng), nên chỉ vẽ màu thật khi
+    // dữ liệu dạng cũ có hue riêng hoặc khi bật "Hue theo độ sáng". Còn lại vẽ thang xám theo độ sáng.
+    if (r.light > 0.12) ctx.fillStyle = useHue ? `hsl(${r.hue} 85% ${20 + r.light * 55}%)` : `hsl(0 0% ${25 + r.light * 70}%)`;
     else ctx.fillStyle = "#14141c";
     ctx.fillRect(i * CELL_W, j * CELL_H, CELL_W - 1, CELL_H - 1);
   }));
@@ -168,25 +207,35 @@ async function probeCell(col, row) {
 }
 
 /* ---------- sự kiện ---------- */
-$("btnMock").onclick = () => setFeatures(makeMockFeatures(), "dữ liệu giả");
+$("btnMock").onclick = () => setData(makeMockNightLights(), "dữ liệu giả (định dạng mới, 3 năm)");
 
 $("btnLoad").onclick = async () => {
   const url = $("url").value.trim();
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status} khi tải ${url}`);
-    const f = await res.json();
-    const errs = validate(f);
-    if (errs.length) { log(`JSON có ${errs.length} lỗi, xem nút "Kiểm tra JSON". Vẫn thử nạp.`, "bad"); }
-    setFeatures(f, url);
+    const raw = await res.json();
+    if (Array.isArray(raw.frames)) {
+      const errs = validateRaw(raw);
+      if (errs.length) log(`JSON có ${errs.length} lỗi, bấm "Kiểm tra JSON" để xem. Vẫn thử nạp.`, "bad");
+    }
+    setData(raw, url);
   } catch (e) { log("Không nạp được: " + e.message, "bad"); }
 };
 
 $("btnCheck").onclick = () => {
-  if (!features) return log("Chưa nạp dữ liệu.", "bad");
-  const errs = validate(features);
+  if (!rawData) return log("Chưa nạp dữ liệu.", "bad");
+  if (!Array.isArray(rawData.frames)) return log("Dữ liệu dạng cũ (columns), không kiểm tra theo hợp đồng mới.", "dim");
+  const errs = validateRaw(rawData);
   if (!errs.length) log("JSON hợp lệ theo contracts.md ✔", "ok");
   else { log(`${errs.length} lỗi:`, "bad"); errs.slice(0, 15).forEach((m) => log("  " + m, "bad")); }
+  warningsRaw(rawData).forEach((m) => log("Cảnh báo: " + m, "dim"));
+};
+
+$("year").onchange = (e) => {
+  const i = +e.target.value;
+  engine.setFrame(i);
+  showFeatures(`năm ${rawData.frames[i].year}`);
 };
 
 $("btnPlay").onclick = async () => {
@@ -201,6 +250,13 @@ $("speed").oninput = (e) => { engine.setSpeed(+e.target.value); $("speedV").text
 $("vol").oninput = (e) => engine.setVolume(+e.target.value);
 $("scale").onchange = (e) => { engine.setScale(e.target.value); log("Thang âm: " + e.target.value); };
 $("urgency").onchange = (e) => { engine.setUrgencyMode(e.target.checked); log("Cấp bách: " + (e.target.checked ? "BẬT" : "tắt")); };
+
+$("hueByLight").onchange = (e) => {
+  // mờ = lam đậm (230°), sáng = vàng rực (58°). Chỉ để nghe thử, chưa phải quyết định cuối.
+  engine.setHueMapper(e.target.checked ? (light) => 230 - 172 * light : null);
+  if (engine.features) showFeatures(e.target.checked ? "hue theo độ sáng: BẬT" : "hue cố định");
+  log("Hue theo độ sáng: " + (e.target.checked ? "BẬT (mờ=lam đậm, sáng=vàng rực)" : "tắt (hue cố định 45)"));
+};
 
 engine.onPlayhead((i, p) => {
   playCol = i;
@@ -232,18 +288,20 @@ canvas.addEventListener("keydown", (e) => {
 });
 
 /* ---------- ô màu ---------- */
-const SWATCHES = [
-  ["cam", 30, 0.9, 0.8], ["vàng", 55, 0.9, 0.9], ["lục", 130, 0.8, 0.7],
-  ["lam", 215, 0.8, 0.7], ["tím", 280, 0.7, 0.8], ["trắng", 0, 0, 1],
+const SWATCHES = [ // [tên, hue, sat, light]  — 10 điểm neo trong COLOR_NODES của audio.js
+  ["đỏ thẫm 0°", 0, 0.9, 0.8], ["cam đất 30°", 30, 0.9, 0.8], ["vàng rực 58°", 58, 0.9, 0.9],
+  ["vàng chanh 85°", 85, 0.8, 0.8], ["xanh lá 130°", 130, 0.8, 0.7], ["xanh ngọc 165°", 165, 0.8, 0.7],
+  ["cyan 195°", 195, 0.8, 0.8], ["lam đậm 230°", 230, 0.8, 0.6], ["chàm/tím 275°", 275, 0.7, 0.7],
+  ["hồng/đỏ tía 325°", 325, 0.8, 0.8], ["mây (trung tính)", 0, 0.05, 0.95],
 ];
 for (const [name, h, s, l] of SWATCHES) {
   const b = document.createElement("button");
-  b.style.background = `hsl(${h} ${s * 100}% ${l * 50}%)`;
+  b.style.background = `hsl(${h} ${s * 100}% ${l * 55}%)`;
   b.setAttribute("aria-label", `Màu ${name}`);
-  b.title = name;
+  b.title = name; b.textContent = name.split(' ')[0];
   b.onclick = async () => {
     const v = await engine.playColor({ hue: h, sat: s, light: l, rowFrac: 0.5 });
-    log(`màu ${name} (hue ${h}) -> ${v.osc}, cutoff ${Math.round(v.cutoff)}Hz, vel ${v.velocity.toFixed(2)}`);
+    log(`${name} -> ${v.label} | cutoff ${v.cutoff}Hz, Q ${v.q}, attack ${v.attack.toFixed(3)}s, FM ${v.modIndex.toFixed(2)}, vel ${v.velocity.toFixed(2)}`);
   };
   $("swatches").appendChild(b);
 }
