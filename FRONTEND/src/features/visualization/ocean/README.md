@@ -31,12 +31,13 @@ through an unlit, non-tone-mapped material.
 
 The source is a local, unmodified NASA download. See `public/media/ocean/README.md`
 for provenance, file checksum, download setup and time/measurement limits.
-The approved source is now the 2048 × 1024 MP4, not the earlier 640 × 320 M4V.
-Its larger original frames improve zoom clarity without changing playback or
-scene geometry. The map canvas takes its dimensions directly from the video;
-the globe uses the same native video in its texture. No transcoding or tools are
-needed. Run `./scripts/download-ocean-video.ps1` after cloning/before building;
-the large local asset is Git-ignored and copied by Vite into the production output.
+The source is NASA's 640 × 320 M4V, tracked in Git at 12,670,193 bytes so normal
+clones and deployment builds include it. This replaces the 2048 × 1024 MP4 to
+stay below 100 MB, with less zoom detail. The map canvas takes its dimensions
+directly from the video; the globe uses the same native video in its texture.
+No transcoding or tools are needed. The optional
+`./scripts/download-ocean-video.ps1` helper restores/verifies the same file.
+Track timing is unchanged: 2001 frames at 30 fps, lasting 66.7 seconds.
 
 Shared playback extraction: `useOceanPlayback`, `OceanGlobeLayer` and the former
 `videoFrames` export now delegate to `media/useVideoPlayback`,

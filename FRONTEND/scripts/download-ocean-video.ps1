@@ -1,18 +1,18 @@
 $ErrorActionPreference = 'Stop'
-$destination = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../public/media/ocean/ecco2-surface-flow-2048.mp4'))
-$expectedHash = 'EEDE4B8230E37E2241AE8459A83C5CE21F824E1DACC3EA692D7DBCEC35C42851'
+$destination = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../public/media/ocean/ecco2_sst_flow.m4v'))
+$expectedHash = '72168FC1EF93E5ED622D29AF79E027BAF7C5372D175D8774D3F33C98A8EAEA5F'
 if (Test-Path -LiteralPath $destination) {
   if ((Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash -ne $expectedHash) {
     throw 'Existing ocean video has an unexpected checksum; it has not been overwritten.'
   }
-  Write-Output 'High-resolution ocean video is already present and verified.'
+  Write-Output 'GitHub-sized ocean video is already present and verified.'
   return
 }
 New-Item -ItemType Directory -Path ([System.IO.Path]::GetDirectoryName($destination)) -Force | Out-Null
 $downloadPath = "$destination.download"
-Invoke-WebRequest -Uri 'https://svs.gsfc.nasa.gov/vis/a000000/a003900/a003912/ecco2_sst_flow.mp4' -OutFile $downloadPath -TimeoutSec 600
+Invoke-WebRequest -Uri 'https://svs.gsfc.nasa.gov/vis/a000000/a003900/a003912/ecco2_sst_flow.m4v' -OutFile $downloadPath -TimeoutSec 600
 if ((Get-FileHash -LiteralPath $downloadPath -Algorithm SHA256).Hash -ne $expectedHash) {
   throw 'Downloaded ocean video has an unexpected checksum. The application asset has not been replaced.'
 }
 Move-Item -LiteralPath $downloadPath -Destination $destination
-Write-Output 'Downloaded and verified the unmodified high-resolution NASA ocean video.'
+Write-Output 'Downloaded and verified the unmodified NASA ocean video (640 x 320).'

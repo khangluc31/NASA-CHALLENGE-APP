@@ -6,7 +6,7 @@ ECCO2 modeled surface currents colored by sea surface temperature).
 SHA-256: `cfefda012f844527d47dd9e54a272020c12f6989a969a3effea1cec9255d348d`.
 
 Source metadata: 1080 × 540, 30 fps, 2001 processed frames, sample step 1.
-Local `ecco2-surface-flow-2048.mp4` MP4 track timing was inspected: 2001 samples,
+Local `ecco2_sst_flow.m4v` MP4 track timing was inspected: 2001 samples,
 timescale 600, 20 units per sample, duration 66.7 seconds (30 fps). This verifies
 timing compatibility, not independent image-by-image equivalence of both exports.
 
