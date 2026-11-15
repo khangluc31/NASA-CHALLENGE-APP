@@ -467,7 +467,9 @@
   font-size: 13.5px;
   line-height: 1.4;
 }
-.left-page .visualization-slot .audio-lab-panel { padding: 12px 12px 16px; background: #0c1620; border-radius: 5px; }
+.left-page .visualization-slot .audio-lab-panel { padding: 12px 14px 16px; background: transparent; border-radius: 5px; }
+/* Chương Audio Lab: bỏ khung tối lồng, để lộ nền giấy sách như trang phải. */
+.left-page .visualization-slot:has(.audio-lab-panel) { background: transparent; overflow: visible; }
 .right-page .audio-lab-panel { height: 100%; padding: 2px 4px 4px; }
 .audio-lab-panel::-webkit-scrollbar { width: 9px; }
 .audio-lab-panel::-webkit-scrollbar-thumb { background: #86bfc3; border-radius: 6px; }
@@ -475,3 +477,27 @@
 .audio-lab-panel h2 { font-size: 14px; margin: 4px 0; }
 /* Chương Audio Lab không có thanh audio riêng -> ẩn ô rỗng để không chừa khoảng trống. */
 .audio-slot:empty { display: none; }
+
+/* Audio Lab nhúng trong sách (trang trái & phải): nền tối -> chữ TRẮNG.
+   !important để phủ class Tailwind text-lab-heading / text-lab-muted / text-lab-fg. */
+.book-page .audio-lab-panel,
+.book-page .audio-lab-panel h2,
+.book-page .audio-lab-panel label,
+.book-page .audio-lab-panel span,
+.book-page .audio-lab-panel p,
+.book-page .audio-lab-panel div,
+.book-page .audio-lab-panel .text-lab-heading,
+.book-page .audio-lab-panel .text-lab-fg { color: #ffffff !important; }
+.book-page .audio-lab-panel small,
+.book-page .audio-lab-panel .text-lab-muted { color: #d7dce6 !important; }
+.book-page .audio-lab-panel button,
+.book-page .audio-lab-panel select,
+.book-page .audio-lab-panel input[type="text"],
+.book-page .audio-lab-panel option { color: #ffffff !important; }
+.book-page .audio-lab-panel button,
+.book-page .audio-lab-panel select,
+.book-page .audio-lab-panel input,
+.book-page .audio-lab-panel canvas,
+.book-page .audio-lab-panel .border-lab-line,
+.book-page .audio-lab-panel .border-lab-line-soft,
+.book-page .audio-lab-panel .border-lab-log-line { border-color: #ffffff55 !important; }

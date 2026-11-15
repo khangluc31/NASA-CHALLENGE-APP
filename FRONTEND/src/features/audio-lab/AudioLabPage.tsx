@@ -14,9 +14,9 @@ export default function AudioLabPage() {
     const unbind = bindEngineToStore();
 
     const log = useJukeboxStore.getState().log;
-    const onError = (e: ErrorEvent) => log("LỖI: " + e.message, "bad");
+    const onError = (e: ErrorEvent) => log("Error: " + e.message, "bad");
     const onRejection = (e: PromiseRejectionEvent) =>
-      log("LỖI: " + ((e.reason as Error | undefined)?.message ?? String(e.reason)), "bad");
+      log("Error: " + ((e.reason as Error | undefined)?.message ?? String(e.reason)), "bad");
 
     window.addEventListener("error", onError);
     window.addEventListener("unhandledrejection", onRejection);

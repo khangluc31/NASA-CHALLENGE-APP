@@ -9,15 +9,15 @@ export interface Swatch {
 const s = (name: string, hue: number, sat: number, light: number): Swatch => ({ name, hue, sat, light });
 
 export const SWATCHES: readonly Swatch[] = [
-  s("đỏ thẫm 0°", 0, 0.9, 0.8),
-  s("cam đất 30°", 30, 0.9, 0.8),
-  s("vàng rực 58°", 58, 0.9, 0.9),
-  s("vàng chanh 85°", 85, 0.8, 0.8),
-  s("xanh lá 130°", 130, 0.8, 0.7),
-  s("xanh ngọc 165°", 165, 0.8, 0.7),
+  s("red deep 0°", 0, 0.9, 0.8),
+  s("orange earth 30°", 30, 0.9, 0.8),
+  s("yellow vibrant 58°", 58, 0.9, 0.9),
+  s("yellow citrus 85°", 85, 0.8, 0.8),
+  s("green leaf 130°", 130, 0.8, 0.7),
+  s("green jade 165°", 165, 0.8, 0.7),
   s("cyan 195°", 195, 0.8, 0.8),
-  s("lam đậm 230°", 230, 0.8, 0.6),
-  s("chàm/tím 275°", 275, 0.7, 0.7),
-  s("hồng/đỏ tía 325°", 325, 0.8, 0.8),
-  s("mây (trung tính)", 0, 0.05, 0.95),
+  s("blue deep 230°", 230, 0.8, 0.6),
+  s("purple 275°", 275, 0.7, 0.7),
+  s("pink 325°", 325, 0.8, 0.8),
+  s("cloud (neutral)", 0, 0.05, 0.95),
 ];

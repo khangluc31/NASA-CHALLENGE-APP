@@ -25,7 +25,7 @@ interface ColorNode {
 export const COLOR_NODES: readonly ColorNode[] = [
   {
     name: "crimson",
-    label: "Đỏ thẫm (Địa nhiệt / Lửa)",
+    label: "Crimson (Geothermal / Fire)",
     hue: 0,
     // Dày họa âm kiểu sawtooth nhưng kiểm soát dải cao để ấm và uy lực
     partials: [1.0, 0.55, 0.38, 0.28, 0.22, 0.17, 0.14, 0.11],
@@ -40,7 +40,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "terracotta",
-    label: "Cam đất (Sa mạc / Bụi khoáng)",
+    label: "Terracotta (Desert / Mineral dust)",
     hue: 30,
     // Họa âm kiểu sóng pulse rỗng ấm, mộc mạc
     partials: [1.0, 0.65, 0.15, 0.45, 0.1, 0.3, 0.08, 0.15],
@@ -55,7 +55,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "solar-gold",
-    label: "Vàng rực (Bức xạ / Đèn đô thị)",
+    label: "Solar gold (Radiation / City lights)",
     hue: 58,
     // Tập trung họa âm bậc 2, 3 kết hợp FM tạo tiếng lấp lánh như chuông nhỏ
     partials: [1.0, 0.4, 0.35, 0.15, 0.25, 0.1, 0.08, 0.05],
@@ -70,7 +70,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "chartreuse",
-    label: "Vàng chanh (Đồng cỏ / Tảo biển)",
+    label: "Chartreuse (Grassland / Algae)",
     hue: 85,
     // Lai giữa triangle và pulse mảnh, tươi sáng
     partials: [1.0, 0.25, 0.2, 0.12, 0.08, 0.05, 0.03, 0.02],
@@ -85,7 +85,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "emerald",
-    label: "Xanh lá (Rừng mưa / Thảm thực vật)",
+    label: "Emerald (Rainforest / Vegetation)",
     hue: 130,
     // Dạng sóng triangle hữu cơ (chỉ giữ họa âm lẻ), êm và bao trùm
     partials: [1.0, 0.0, 0.14, 0.0, 0.05, 0.0, 0.02, 0.0],
@@ -100,7 +100,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "teal",
-    label: "Xanh ngọc (Rạn san hô / Cửa sông)",
+    label: "Teal (Coral reef / Estuary)",
     hue: 165,
     partials: [1.0, 0.12, 0.1, 0.04, 0.03, 0.01, 0.0, 0.0],
     harmonicity: 1.5,
@@ -114,7 +114,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "glacial-cyan",
-    label: "Cyan (Sông băng / Nước nông)",
+    label: "Cyan (Glacier / Shallow water)",
     hue: 195,
     // Sine thuần kết hợp FM harmonicity 3.0 tạo cảm giác băng tinh thể
     partials: [1.0, 0.05, 0.02, 0.08, 0.01, 0.04, 0.0, 0.0],
@@ -129,7 +129,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "deep-blue",
-    label: "Lam đậm (Đại dương sâu / Hải lưu)",
+    label: "Deep blue (Deep ocean / Currents)",
     hue: 230,
     // Gần như sine thuần, trầm sâu và tĩnh tại
     partials: [1.0, 0.04, 0.02, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -144,7 +144,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "indigo",
-    label: "Chàm & Tím (Khí quyển / Cực quang)",
+    label: "Indigo & Violet (Atmosphere / Aurora)",
     hue: 275,
     partials: [1.0, 0.18, 0.08, 0.05, 0.03, 0.02, 0.01, 0.0],
     harmonicity: 2.5,
@@ -158,7 +158,7 @@ export const COLOR_NODES: readonly ColorNode[] = [
   },
   {
     name: "rose",
-    label: "Hồng & Đỏ tía (Dị thường nhiệt / Đô thị)",
+    label: "Pink & Magenta (Thermal anomaly / Urban)",
     hue: 325,
     partials: [1.0, 0.45, 0.25, 0.22, 0.12, 0.1, 0.06, 0.04],
     harmonicity: 1.0,
@@ -255,7 +255,7 @@ export function colorToVoice(
   // Nhãn mô tả thân thiện cho UI / aria-live
   const isNeutral = s < 0.18;
   const osc = isNeutral ? "atmosphere" : timbre.name;
-  const label = isNeutral ? "Trung tính (Mây / Tuyết / Sương mù)" : timbre.label;
+  const label = isNeutral ? "Neutral (Cloud / Snow / Fog)" : timbre.label;
 
   return {
     midi,

@@ -113,7 +113,7 @@ export const useJukeboxStore = create<JukeboxState>()(
         info: summarize(features, engine.getYears().length),
         gridVersion: s.gridVersion + 1,
       }));
-      get().log(`Đã nạp: ${label}`, "ok");
+      get().log(`Loaded: ${label}`, "ok");
     };
 
     const setData = (raw: RawData, label: string) => {
@@ -144,7 +144,7 @@ export const useJukeboxStore = create<JukeboxState>()(
       features: null,
       years: [],
       yearIndex: 0,
-      info: "Chưa nạp dữ liệu.",
+      info: "No data loaded.",
       gridVersion: 0,
 
       playCol: -1,
@@ -161,7 +161,7 @@ export const useJukeboxStore = create<JukeboxState>()(
       timeline: false,
       tlYears: "",
 
-      logs: [makeLog("Sẵn sàng. Bấm 'Nạp dữ liệu giả' rồi Play.", "dim")],
+      logs: [makeLog("Ready. Click 'Load mock data', then Play.", "dim")],
 
       /* ---------------- log ---------------- */
       log: (msg, tone = "") => set((s) => ({ logs: [...s.logs, makeLog(msg, tone)].slice(-MAX_LOGS) })),
@@ -169,7 +169,7 @@ export const useJukeboxStore = create<JukeboxState>()(
       /* ---------------- nguồn dữ liệu ---------------- */
       loadMock: () => {
         loadSeq++; // huỷ mọi lần nạp file đang chờ
-        setData(makeMockNightLights(), "dữ liệu giả (định dạng mới, 3 năm)");
+        setData(makeMockNightLights(), "mock data (new format, 3 years)");
         set({ loadStatus: "ready", loadError: null, loadedUrl: null });
       },
 
@@ -180,29 +180,29 @@ export const useJukeboxStore = create<JukeboxState>()(
         set({ loadStatus: "loading", loadError: null });
         try {
           const res = await fetch(url);
-          if (!res.ok) throw new Error(`HTTP ${res.status} khi tải ${url}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status} loading ${url}`);
           const text = await res.text();
           if (seq !== loadSeq) return; // đã có lần nạp mới hơn
           const mb = text.length / 1048576;
           const raw = JSON.parse(text) as RawData;
-          log(`Đã tải ${mb.toFixed(1)} MB`, "dim");
+          log(`Loaded ${mb.toFixed(1)} MB`, "dim");
           if (mb > 5)
             log(
-              `Cảnh báo: file ${mb.toFixed(1)} MB. Audio chỉ cần frames[].audioColumns (nhỏ hơn nhiều), nên xin Người 3 xuất bản gọn cho web.`,
+              `Warning: ${mb.toFixed(1)} MB file. Audio only needs frames[].audioColumns (much smaller); ask for a web-trimmed export.`,
               "dim",
             );
           // Contract (contracts.md) chỉ áp cho night_lights có sẵn audioColumns; co2/ocean là chuỗi số nên bỏ qua bước này
           if (raw.frames?.some((f) => f.audioColumns)) {
             const errs = validateRaw(raw);
-            if (errs.length) log(`JSON có ${errs.length} lỗi, bấm "Kiểm tra JSON" để xem. Vẫn thử nạp.`, "bad");
+            if (errs.length) log(`JSON has ${errs.length} errors, click "check JSON" to see them. Loading anyway.`, "bad");
           }
           setData(raw, url);
           set({ loadStatus: "ready", loadedUrl: url });
-          if (get().adapted) log("Dữ liệu là chuỗi số: đã đổi thành lưới audio (adapters.ts).", "dim");
+          if (get().adapted) log("Data is a numeric series: converted to an audio grid (adapters.ts).", "dim");
         } catch (e) {
           if (seq !== loadSeq) return;
           set({ loadStatus: "error", loadError: errMsg(e) });
-          log("Không nạp được: " + errMsg(e), "bad");
+          log("Could not load: " + errMsg(e), "bad");
         }
       },
 
@@ -213,31 +213,31 @@ export const useJukeboxStore = create<JukeboxState>()(
 
       checkJson: () => {
         const { rawData, adapted, log } = get();
-        if (!rawData) return log("Chưa nạp dữ liệu.", "bad");
-        if (adapted) return log("Dữ liệu co2/ocean đã qua adapter, không kiểm tra theo contract night_lights.", "dim");
+        if (!rawData) return log("No data loaded.", "bad");
+        if (adapted) return log("co2/ocean data went through the adapter; not checked against the night_lights contract.", "dim");
         if (!Array.isArray(rawData.frames))
-          return log("Dữ liệu dạng cũ (columns), không kiểm tra theo hợp đồng mới.", "dim");
+          return log("Legacy data (columns); not checked against the new contract.", "dim");
 
         const errs = validateRaw(rawData);
-        if (!errs.length) log("JSON hợp lệ theo contracts.md ✔", "ok");
+        if (!errs.length) log("JSON valid per contracts.md ✔", "ok");
         else {
-          log(`${errs.length} lỗi:`, "bad");
+          log(`${errs.length} errors:`, "bad");
           errs.slice(0, 15).forEach((m) => log("  " + m, "bad"));
         }
-        warningsRaw(rawData).forEach((m) => log("Cảnh báo: " + m, "dim"));
+        warningsRaw(rawData).forEach((m) => log("Warning: " + m, "dim"));
       },
 
       selectYear: (index) => {
         set({ yearIndex: index });
         engine.setFrame(index);
-        showFeatures(`năm ${get().rawData?.frames?.[index]?.year ?? index}`);
+        showFeatures(`year ${get().rawData?.frames?.[index]?.year ?? index}`);
       },
 
       setUrl: (url) => set({ url }),
 
       /* ---------------- transport ---------------- */
       play: async () => {
-        if (!get().features) return get().log("Hãy nạp dữ liệu trước.", "bad");
+        if (!get().features) return get().log("Load data first.", "bad");
         await engine.play();
         get().log("▶ play");
       },
@@ -262,29 +262,29 @@ export const useJukeboxStore = create<JukeboxState>()(
       setScale: (scale) => {
         engine.setScale(scale);
         set({ scale });
-        get().log("Thang âm: " + scale);
+        get().log("Scale: " + scale);
       },
       setUrgency: (on) => {
         engine.setUrgencyMode(on);
         set({ urgency: on });
-        get().log("Cấp bách: " + (on ? "BẬT" : "tắt"));
+        get().log("Urgent: " + (on ? "ON" : "off"));
       },
       setHueByLight: (on) => {
         // mờ = lam đậm (230°), sáng = vàng rực (58°). Chỉ để nghe thử, chưa phải quyết định cuối.
         engine.setHueMapper(on ? (light) => 230 - 172 * light : null);
         set({ hueByLight: on });
-        redrawIfLoaded(on ? "hue theo độ sáng: BẬT" : "hue cố định");
+        redrawIfLoaded(on ? "hue by brightness: ON" : "fixed hue");
         get().log(
-          "Hue theo độ sáng: " + (on ? "BẬT (mờ=lam đậm, sáng=vàng rực)" : "tắt (hue cố định 45)"),
+          "Hue by brightness: " + (on ? "ON (dim=deep blue, bright=solar gold)" : "off (fixed hue 45)"),
         );
       },
       setEmphasis: (on) => {
         engine.setChangeEmphasis(on);
         set({ emphasis: on });
-        redrawIfLoaded(on ? "nhấn mạnh thay đổi: BẬT" : "nhấn mạnh thay đổi: tắt");
+        redrawIfLoaded(on ? "emphasize change: ON" : "emphasize change: off");
         get().log(
-          "Nhấn mạnh thay đổi: " +
-            (on ? "BẬT (vàng = sáng thêm, lam = tối đi, xanh lá = nền)" : "tắt"),
+          "Emphasize change: " +
+            (on ? "ON (yellow = brighter, blue = darker, green = baseline)" : "off"),
         );
       },
 
@@ -304,11 +304,11 @@ export const useJukeboxStore = create<JukeboxState>()(
         }
         engine.setTimeline(on, idx);
         refreshYears();
-        redrawIfLoaded(on ? `timeline ${engine.timelineIndexes?.length ?? 0} năm` : "timeline tắt");
+        redrawIfLoaded(on ? `timeline ${engine.timelineIndexes?.length ?? 0} years` : "timeline off");
         log(
           on
-            ? `Timeline BẬT: ${(engine.timelineIndexes ?? []).map((i) => engine.data?.frames?.[i]?.year).join(", ")}`
-            : "Timeline tắt",
+            ? `Timeline ON: ${(engine.timelineIndexes ?? []).map((i) => engine.data?.frames?.[i]?.year).join(", ")}`
+            : "Timeline off",
         );
       },
 
@@ -320,9 +320,9 @@ export const useJukeboxStore = create<JukeboxState>()(
         if (!cell) return;
         const v = await engine.playCell(col, row);
         if (!v) return;
-        const note = cell.light > LIT_THRESHOLD ? "" : "  (ô tối, tiếng rất nhỏ)";
+        const note = cell.light > LIT_THRESHOLD ? "" : "  (dark cell, very quiet)";
         get().log(
-          `ô (${col},${row}) hue=${cell.hue} light=${cell.light} -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}${note}`,
+          `cell (${col},${row}) hue=${cell.hue} light=${cell.light} -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}${note}`,
         );
       },
 
@@ -338,7 +338,7 @@ export const useJukeboxStore = create<JukeboxState>()(
         const c = pickFromImage(img, ev, grid);
         const v = await engine.playColor(c);
         get().log(
-          `pixel hue=${c.hue.toFixed(0)} sat=${c.sat.toFixed(2)} V=${c.light.toFixed(2)} ô(${c.col},${c.row}) -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}`,
+          `pixel hue=${c.hue.toFixed(0)} sat=${c.sat.toFixed(2)} V=${c.light.toFixed(2)} cell(${c.col},${c.row}) -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}`,
         );
       },
     };
@@ -365,8 +365,8 @@ export function bindEngineToStore(): () => void {
     useJukeboxStore
       .getState()
       .log(
-        `Năm ${year}` +
-          (change ? `: ${change.up} ô sáng thêm, ${change.down} ô tối đi (so với ${change.since})` : ""),
+        `Year ${year}` +
+          (change ? `: ${change.up} brighter, ${change.down} darker (vs ${change.since})` : ""),
         "ok",
       );
   });
@@ -375,8 +375,8 @@ export function bindEngineToStore(): () => void {
     useJukeboxStore.setState({
       playCol: i,
       progress: info
-        ? `${info.year ?? ""}${info.timeline ? ` (${info.yearPos + 1}/${info.yearCount})` : ""} · cột ${i} · tổng ${(info.total * 100).toFixed(0)}%`
-        : `cột ${i} · ${(p * 100).toFixed(0)}%`,
+        ? `${info.year ?? ""}${info.timeline ? ` (${info.yearPos + 1}/${info.yearCount})` : ""} · col ${i} · total ${(info.total * 100).toFixed(0)}%`
+        : `col ${i} · ${(p * 100).toFixed(0)}%`,
     });
   });
 
