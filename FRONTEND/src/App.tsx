@@ -13,7 +13,7 @@ function App() {
   const [reduceMotion, setReduceMotion] = useState(false)
   return <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}><div style={{
     '--book-paper-image': `url("${import.meta.env.BASE_URL}media/book-paper.png")`,
-    '--book-cover-paper-image': `url("${import.meta.env.BASE_URL}media/book-cover-paper.png")`,
+    '--book-cover-paper-image': `url("${import.meta.env.BASE_URL}media/book-cover-page.jpg")`,
   } as CSSProperties} className={`atlas-app ${reduceMotion ? 'reduce-motion' : ''}`}>
     <EarthBackdrop />
     <a href="#main-content" className="skip-link">Skip to atlas</a>

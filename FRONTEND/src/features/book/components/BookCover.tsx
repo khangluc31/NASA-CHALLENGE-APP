@@ -9,9 +9,8 @@ export function BookCover({ onOpen, active = true }: { onOpen: () => void; activ
       <button className="open-link inline-flex items-center gap-3" onClick={onOpen}>Open the atlas <ArrowUpRight size={20} /></button>
     </section>
     <button className="book-cover" onClick={onOpen} aria-label="Open Earth Jukebox atlas">
-      <span className="cover-spine" />
+      <span className="cover-spine" aria-hidden="true" />
       <span className="magazine-title">EARTH JUKEBOX</span>
-      <span className="magazine-earth" aria-hidden="true"><img src={`${import.meta.env.BASE_URL}media/earth-cover.png`} alt="" draggable={false} /></span>
     </button>
   </main>
 }

@@ -402,17 +402,14 @@
   box-shadow: none;
   container-type: inline-size;
 }
+/* Title placement follows the 450 × 600 cover artwork. */
 .book-cover .cover-spine { width: 2%; background: #ffffff0d; z-index: 3; }
 .magazine-title {
-  position: absolute; top: 16.7%; left: 8%; right: 6%; z-index: 2;
-  color: #fff; font-family: var(--font-book); font-weight: 700;
-  font-size: 9.5cqw; line-height: 1.15; letter-spacing: -.5px; white-space: nowrap;
+  position: absolute; top: 29.3%; left: 5%; right: 5%; z-index: 2;
+  color: #fff; font-family: 'Poppins', Arial, sans-serif; font-weight: 800;
+  font-size: 7.2cqw; line-height: 1.15; letter-spacing: .12cqw;
+  text-align: center; white-space: nowrap;
 }
-.magazine-earth {
-  position: absolute; left: -82%; top: 38%; width: 164%; aspect-ratio: 1;
-  border: 5cqw solid #ffffff24; border-radius: 50%; overflow: hidden;
-}
-.magazine-earth img { width: 100%; height: 100%; object-fit: cover; object-position: 44% center; }
 .book-spread { border-color: #464646; border-radius: 0; background: #141414; }
 .book-page, .left-page, .right-page {
   background: #141414 var(--book-paper-image) center / cover no-repeat;
