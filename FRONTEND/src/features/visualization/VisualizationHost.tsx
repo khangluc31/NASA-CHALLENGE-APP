@@ -8,6 +8,7 @@ import { OceanVisualization } from './ocean/OceanVisualization'
 import { CarbonDioxideVisualization } from './carbon-dioxide/CarbonDioxideVisualization'
 import { BLUE_MARBLE_TEXTURE } from './globe/surfaceTexture'
 import './visualization.css'
+import type { CarbonDioxideView } from './carbon-dioxide/useCurrentView'
 
 interface HostProps extends BookSlotProps {
   view?: 'globe' | 'map'
@@ -16,9 +17,10 @@ interface HostProps extends BookSlotProps {
   onLocationSelect: (location: GlobeLocation | null) => void
   nightLightsYear?: number
   onNightLightsYearChange?: (year: number) => void
+  onCarbonDioxideViewChange?: (view: CarbonDioxideView) => void
 }
 
-export function VisualizationHost({ chapter, isActive, interactionDisabled, view, location, onViewChange, onLocationSelect, nightLightsYear, onNightLightsYearChange }: HostProps) {
+export function VisualizationHost({ chapter, isActive, interactionDisabled, view, location, onViewChange, onLocationSelect, nightLightsYear, onNightLightsYearChange, onCarbonDioxideViewChange }: HostProps) {
   if (chapter.viewer === 'media') return <VisualizationPreview chapter={chapter} />
   const views = chapter.supportedViews ?? [chapter.viewer]
   const activeView = view && views.includes(view) ? view : chapter.viewer
@@ -39,7 +41,7 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
       </button>
     </div>}
     {chapter.id === 'carbon-dioxide'
-      ? <CarbonDioxideVisualization key={chapter.id} {...common} />
+      ? <CarbonDioxideVisualization key={chapter.id} {...common} onCurrentViewChange={onCarbonDioxideViewChange} />
       : chapter.id === 'ocean-temperature'
       ? <OceanVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} />
       : activeView === 'globe'

@@ -6,17 +6,22 @@ import { GlobeVideoLayer } from '../globe/layers/GlobeVideoLayer'
 import { useVideoPlayback } from '../media/useVideoPlayback'
 import { VideoPlaybackControls } from '../media/VideoPlaybackControls'
 import './carbon-dioxide.css'
+import { useCurrentView } from './useCurrentView'
+import type { CarbonDioxideView } from './useCurrentView'
 
 const SOURCE = `${import.meta.env.BASE_URL}media/carbon-dioxide/dyamond-co2-4096.mp4`
 const COLORBAR = `${import.meta.env.BASE_URL}media/carbon-dioxide/colorbar.png`
-type Props = Pick<GlobeViewerProps, 'selectedLocation' | 'onLocationSelect' | 'interactionLocked' | 'label'>
+type Props = Pick<GlobeViewerProps, 'selectedLocation' | 'onLocationSelect' | 'interactionLocked' | 'label'> & {
+  onCurrentViewChange?: (view: CarbonDioxideView) => void
+}
 
-export function CarbonDioxideVisualization(props: Props) {
+export function CarbonDioxideVisualization({ onCurrentViewChange, ...props }: Props) {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null)
   const systemReduced = useReducedMotion()
   const motion = useContext(MotionConfigContext)
   const reduced = motion.reducedMotion === 'always' || (motion.reducedMotion !== 'never' && Boolean(systemReduced))
   const playback = useVideoPlayback(video, SOURCE, Boolean(props.interactionLocked), reduced)
+  useCurrentView(video, playback.status, props.interactionLocked, onCurrentViewChange)
   const legendId = useId()
   return <>
     <video ref={setVideo} hidden muted loop playsInline preload="auto" data-co2-video aria-hidden="true" />
