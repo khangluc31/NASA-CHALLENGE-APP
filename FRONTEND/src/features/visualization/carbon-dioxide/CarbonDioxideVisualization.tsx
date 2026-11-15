@@ -11,11 +11,13 @@ import type { CarbonDioxideView } from './useCurrentView'
 
 const SOURCE = `${import.meta.env.BASE_URL}media/carbon-dioxide/dyamond-co2-4096.mp4`
 const COLORBAR = `${import.meta.env.BASE_URL}media/carbon-dioxide/colorbar.png`
-type Props = Pick<GlobeViewerProps, 'selectedLocation' | 'onLocationSelect' | 'interactionLocked' | 'label'> & {
+type Props = Pick<GlobeViewerProps, 'interactionLocked' | 'label'> & {
   onCurrentViewChange?: (view: CarbonDioxideView) => void
 }
 
-export function CarbonDioxideVisualization({ onCurrentViewChange, ...props }: Props) {
+export function CarbonDioxideVisualization({ onCurrentViewChange, interactionLocked, label }: Props) {
+  // This chapter inspects animation frames; geographic selection is intentionally unavailable.
+  const props = { interactionLocked, label }
   const [video, setVideo] = useState<HTMLVideoElement | null>(null)
   const systemReduced = useReducedMotion()
   const motion = useContext(MotionConfigContext)

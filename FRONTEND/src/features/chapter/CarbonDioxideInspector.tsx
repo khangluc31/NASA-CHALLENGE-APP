@@ -37,7 +37,7 @@ export function CarbonDioxideInspector({ view, disabled }: { view?: CarbonDioxid
             <div><dt>Upper estimate · 99th percentile</dt><dd>{frame.upper.toFixed(1)} ppm</dd></div></dl>
         </>}
     </div>
-    <footer className="co2-view__footnote"><p>These estimates summarize color-matched pixels across the source animation frame. They are not a global atmospheric mean or measurements at the selected coordinate.</p>
+    <footer className="co2-view__footnote"><p>These estimates summarize color-matched pixels across the source animation frame. They are not a global atmospheric mean or location-specific measurements.</p>
       <p>Surface blending and atmospheric opacity affect the extracted colors. Rotating the globe does not change these estimates.</p></footer>
   </div>
 }
