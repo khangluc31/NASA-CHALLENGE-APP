@@ -1,0 +1,26 @@
+/*
+ * Dán nội dung file này vào cuối src/index.css (file đã có `@import "tailwindcss";`).
+ * Token màu lấy nguyên từ test.html; Tailwind v4 tự sinh bg-lab-bg, text-lab-fg, border-lab-line...
+ */
+@theme {
+  --color-lab-bg: #101018;
+  --color-lab-fg: #e8e8f0;
+  --color-lab-surface: #1e1e2e;
+  --color-lab-surface-hover: #2a2a40;
+  --color-lab-line: #555566;
+  --color-lab-line-soft: #444455;
+  --color-lab-log: #08080e;
+  --color-lab-log-line: #333344;
+  --color-lab-heading: #9fb4ff;
+  --color-lab-muted: #8a8aa0;
+  --color-lab-ok: #6fe28a;
+  --color-lab-bad: #ff7a7a;
+  --color-lab-focus: #ffd54a;
+}
+
+@layer base {
+  .audio-lab :focus-visible {
+    outline: 3px solid var(--color-lab-focus);
+    outline-offset: 2px;
+  }
+}
