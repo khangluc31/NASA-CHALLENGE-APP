@@ -4,6 +4,8 @@ export { SCALES, quantize, hueToWarmth } from "./scales";
 export { colorToVoice } from "./palette";
 export { featuresToNotes } from "./notes";
 export { normalizeFrame } from "./data";
+export { toRawData } from "./adapters";
+export type { AdaptOptions } from "./adapters";
 export { makeMockFeatures, makeMockNightLights } from "./features.mock";
 export { pickFromImage } from "./pickColor";
 export type * from "./types";

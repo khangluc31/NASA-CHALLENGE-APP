@@ -1,21 +1,7 @@
-// normalizeFrame: định dạng night_lights.json của Người 3 -> dạng nội bộ { columns, stats }
-//
-// Định dạng của Người 3: { topic, calibration, frames:[{ year, stats, audioColumns:[{rows:[{value,cover}]}] }] }
-//
-// XÁC NHẬN TỪ FILE THẬT (night_lights.json, 12 năm 2012-2023):
-//   - value = clip((v - bg) / (ref - bg), 0, 1), bg = 0, ref = 37
-//   - lưới audio 96 cột x 16 hàng; hàng 0 là phía Bắc (ô sáng nhiều nhất ở hàng 3-5)
-//   - cover < 1 chỉ ở các dải bị mask (value ở đó ~ 0)
-//   - stats.deltaFromPrev CÓ DẤU và rất nhỏ (cỡ 0.001): dùng max(0, ·) rồi chia cho giá trị lớn nhất
-// GIẢ ĐỊNH CÒN LẠI:
-//   - cover = tỉ lệ pixel hợp lệ trong ô; cover < MIN_COVER -> ô im lặng
-//   - Dữ liệu KHÔNG có màu -> hue lấy từ hueOf(light) nếu có, không thì cố định DEFAULT_HUE
-//   - Không có edge theo cột -> ước lượng tạm từ độ nhấp nhô giữa các hàng liền kề
-//   - Mức cấp bách = deltaFromPrev của frame, chia cho giá trị lớn nhất trong các frame
 import type { Cell, FeatureColumn, Features, HueMapper, RawFrame } from "./types";
 
 const DEFAULT_HUE = 45;
-const MIN_COVER = 0.5;
+export const MIN_COVER = 0.5;
 
 // Chế độ "nhấn mạnh thay đổi": dữ liệu 12 năm rất giống nhau nên phát lần lượt nghe gần như y hệt.
 const CHANGE_THRESHOLD = 0.1; // |value hiện tại - value năm gốc| > 0.1 mới tính là "đổi"
@@ -70,10 +56,10 @@ export function normalizeFrame(
           return { hue: HUE_DOWN, light: Math.min(1, 0.5 - delta) };
         }
         // không đổi: nền êm, nhỏ hơn
-        return { hue: hueOf ? hueOf(light) : HUE_SAME, light: light * SAME_GAIN };
+        return { hue: r.hue ?? (hueOf ? hueOf(light) : HUE_SAME), light: light * SAME_GAIN };
       }
 
-      return { hue: hueOf ? hueOf(light) : hue, light };
+      return { hue: r.hue ?? (hueOf ? hueOf(light) : hue), light };
     });
 
     const mean = rows.reduce((sum, r) => sum + r.light, 0) / rows.length;
@@ -84,20 +70,20 @@ export function normalizeFrame(
     for (let i = 0; i < rows.length - 1; i++) diff += Math.abs(rows[i + 1].light - rows[i].light);
 
     return {
-      hue: hueOf ? hueOf(mean) : hue,
+      hue: col.hue ?? (hueOf ? hueOf(mean) : hue),
       // sat cao: đèn thành phố là màu rực. Nếu để thấp (< ~0.5) colorToVoice coi là "mây/tuyết"
       // và pha thêm tiếng gió (atmosphere) vào cả những cột sáng.
       sat: 0.8,
       light: peak,
-      edge: Math.min(1, diff / 4),
+      edge: col.edge ?? Math.min(1, diff / 4),
       rows,
     };
   });
 
   const delta = Math.max(0, frame.stats?.deltaFromPrev ?? 0);
   return {
-    id: `${topic}-${frame.year}`,
-    title: `${topic} ${frame.year}`,
+    id: `${topic}-${frame.year ?? frame.frame_id ?? 0}`,
+    title: `${topic} ${frame.year ?? frame.frame_id ?? ""}`.trim(),
     year: frame.year,
     columns,
     stats: {

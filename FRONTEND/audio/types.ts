@@ -48,9 +48,15 @@ export interface Features {
 export interface RawRow {
   value?: number;
   cover?: number;
+  /** màu có sẵn của ô (adapter co2/ocean đặt); không có thì dùng hue cố định / hueOf */
+  hue?: number;
 }
 export interface RawAudioColumn {
   rows?: RawRow[];
+  /** màu chủ đạo của cột (tuỳ chọn) */
+  hue?: number;
+  /** độ "biến động" 0..1 (tuỳ chọn); không có thì data.ts tự tính từ các hàng */
+  edge?: number;
 }
 export interface RawFrame {
   year?: number;
@@ -66,8 +72,35 @@ export interface RawData {
   frames?: RawFrame[];
 }
 
-/** Engine nhận dạng mới (frames) hoặc dạng cũ (Features). */
-export type EngineInput = RawData | Features;
+/* ---- co2.json: mỗi frame chỉ có số liệu vô hướng, KHÔNG có audioColumns ---- */
+export interface Co2Frame {
+  frame_id?: number;
+  co2_mean_ppm?: number;
+  co2_min_ppm?: number;
+  co2_max_ppm?: number;
+  valid_pixel_count?: number;
+  /** "approximate_visible_color_match" | "insufficient_matching_pixels" */
+  quality?: string;
+  simulation_timestamp?: string;
+}
+export interface Co2Data {
+  topic?: string;
+  frames?: Co2Frame[];
+}
+
+/* ---- ocean.json: nhiệt độ mặt biển theo frame, KHÔNG có audioColumns ---- */
+export interface OceanFrame {
+  frame_id?: number;
+  temperature?: { mean_temp?: number; p10_temp?: number; std_temp?: number };
+}
+export interface OceanData {
+  dataset?: string;
+  topic?: string;
+  frames?: OceanFrame[];
+}
+
+/** Engine nhận: night_lights (frames + audioColumns), co2, ocean, hoặc dạng cũ (Features). */
+export type EngineInput = RawData | Co2Data | OceanData | Features;
 
 /* ------------------------------------------------------------------ */
 /* Âm thanh                                                            */

@@ -34,6 +34,8 @@ const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 interface JukeboxState {
   /* dữ liệu */
   rawData: RawData | null;
+  /** true = JSON gốc là chuỗi số (co2, ocean) đã được adapters.ts đổi thành lưới audioColumns */
+  adapted: boolean;
   features: Features | null;
   years: YearEntry[];
   yearIndex: number;
@@ -63,6 +65,8 @@ interface JukeboxState {
   log: (msg: string, tone?: LogTone) => void;
   loadMock: () => void;
   loadFromUrl: () => Promise<void>;
+  /** đặt url rồi nạp luôn (dùng cho ô chọn night_lights / co2 / ocean) */
+  selectDataset: (url: string) => Promise<void>;
   checkJson: () => void;
   selectYear: (index: number) => void;
 
@@ -105,8 +109,15 @@ export const useJukeboxStore = create<JukeboxState>()(
     };
 
     const setData = (raw: RawData, label: string) => {
-      set({ rawData: raw });
-      engine.load(raw); // engine tự nhận định dạng mới (frames) hoặc cũ (columns)
+      // Nạp engine TRƯỚC khi đụng vào state: nếu load() ném lỗi thì store vẫn khớp với những gì engine đang giữ.
+      // engine tự nhận night_lights (có audioColumns), co2 / ocean (chuỗi số, được adapters.ts đổi thành lưới) hoặc dạng cũ.
+      engine.load(raw);
+      set({
+        // engine.data là bản ĐÃ đổi (có audioColumns); co2/ocean gốc không có nên validate/chọn năm phải dùng bản này
+        rawData: engine.data ?? raw,
+        adapted: engine.data !== null && engine.data !== raw,
+        timeline: false, // engine.load() luôn tắt timeline, store phải khớp
+      });
       refreshYears();
       showFeatures(label);
     };
@@ -118,6 +129,7 @@ export const useJukeboxStore = create<JukeboxState>()(
 
     return {
       rawData: null,
+      adapted: false,
       features: null,
       years: [],
       yearIndex: 0,
@@ -161,19 +173,27 @@ export const useJukeboxStore = create<JukeboxState>()(
               `Cảnh báo: file ${mb.toFixed(1)} MB. Audio chỉ cần frames[].audioColumns (nhỏ hơn nhiều), nên xin Người 3 xuất bản gọn cho web.`,
               "dim",
             );
-          if (Array.isArray(raw.frames)) {
+          // Contract (contracts.md) chỉ áp cho night_lights có sẵn audioColumns; co2/ocean là chuỗi số nên bỏ qua bước này
+          if (raw.frames?.some((f) => f.audioColumns)) {
             const errs = validateRaw(raw);
             if (errs.length) log(`JSON có ${errs.length} lỗi, bấm "Kiểm tra JSON" để xem. Vẫn thử nạp.`, "bad");
           }
           setData(raw, url);
+          if (get().adapted) log("Dữ liệu là chuỗi số: đã đổi thành lưới audio (adapters.ts).", "dim");
         } catch (e) {
           log("Không nạp được: " + errMsg(e), "bad");
         }
       },
 
+      selectDataset: async (url) => {
+        set({ url });
+        await get().loadFromUrl();
+      },
+
       checkJson: () => {
-        const { rawData, log } = get();
+        const { rawData, adapted, log } = get();
         if (!rawData) return log("Chưa nạp dữ liệu.", "bad");
+        if (adapted) return log("Dữ liệu co2/ocean đã qua adapter, không kiểm tra theo contract night_lights.", "dim");
         if (!Array.isArray(rawData.frames))
           return log("Dữ liệu dạng cũ (columns), không kiểm tra theo hợp đồng mới.", "dim");
 

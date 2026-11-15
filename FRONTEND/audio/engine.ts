@@ -1,5 +1,6 @@
 import * as Tone from "tone";
 
+import { toRawData, type AdaptOptions } from "./adapters";
 import { normalizeFrame } from "./data";
 import { featuresToNotes } from "./notes";
 import { colorToVoice } from "./palette";
@@ -23,7 +24,7 @@ import type {
   YearEntry,
 } from "./types";
 
-const isRawData = (d: EngineInput): d is RawData => Array.isArray((d as RawData).frames);
+const isRawData = (d: RawData | Features): d is RawData => Array.isArray((d as RawData).frames);
 
 /** Cấu hình partials tuỳ chỉnh dùng chung cho các synth. */
 const customOsc = (partials: number[]) => ({ type: "custom" as const, partials });
@@ -144,9 +145,12 @@ export class AudioEngine {
   /**
    * An toàn khi gọi trước khi có click.
    * - Định dạng mới: { topic, calibration, frames:[...] } -> nạp frame đầu, đổi năm bằng setFrame(i)
+   * - co2.json / ocean.json (chuỗi số, không có audioColumns) -> adapters.ts đổi thành lưới audioColumns
+   *   (xem AdaptOptions: columns / rows / segments)
    * - Định dạng cũ : { columns:[...], stats } (mock) -> dùng nguyên trạng
    */
-  load(data: EngineInput) {
+  load(input: EngineInput, adapt?: AdaptOptions) {
+    const data = toRawData(input, adapt); // đổi trước khi stop(): JSON lạ thì ném lỗi mà không phá trạng thái hiện tại
     this.stop();
     this.timeline = false;
     this.timelineIdx = null;

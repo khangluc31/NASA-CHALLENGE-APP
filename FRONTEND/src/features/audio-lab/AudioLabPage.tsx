@@ -7,7 +7,6 @@ import { ImageProbe } from "./components/ImageProbe";
 import { LogPanel } from "./components/LogPanel";
 import { Swatches } from "./components/Swatches";
 import { Transport } from "./components/Transport";
-import { Hint } from "./components/ui";
 import { bindEngineToStore, useJukeboxStore } from "./store";
 
 export default function AudioLabPage() {
@@ -32,10 +31,6 @@ export default function AudioLabPage() {
   return (
     <main className="audio-lab mx-auto min-h-screen max-w-[900px] bg-lab-bg p-4 font-sans text-[15px] leading-normal text-lab-fg">
       <h1 className="text-xl font-bold">Earth Jukebox – Audio Test Bench</h1>
-      <Hint>
-        Bấm một nút bất kỳ trước, trình duyệt chỉ cho phát âm sau khi người dùng tương tác.
-      </Hint>
-
       <DataSource />
       <Transport />
       <FeatureGrid />
