@@ -21,8 +21,12 @@ export interface MapLayerContext {
 
 export interface MapViewerProps {
   embedded?: boolean
+  footerActions?: ReactNode
+  footerSecondary?: ReactNode
   className?: string
   label?: string
+  /** Chapter-specific copy for image and renderer failures. */
+  loadErrorMessage?: string
   interactionLocked?: boolean
   selectedLocation?: MapLocation | null
   onLocationSelect?: (location: MapLocation | null) => void

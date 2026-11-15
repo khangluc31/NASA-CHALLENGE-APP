@@ -16,6 +16,13 @@ See [feature integration boundaries](../README.md).
 
 ## Public interface
 
+Book-control update: embedded viewers remove numeric entry and persistent hints.
+Click/tap selects; with keyboard focus, arrows pan and Enter explicitly selects
+the map coordinate at the center crosshair. `footerActions`/`footerSecondary`
+compose compact controls and legend/year rows without changing map aspect ratio
+or geographic extent. Standalone full controls remain. Retries use regular-weight text
+buttons. See ../README.md for common footer behavior.
+
 Import `MapViewer` and its types from `./index`.
 
 ```tsx

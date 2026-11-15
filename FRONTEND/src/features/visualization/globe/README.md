@@ -18,6 +18,13 @@ manual testing; no development-only route is included.
 
 See [feature integration boundaries](../README.md).
 
+`layers/GlobeVideoLayer.tsx` is the shared native-resolution video texture renderer
+for Ocean and CO₂. Chapter owners supply one video element; the layer owns only
+its disposable GPU texture and frame subscription. It uses the existing sphere
+UVs, ignores raycasting, preserves colors, and keeps the pin above the surface.
+CO₂ uses a NASA Science On a Sphere composite; rendered atmospheric patterns are
+not independently explorable volumetric geometry. See `../carbon-dioxide/README.md`.
+
 Ocean chapter: `layers/OceanGlobeLayer.tsx` wraps the host-owned video in a
 disposable VideoTexture on a slightly larger sphere, using the existing sphere
 UV convention and demand-rendered Canvas. It does not intercept surface picking
@@ -26,6 +33,13 @@ arrive. Media ownership and Play/Pause live in `../ocean/`; switching to Map
 disposes this layer without restarting the video. See `../ocean/README.md`.
 
 ## Public interface
+
+Book-control update: embedded viewers no longer expose numeric coordinate entry
+or persistent drag hints. Click/tap selects. With scene keyboard focus, arrows
+rotate and Enter explicitly selects the sphere at the view-center crosshair.
+Navigation alone never selects. `footerActions`/`footerSecondary` compose the
+compact footer. Embedded camera starts at 3.1 radii; standalone remains 3.4 and
+retains its numeric form. Retry actions are regular-weight text buttons. See ../README.md.
 
 Import `GlobeViewer` and its types from this folder's `index.ts`.
 

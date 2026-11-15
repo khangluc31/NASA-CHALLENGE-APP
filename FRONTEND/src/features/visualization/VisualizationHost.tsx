@@ -5,6 +5,7 @@ import type { GlobeLocation } from './globe'
 import { MapViewer } from './map'
 import { NightLightsMap } from './map/NightLightsMap'
 import { OceanVisualization } from './ocean/OceanVisualization'
+import { CarbonDioxideVisualization } from './carbon-dioxide/CarbonDioxideVisualization'
 import { BLUE_MARBLE_TEXTURE } from './globe/surfaceTexture'
 import './visualization.css'
 
@@ -30,15 +31,16 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
     onLocationSelect, label: `${chapter.shortTitle}: ${activeView} exploration`,
   }
   return <section className="book-visualization" aria-label="Chapter visualization">
-    <div className="book-visualization__toolbar">
-      <span aria-hidden="true" />
-      {nextView ? <button className="book-visualization__mode" type="button" disabled={locked}
+    {nextView && <div className="book-visualization__toolbar">
+      <button className="book-visualization__mode" type="button" disabled={locked}
         aria-label={`Current view: ${activeView}. Switch to ${nextView} view`}
         title={`Switch to ${nextView} view`} onClick={() => onViewChange(nextView)}>
-        {activeView === 'globe' ? 'GLOBE' : 'MAP'}
-      </button> : <span className="book-visualization__mode">{activeView === 'globe' ? 'GLOBE' : 'MAP'}</span>}
-    </div>
-    {chapter.id === 'ocean-temperature'
+        Switch view
+      </button>
+    </div>}
+    {chapter.id === 'carbon-dioxide'
+      ? <CarbonDioxideVisualization key={chapter.id} {...common} />
+      : chapter.id === 'ocean-temperature'
       ? <OceanVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} />
       : activeView === 'globe'
       ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />

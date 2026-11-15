@@ -1,8 +1,8 @@
 /* The host adapts the reusable viewers to the existing atlas page geometry. */
 .book-visualization {
-  --text: #b9cdd7;
-  --text-h: var(--book-ink, #eef3f8);
-  --bg: #0d1e2b;
+  --text: var(--book-ink, #fff);
+  --text-h: var(--book-ink, #fff);
+  --bg: var(--book-paper, #1c1c1c);
   --border: var(--book-rule, #526a7c);
   --viewer-scene: #000;
   position: relative;
@@ -13,11 +13,11 @@
   background: var(--viewer-scene);
   font-size: 10px;
 }
-.book-visualization__toolbar { position: absolute; inset: 0 0 auto; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; pointer-events: none; font-size: 9px; letter-spacing: .4px; text-shadow: 0 1px 4px #000; }
+.book-visualization__toolbar { position: absolute; inset: 0 0 auto; z-index: 2; display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 4px 10px; pointer-events: none; font-size: 9px; letter-spacing: .4px; text-shadow: 0 1px 4px #000; }
 .book-visualization__toolbar .book-visualization__mode { display: inline-flex; align-items: center; justify-content: flex-end; min-height: 28px; padding: 4px 0; font: inherit; line-height: 1; letter-spacing: inherit; border: 0; border-radius: 0; background: transparent; color: var(--text); }
-.book-visualization__toolbar button.book-visualization__mode { pointer-events: auto; color: var(--book-accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #83d8d280; }
+.book-visualization__toolbar button.book-visualization__mode { pointer-events: auto; color: var(--book-ink); font-weight: 400; text-decoration: none; }
 .book-visualization__toolbar button.book-visualization__mode:hover:not(:disabled),
-.book-visualization__toolbar button.book-visualization__mode:focus-visible { color: #d8fffb; text-decoration-color: currentColor; }
+.book-visualization__toolbar button.book-visualization__mode:focus-visible { color: var(--book-ink); opacity: .8; }
 .book-visualization__toolbar button.book-visualization__mode:disabled { opacity: .55; }
 .book-visualization > :is(.globe-viewer, .map-viewer) { display: flex; flex-direction: column; position: relative; flex: 1; min-height: 0; gap: 0; overflow: hidden; }
 .book-visualization .globe-viewer__scene { flex: 1; height: auto; min-height: 140px; background: var(--viewer-scene); }
@@ -25,33 +25,24 @@
 .book-visualization .map-viewer__viewport { display: grid; align-items: center; flex: 1; min-height: 140px; background: var(--viewer-scene); overflow: hidden; }
 .book-visualization .map-viewer__surface { max-height: 100%; border: 0; }
 .book-visualization .map-viewer__surface > g > rect { fill: var(--viewer-scene); }
-.viewer-coordinate { margin-left: auto; color: #b9cdd7; font-size: 9px; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.viewer-footer { flex-shrink: 0; padding: 0 10px 4px; }
+/* The two map chapters reserve identical footer rows so their map centers align. */
+.book-visualization .map-viewer .viewer-footer { display: grid; grid-template-rows: minmax(36px, auto) minmax(26px, auto); row-gap: 0; }
+.viewer-tools { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 8px; min-height: 36px; }
+.viewer-tools__actions { display: flex; align-items: center; }
+.viewer-tools__chapter-actions { min-width: 0; }
+.viewer-coordinate { color: var(--book-ink); font-size: 10px; font-variant-numeric: tabular-nums; text-align: right; white-space: normal; overflow-wrap: anywhere; }
 .viewer-options > summary { cursor: pointer; padding: 7px 0; }
-.viewer-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; flex-shrink: 0; padding: 4px 8px; position: relative; }
-.viewer-tools__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; }
-.book-visualization .viewer-tools__actions > button { display: grid; place-items: center; width: 32px; min-height: 36px; padding: 0; border: 0; border-radius: 0; background: transparent; color: #b9cdd7; font-size: 19px; }
-.book-visualization .viewer-tools__actions > button:hover:not(:disabled) { color: var(--book-accent); }
-.viewer-tools__hint { font-size: 9px; color: #a2bbc6; }
-.viewer-tools__coordinates > summary { list-style: none; cursor: pointer; color: #a2bbc6; font-size: 9px; padding: 8px 2px; }
-.viewer-tools__coordinates > summary::-webkit-details-marker { display: none; }
-.viewer-tools__coordinates > summary:hover { color: var(--book-accent); }
-.viewer-tools__coordinates > summary:focus-visible { outline: 2px solid var(--book-accent); outline-offset: 2px; }
-.viewer-tools__entry { position: absolute; bottom: 100%; left: 8px; width: max-content; max-width: calc(100% - 16px); z-index: 3; max-height: 220px; overflow: auto; padding: 10px; background: #102332; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 16px #0006; }
-.viewer-tools__entry fieldset { margin: 0; padding: 0; border: 0; }
-.book-visualization .viewer-tools__entry :is(.globe-viewer__controls, .map-viewer__controls) { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 12ch); align-items: center; gap: 8px; }
-.book-visualization .viewer-tools__entry :is(button, input) { font-size: 11px; min-height: 30px; padding: 5px 8px; }
-.book-visualization .viewer-tools__entry input { width: 12ch; min-width: 0; max-width: 100%; overflow: hidden; appearance: textfield; }
-.book-visualization .viewer-tools__entry input::-webkit-inner-spin-button,
-.book-visualization .viewer-tools__entry input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.book-visualization .viewer-tools__entry button { justify-self: start; width: max-content; max-width: 100%; }
-.book-visualization .viewer-tools__entry button:last-child { justify-self: end; }
-.book-visualization .map-viewer__surface:focus,
-.book-visualization .globe-viewer__scene:focus { outline: none; }
-.book-visualization .map-viewer__surface:focus-visible,
-.book-visualization .globe-viewer__scene:focus-visible { outline: 2px solid var(--book-accent, #87d9dc); outline-offset: -2px; }
-.book-visualization .viewer-tools__entry :is(button, input):focus-visible { outline-color: var(--book-accent, #87d9dc); }
+.book-visualization .viewer-tools__actions > button { display: grid; place-items: center; width: 34px; min-height: 36px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--book-ink); font-size: 20px; }
+.book-visualization :is(button, input):focus-visible { outline: 2px solid var(--book-ink); outline-offset: 2px; }
+.book-visualization .map-viewer__surface:focus, .book-visualization .globe-viewer__scene:focus { outline: none; }
+.book-visualization .map-viewer__surface:focus-visible, .book-visualization .globe-viewer__scene:focus-visible { outline: 2px solid var(--book-ink); outline-offset: -2px; }
+.book-visualization .globe-viewer__scene:focus-visible::after { content: '+'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; color: #fff; text-shadow: 0 0 3px #000; font-size: 24px; }
+.map-viewer__aim { opacity: 0; stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 1px #000); }
+.map-viewer__surface:focus-visible .map-viewer__aim { opacity: 1; }
 .book-visualization [role=status] p { margin: 4px 8px; }
-.book-visualization :is([role=status], [role=alert]) button { display: inline-flex; align-items: center; justify-content: center; width: max-content; max-width: 100%; min-height: 30px; padding: 5px 8px; margin: 3px 0; font-size: 11px; line-height: 1.3; white-space: normal; }
-.book-visualization__caption { flex-shrink: 0; margin: 0; padding: 6px 10px; font-size: 8px; line-height: 1.4; }
+.book-visualization .viewer-retry, .globe-viewer .viewer-retry, .map-viewer .viewer-retry { display: inline-flex; align-items: center; justify-content: center; font: inherit; font-weight: 400; color: var(--book-ink, var(--text-h)); border: 0; border-radius: 0; background: none; box-shadow: none; text-decoration: none; padding: 6px 0; min-height: 32px; width: max-content; max-width: 100%; cursor: pointer; }
+.viewer-retry:disabled { opacity: .5; cursor: default; }
+@media (max-width: 600px) { .viewer-tools { grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; } .viewer-coordinate { grid-column: 1 / -1; padding-bottom: 2px; } }
 .viewer-instructions-sr { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (max-width: 900px) { .book-visualization { min-height: 340px; } }
