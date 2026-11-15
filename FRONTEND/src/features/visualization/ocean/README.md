@@ -34,6 +34,12 @@ the globe uses the same native video in its texture. No transcoding or tools are
 needed. Run `./scripts/download-ocean-video.ps1` after cloning/before building;
 the large local asset is Git-ignored and copied by Vite into the production output.
 
+Shared playback extraction: `useOceanPlayback`, `OceanGlobeLayer` and the former
+`videoFrames` export now delegate to `media/useVideoPlayback`,
+`globe/layers/GlobeVideoLayer` and `media/videoFrames`, also used by CO₂. The
+Play/Pause/retry UI uses `media/VideoPlaybackControls` with the same layout and
+legend. Media identity, time retention on view switches and cleanup are unchanged.
+
 ```sh
 node --experimental-strip-types --test src/features/visualization/ocean/videoFrames.test.mjs
 ```

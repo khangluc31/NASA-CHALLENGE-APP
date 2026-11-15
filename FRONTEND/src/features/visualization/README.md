@@ -1,7 +1,7 @@
 # Visualization — FE B
 
 FE B owns this feature. Follow [the project guideline](../../../guideline/README.md)
-before adding implementation. Globe and map foundations are integrated through the book’s visualization slot. Night Lights now has an annual video-derived brightness layer; Ocean/CO₂ layers and scientific media playback remain unimplemented.
+before adding implementation. Globe and map foundations are integrated through the book’s visualization slot. Night Lights has annual imagery and a brightness inspector; Ocean and CO₂ use native NASA spherical video layers. Scientific data-to-sound mapping remains separate.
 
 ## Structure
 
@@ -104,3 +104,12 @@ The high-resolution ocean media is a local Git-ignored asset because it exceeds
 GitHub's normal file-size limit. Run `./scripts/download-ocean-video.ps1` after
 cloning or before a deployment build. The built-in PowerShell script verifies its
 checksum and installs nothing. The former low-resolution video has been removed.
+
+CO₂ update: Chapter 1 uses the Science On a Sphere export at SVS 5436, the
+geographically suitable version of SVS 5196, as an unmodified 4096 × 2048 local
+video. Play/Pause, looping, reduced-motion handling and cleanup are shared with
+Ocean through `media/`; both use `globe/layers/GlobeVideoLayer`. The original NASA
+colorbar is shown in a compact legend disclosure. The globe remains interactive,
+but the video supplies neither independent atmospheric depth nor local ppm
+samples. No CO₂ selected-area inspector is introduced. See
+`carbon-dioxide/README.md` and `public/media/carbon-dioxide/README.md`.

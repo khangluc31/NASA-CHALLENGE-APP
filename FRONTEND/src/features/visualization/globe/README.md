@@ -18,6 +18,13 @@ manual testing; no development-only route is included.
 
 See [feature integration boundaries](../README.md).
 
+`layers/GlobeVideoLayer.tsx` is the shared native-resolution video texture renderer
+for Ocean and CO₂. Chapter owners supply one video element; the layer owns only
+its disposable GPU texture and frame subscription. It uses the existing sphere
+UVs, ignores raycasting, preserves colors, and keeps the pin above the surface.
+CO₂ uses a NASA Science On a Sphere composite; rendered atmospheric patterns are
+not independently explorable volumetric geometry. See `../carbon-dioxide/README.md`.
+
 Ocean chapter: `layers/OceanGlobeLayer.tsx` wraps the host-owned video in a
 disposable VideoTexture on a slightly larger sphere, using the existing sphere
 UV convention and demand-rendered Canvas. It does not intercept surface picking
