@@ -19,7 +19,6 @@ class NightLightsExtractor:
             frame,
             cv2.COLOR_BGR2GRAY
         )
-
     def subtract_background(self, current, background):
         current = current.astype(np.int16)
         background = background.astype(np.int16)
@@ -30,7 +29,6 @@ class NightLightsExtractor:
             255
         )
         return difference.astype(np.uint8)
-
     def create_valid_mask(self, height, width, mask_boxes):
         valid_mask = np.ones(
             (height, width),
@@ -51,15 +49,7 @@ class NightLightsExtractor:
                 )
             valid_mask[y0:y1, x0:x1] = 0
         return valid_mask
-
     def apply_mask(self, image, valid_mask):
-        """
-        Apply mask to an image for debugging.
-
-        This function does not change the original image.
-        Excluded pixels are displayed as black.
-        """
-
         result = image.copy()
 
         result[valid_mask == 0] = 0
@@ -149,9 +139,6 @@ class NightLightsExtractor:
             })
 
         return columns
-
-
-
     def extract_change_reference(self,cap,meta,output_dir,width,height,total_frames):
         change_config = meta.get(
             "segments", {}
@@ -196,9 +183,7 @@ class NightLightsExtractor:
             frame
         )
         legend_config = meta.get("legend_bar")
-
         legend_path = None
-
         if legend_config:
 
             y0 = int(legend_config["y0"])
@@ -214,23 +199,12 @@ class NightLightsExtractor:
                 raise ValueError(
                     "Invalid legend_bar coordinates"
                 )
-
             legend = frame[y0:y1, x0:x1]
-
             legend_path = change_dir / "legend.png"
-
             cv2.imwrite(
                 str(legend_path),
                 legend
             )
-        print(
-            f"[CHANGE] Frame: {frame_id}"
-        )
-
-        print(
-            f"[CHANGE] Saved frame: {frame_path}"
-        )
-
         if legend_path:
             print(
                 f"[CHANGE] Saved legend: {legend_path}"
@@ -296,14 +270,6 @@ class NightLightsExtractor:
             height = int(
                 cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
             )
-
-            print("\n" + "=" * 60)
-            print("[NIGHT LIGHTS] Starting extraction")
-            print(f"[INFO] Video: {video_path}")
-            print(f"[INFO] Resolution: {width} x {height}")
-            print(f"[INFO] FPS: {fps}")
-            print(f"[INFO] Total frames: {total_frames}")
-            print("=" * 60)
             meta = source.meta
             annual = meta["segments"]["annual"]
             start_year = int(
@@ -380,13 +346,6 @@ class NightLightsExtractor:
                 raise ValueError(
                     "Mask excludes all image pixels"
                 )
-            print(
-                f"[MASK] Valid pixels: {valid_count}"
-            )
-            print(
-                f"[MASK] Excluded pixels: "
-                f"{height * width - valid_count}"
-            )
             if not mask_boxes:
                 print(
                     "[WARNING] No mask_boxes configured. "
@@ -396,11 +355,6 @@ class NightLightsExtractor:
                 valid_mask,
                 debug_dir
             )
-            print(
-                "\n[BACKGROUND] Reading frame",
-                background_frame_id
-            )
-
             background_bgr = self.read_frame(
                 cap,
                 background_frame_id
@@ -409,8 +363,6 @@ class NightLightsExtractor:
             background_gray = self.to_gray(
                 background_bgr
             )
-
-            # Save masked background for debugging
             background_debug = self.apply_mask(
                 background_gray,
                 valid_mask
@@ -446,23 +398,10 @@ class NightLightsExtractor:
                     "year": year,
                     "frame_id": frame_id
                 })
-            print(
-                "\n" + "=" * 60
-            )
-
-            print(
-                "[PHASE 1] GLOBAL CALIBRATION"
-            )
-
-            print(
-                "=" * 60
-            )
-
             global_histogram = np.zeros(
                 256,
                 dtype=np.int64
             )
-
             for item in annual_frames:
 
                 year = item["year"]
@@ -486,66 +425,33 @@ class NightLightsExtractor:
                     minlength=256
                 )
                 global_histogram += histogram
-                print(
-                    f"[PHASE 1] {year}: "
-                    f"frame={frame_id}"
-                )
             bg = self.get_percentile(
                 global_histogram,
                 50
             )
-
             ref = self.get_percentile(
                 global_histogram,
                 99
             )
-
             if ref <= bg:
                 raise ValueError(
                     f"Calibration failed: bg={bg}, ref={ref}. "
                     "Check the background frame and annual frames."
                 )
-
-            print(
-                f"\n[CALIBRATION] P50 (bg) = {bg}"
-            )
-
-            print(
-                f"[CALIBRATION] P99 (ref) = {ref}"
-            )
-
-            print(
-                "\n" + "=" * 60
-            )
-
-            print(
-                "[PHASE 2] FEATURE EXTRACTION"
-            )
-
-            print(
-                "=" * 60
-            )
-
             results = []
-
             previous_mean = None
-
             for item in annual_frames:
-
                 year = item["year"]
                 frame_id = item["frame_id"]
-
                 frame = self.read_frame(
                     cap,
                     frame_id
                 )
-
                 gray = self.to_gray(frame)
                 difference = self.subtract_background(
                     gray,
                     background_gray
                 )
-
                 normalized = self.normalize(
                     difference,
                     bg,
@@ -554,7 +460,6 @@ class NightLightsExtractor:
                 values = normalized[
                     valid_mask == 1
                 ]
-
                 if len(values) == 0:
                     raise ValueError(
                         f"No valid pixels for year {year}"
@@ -652,18 +557,6 @@ class NightLightsExtractor:
                 results.append(
                     year_result
                 )
-
-                print(
-                    f"[PHASE 2] {year}: "
-                    f"mean={mean_value:.6f}, "
-                    f"p90={p90:.6f}, "
-                    f"lit_ratio={lit_ratio:.6f}, "
-                    f"delta={delta:.6f}"
-                )
-            print(
-                "\n[CHANGE] Extracting change map"
-            )
-
             change_reference = self.extract_change_reference(
                 cap=cap,
                 meta=meta,
@@ -723,8 +616,6 @@ class NightLightsExtractor:
 
                 "frames": results
             }
-
-            # Write JSON once, after all frames
             with open(
                 output_json,
                 "w",
@@ -737,103 +628,32 @@ class NightLightsExtractor:
                     ensure_ascii=False,
                     indent=2
                 )
-
-            print(
-                "\n" + "=" * 60
-            )
-
-            print(
-                "[SUCCESS] Night Lights extraction completed"
-            )
-
-            print(
-                f"[OUTPUT] {output_json}"
-            )
-
-            print(
-                f"[DEBUG] {debug_dir}"
-            )
-
-            print(
-                "=" * 60
-            )
-
             return output_json
-
         finally:
-
             cap.release()
 
-class CO2Extractor:
-    pass
-
-
-
-
-
-
 class OceanExtractor:
-
-    # =====================================================
-    # CONFIGURATION
-    # =====================================================
-
-    def __init__(
-        self,
-        sample_step=1,
-        warm_threshold=25.0,
-        cold_threshold=10.0,
-        color_distance_threshold=25.0,
-        histogram_bins=320
-    ):
-
+    def __init__(self,sample_step=1,warm_threshold=25.0,cold_threshold=10.0,color_distance_threshold=25.0,histogram_bins=320):
         self.sample_step = sample_step
-
         self.warm_threshold = warm_threshold
         self.cold_threshold = cold_threshold
-
         self.color_distance_threshold = color_distance_threshold
-
         self.histogram_bins = histogram_bins
-
         self.temp_min = 0.0
         self.temp_max = 32.0
-
         self.mapper = None
-
-    # =====================================================
-    # PHASE 1: TEMPERATURE MAPPER
-    # =====================================================
-
-    def build_temperature_mapper(
-        self,
-        colorbar_path,
-        x_range=(14, 293),
-        y_range=(30, 68)
-    ):
-        """
-        Extract the NASA color gradient and build
-        a 5-bit quantized BGR -> Temperature lookup table.
-
-        Colorbar temperature range: 0 - 32 Celsius.
-        """
-
-
+    def build_temperature_mapper(self,colorbar_path,x_range=(14, 293),y_range=(30, 68)):
         colorbar = cv2.imread(
             str(colorbar_path),
             cv2.IMREAD_COLOR
         )
-
         if colorbar is None:
             raise FileNotFoundError(
                 f"Cannot read colorbar: {colorbar_path}"
             )
-
         height, width = colorbar.shape[:2]
-
         x0, x1 = x_range
         y0, y1 = y_range
-
         if not (
             0 <= x0 < x1 <= width
             and 0 <= y0 < y1 <= height
@@ -841,47 +661,32 @@ class OceanExtractor:
             raise ValueError(
                 "Invalid colorbar crop coordinates"
             )
-
-        # Extract gradient only, excluding labels
         gradient = colorbar[y0:y1, x0:x1]
-
-        # Median across rows to reduce pixel noise
         palette_bgr = np.median(
             gradient.astype(np.float32),
             axis=0
         ).astype(np.uint8)
-
         palette_size = len(palette_bgr)
-
         temperatures = np.linspace(
             self.temp_min,
             self.temp_max,
             palette_size,
             dtype=np.float32
         )
-
-        # Convert palette to LAB
         palette_lab = cv2.cvtColor(
             palette_bgr.reshape(1, -1, 3),
             cv2.COLOR_BGR2LAB
         ).reshape(-1, 3).astype(np.float32)
-
-        # -------------------------------------------------
-        # Build 5-bit BGR lookup table
-        # -------------------------------------------------
-
         levels = np.arange(
             32,
             dtype=np.float32
         ) * 8 + 3.5
-
         b, g, r = np.meshgrid(
             levels,
             levels,
             levels,
             indexing="ij"
         )
-
         quantized_bgr = np.stack(
             [b, g, r],
             axis=-1
@@ -891,84 +696,51 @@ class OceanExtractor:
             quantized_bgr,
             cv2.COLOR_BGR2LAB
         ).astype(np.float32)
-
         flat_lab = quantized_lab.reshape(-1, 3)
-
         lookup_temp = np.zeros(
             32 ** 3,
             dtype=np.float32
         )
-
         lookup_distance = np.zeros(
             32 ** 3,
             dtype=np.float32
         )
-
-        # Process in chunks to reduce memory usage
         chunk_size = 2048
-
-        for start in range(
-            0,
-            len(flat_lab),
-            chunk_size
-        ):
-
+        for start in range(0,len(flat_lab),chunk_size):
             end = min(
                 start + chunk_size,
                 len(flat_lab)
             )
-
             chunk = flat_lab[start:end]
-
             distances = np.sum(
                 (chunk[:, None, :] -
                  palette_lab[None, :, :]) ** 2,
                 axis=2
             )
-
             nearest = np.argmin(
                 distances,
                 axis=1
             )
-
             min_distance = np.sqrt(
                 distances[
                     np.arange(len(chunk)),
                     nearest
                 ]
             )
-
             lookup_temp[start:end] = temperatures[nearest]
-
             lookup_distance[start:end] = min_distance
-
         self.mapper = {
             "temperature": lookup_temp.reshape(32, 32, 32),
             "distance": lookup_distance.reshape(32, 32, 32),
             "palette_size": palette_size
         }
-
         return self.mapper
-
-    # =====================================================
-    # PHASE 1: VIDEO PREPROCESSING
-    # =====================================================
-
     def read_frame(self, cap):
         ret, frame = cap.read()
-
         if not ret:
             return None
-
         return frame
-
     def map_temperature(self, frame):
-        """
-        Convert BGR pixels into estimated temperature.
-
-        Invalid/background pixels are represented by NaN.
-        """
-
         if self.mapper is None:
             raise RuntimeError(
                 "Temperature mapper has not been initialized"
@@ -985,57 +757,34 @@ class OceanExtractor:
         distance = self.mapper["distance"][
             b, g, r
         ]
-
-        # Exclude colors that do not sufficiently
-        # match the NASA colorbar.
         valid_mask = (
             distance <= self.color_distance_threshold
         )
-
-        # Exclude very dark and low-saturation pixels
         hsv = cv2.cvtColor(
             frame,
             cv2.COLOR_BGR2HSV
         )
-
         saturation = hsv[:, :, 1]
         brightness = hsv[:, :, 2]
-
         valid_mask &= (
             (saturation >= 35) &
             (brightness >= 30)
         )
-
         temperature_map = np.full(
             frame.shape[:2],
             np.nan,
             dtype=np.float32
         )
-
         temperature_map[valid_mask] = temperature[
             valid_mask
         ]
-
         return temperature_map, valid_mask
 
-    # =====================================================
-    # PHASE 2: TEMPERATURE FEATURES
-    # =====================================================
-
-    def extract_temperature_features(
-        self,
-        temperature_map,
-        valid_mask
-    ):
-
+    def extract_temperature_features(self,temperature_map,valid_mask):
         valid_temp = temperature_map[valid_mask]
-
         total_pixels = temperature_map.size
-
         valid_count = len(valid_temp)
-
         if valid_count == 0:
-
             return {
                 "mean_temp": None,
                 "min_temp": None,
@@ -1048,78 +797,49 @@ class OceanExtractor:
                 "valid_pixel_count": 0,
                 "color_match_coverage": 0.0
             }
-
         mean_temp = np.mean(valid_temp)
-
         min_temp = np.min(valid_temp)
-
         max_temp = np.max(valid_temp)
-
         p10_temp = np.percentile(
             valid_temp,
             10
         )
-
         p90_temp = np.percentile(
             valid_temp,
             90
         )
-
         std_temp = np.std(valid_temp)
-
         warm_ratio = np.mean(
             valid_temp >= self.warm_threshold
         )
-
         cold_ratio = np.mean(
             valid_temp <= self.cold_threshold
         )
-
         return {
             "mean_temp": float(mean_temp),
             "min_temp": float(min_temp),
             "max_temp": float(max_temp),
-
             "p10_temp": float(p10_temp),
             "p90_temp": float(p90_temp),
-
             "std_temp": float(std_temp),
-
             "warm_ratio": float(warm_ratio),
             "cold_ratio": float(cold_ratio),
-
             "valid_pixel_count": int(valid_count),
-
             "color_match_coverage": float(
                 valid_count / total_pixels
             )
         }
-
-    # =====================================================
-    # PHASE 2: TEMPORAL FEATURES
-    # =====================================================
-
-    def extract_temporal_features(
-        self,
-        current_features,
-        previous_features
-    ):
-
+    def extract_temporal_features(self,current_features,previous_features):
         if previous_features is None:
             return {
                 "mean_temp_change": None
             }
-
         current = current_features["mean_temp"]
-
         previous = previous_features["mean_temp"]
-
         if current is None or previous is None:
             change = None
-
         else:
             change = current - previous
-
         return {
             "mean_temp_change": (
                 float(change)
@@ -1127,36 +847,22 @@ class OceanExtractor:
                 else None
             )
         }
-
-    # =====================================================
-    # PHASE 3: PERIOD AGGREGATION
-    # =====================================================
-
-    def aggregate_statistics(
-        self,
-        frames,
-        temperature_histogram,
-        total_valid_pixels
-    ):
-
+    def aggregate_statistics(self, frames,temperature_histogram,total_valid_pixels ):
         valid_means = [
             f["temperature"]["mean_temp"]
             for f in frames
             if f["temperature"]["mean_temp"] is not None
         ]
-
         valid_mins = [
             f["temperature"]["min_temp"]
             for f in frames
             if f["temperature"]["min_temp"] is not None
         ]
-
         valid_maxs = [
             f["temperature"]["max_temp"]
             for f in frames
             if f["temperature"]["max_temp"] is not None
         ]
-
         valid_warm = [
             (
                 f["temperature"]["warm_ratio"],
@@ -1165,7 +871,6 @@ class OceanExtractor:
             for f in frames
             if f["temperature"]["warm_ratio"] is not None
         ]
-
         valid_cold = [
             (
                 f["temperature"]["cold_ratio"],
@@ -1174,9 +879,7 @@ class OceanExtractor:
             for f in frames
             if f["temperature"]["cold_ratio"] is not None
         ]
-
         if total_valid_pixels == 0:
-
             return {
                 "mean_temp": None,
                 "min_temp": None,
@@ -1187,225 +890,131 @@ class OceanExtractor:
                 "warm_ratio": None,
                 "cold_ratio": None
             }
-
-        # Histogram-based aggregation
-        # Avoid storing every pixel from every frame.
-
         bin_width = (
             self.temp_max - self.temp_min
         ) / self.histogram_bins
-
         bin_centers = (
             np.arange(self.histogram_bins) + 0.5
         ) * bin_width + self.temp_min
-
         cumulative = np.cumsum(
             temperature_histogram
         )
-
         def histogram_percentile(percentile):
-
-            target = (
-                percentile / 100.0
-            ) * total_valid_pixels
-
+            target = (percentile / 100.0) * total_valid_pixels
             index = np.searchsorted(
                 cumulative,
                 target
             )
-
             index = min(
                 index,
                 self.histogram_bins - 1
             )
-
             return float(bin_centers[index])
-
         mean_temp = np.dot(
             temperature_histogram,
             bin_centers
         ) / total_valid_pixels
-
         variance = np.dot(
             temperature_histogram,
             (bin_centers - mean_temp) ** 2
         ) / total_valid_pixels
-
-        # Weighted warm/cold ratios
         warm_count = sum(
             ratio * count
             for ratio, count in valid_warm
         )
-
         cold_count = sum(
             ratio * count
             for ratio, count in valid_cold
         )
-
         return {
             "mean_temp": float(mean_temp),
-
             "min_temp": float(min(valid_mins)),
             "max_temp": float(max(valid_maxs)),
-
             "p10_temp": histogram_percentile(10),
             "p90_temp": histogram_percentile(90),
-
             "std_temp": float(np.sqrt(variance)),
-
             "warm_ratio": float(
                 warm_count / total_valid_pixels
             ),
-
             "cold_ratio": float(
                 cold_count / total_valid_pixels
             ),
-
             "valid_pixel_count": int(total_valid_pixels)
         }
-
-    # =====================================================
-    # MAIN PIPELINE
-    # =====================================================
-
-    def process(
-        self,
-        video_path,
-        colorbar_path,
-        output_dir
-    ):
-
+    def process(self,video_path,colorbar_path,output_dir):
         video_path = Path(video_path)
         colorbar_path = Path(colorbar_path)
         output_dir = Path(output_dir)
-
         output_dir.mkdir(
             parents=True,
             exist_ok=True
         )
-
         output_json = output_dir / "ocean.json"
-
-        # -------------------------------------------------
-        # Initialize color lookup table
-        # -------------------------------------------------
-
         self.build_temperature_mapper(
             colorbar_path
         )
-
-        # -------------------------------------------------
-        # Open video
-        # -------------------------------------------------
-
         cap = cv2.VideoCapture(
             str(video_path)
         )
-
         if not cap.isOpened():
             raise RuntimeError(
                 f"Cannot open video: {video_path}"
             )
-
         width = int(
             cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         )
-
         height = int(
             cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         )
-
         fps = cap.get(
             cv2.CAP_PROP_FPS
         )
-
         total_frames = int(
             cap.get(cv2.CAP_PROP_FRAME_COUNT)
         )
-
-        # -------------------------------------------------
-        # Initialize aggregation
-        # -------------------------------------------------
-
         frames = []
-
         histogram = np.zeros(
             self.histogram_bins,
             dtype=np.int64
         )
-
         total_valid_pixels = 0
-
         previous_features = None
-
         frame_id = 0
-
-        # -------------------------------------------------
-        # Process video
-        # -------------------------------------------------
-
         while True:
-
             frame = self.read_frame(cap)
-
             if frame is None:
                 break
-
             current_frame_id = frame_id
-
             frame_id += 1
-
             if current_frame_id % self.sample_step != 0:
                 continue
-
-            # ---------------------------------------------
-            # Phase 1: Preprocessing
-            # ---------------------------------------------
-
             temperature_map, valid_mask = (
                 self.map_temperature(frame)
             )
-
-            # ---------------------------------------------
-            # Phase 2: Feature Extraction
-            # ---------------------------------------------
-
             temperature_features = (
                 self.extract_temperature_features(
                     temperature_map,
                     valid_mask
                 )
             )
-
             current_features = {
                 "frame_id": current_frame_id,
-
                 "video_time_seconds": (
                     float(current_frame_id / fps)
                     if fps > 0
                     else None
                 ),
-
                 "temperature": temperature_features
             }
-
             current_features["temporal"] = (
                 self.extract_temporal_features(
                     current_features["temperature"],
                     previous_features
                 )
             )
-
             frames.append(current_features)
-
-            # ---------------------------------------------
-            # Update histogram
-            # ---------------------------------------------
-
             valid_temp = temperature_map[valid_mask]
-
             if len(valid_temp) > 0:
-
                 frame_histogram, _ = np.histogram(
                     valid_temp,
                     bins=self.histogram_bins,
@@ -1414,49 +1023,30 @@ class OceanExtractor:
                         self.temp_max
                     )
                 )
-
                 histogram += frame_histogram
-
                 total_valid_pixels += len(valid_temp)
-
             previous_features = (
                 current_features["temperature"]
             )
-
         cap.release()
-
-        # -------------------------------------------------
-        # Period summary
-        # -------------------------------------------------
-
         statistics = self.aggregate_statistics(
             frames,
             histogram,
             total_valid_pixels
         )
-
-        # -------------------------------------------------
-        # JSON output
-        # -------------------------------------------------
-
         result = {
-
             "schema_version": "1.0",
-
             "dataset": "global_sea_surface_temperature",
-
             "source": {
                 "organization": "NASA",
                 "visualization_id": 3912,
                 "model": "ECCO2",
                 "url": "https://svs.gsfc.nasa.gov/3912/"
             },
-
             "description": (
                 "Sea surface temperature features "
                 "extracted from NASA ECCO2 visualization."
             ),
-
             "temperature": {
                 "unit": "celsius",
                 "min": self.temp_min,
@@ -1465,12 +1055,10 @@ class OceanExtractor:
                 "warm_threshold": self.warm_threshold,
                 "cold_threshold": self.cold_threshold
             },
-
             "time_range": {
                 "start": "2007-03-25T12:00:00Z",
                 "end": "2008-03-03T12:00:00Z"
             },
-
             "video": {
                 "width": width,
                 "height": height,
@@ -1479,7 +1067,6 @@ class OceanExtractor:
                 "processed_frames": len(frames),
                 "sample_step": self.sample_step
             },
-
             "processing": {
                 "color_space": "BGR",
                 "temperature_mapping": "NASA colorbar LUT",
@@ -1491,36 +1078,13 @@ class OceanExtractor:
                 "grayscale": False,
                 "motion_analysis": False
             },
-
             "statistics": statistics,
-
             "frames": frames
         }
-
         with open(
             output_json,
             "w",
             encoding="utf-8"
         ) as f:
-
-            json.dump(
-                result,
-                f,
-                indent=4,
-                ensure_ascii=False,
-                allow_nan=False
-            )
-
-        print(
-            f"Ocean extraction completed: {output_json}"
-        )
-
-        print(
-            f"Processed frames: {len(frames)}"
-        )
-
-        print(
-            f"Mean temperature: {statistics['mean_temp']}"
-        )
-
+            json.dump(result,f,indent=4,ensure_ascii=False,allow_nan=False)
         return result

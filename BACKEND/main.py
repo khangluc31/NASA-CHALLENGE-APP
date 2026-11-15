@@ -1,23 +1,20 @@
 
 from pathlib import Path
 
+from co2_extractor import CO2Extractor
+from extractor import NightLightsExtractor, OceanExtractor
 from video_loader import load_topics, PROCESSED_DIR
-
-from extractor import (
-    NightLightsExtractor,
-    OceanExtractor
-)
 
 
 # =====================================================
-# CONFIGURATION
+# PATH CONFIGURATION
 # =====================================================
 
 BASE_DIR = Path(__file__).resolve().parent
-
 PROJECT_DIR = BASE_DIR.parent
 
-COLORBAR_PATH = (
+# Ocean
+OCEAN_COLORBAR_PATH = (
     PROJECT_DIR
     / "DATA"
     / "raw"
@@ -25,15 +22,24 @@ COLORBAR_PATH = (
     / "sst_ecco2_cbar.png"
 )
 
+# CO2
+CO2_DIR = PROJECT_DIR / "DATA" / "raw" / "co2"
+
+CO2_VIDEO_PATH = CO2_DIR / "co2.mp4"
+
+CO2_COLORBAR_PATH = (
+    CO2_DIR
+    / "dyamondCbar_6-27-2024a.png"
+)
+
 
 # =====================================================
-# MAIN
+# EXTRACTOR CONFIGURATION
 # =====================================================
 
-def main():
+def build_topic_extractors():
 
-    # Mapping topic -> extractor
-    extractor_map = {
+    return {
         "night_lights": NightLightsExtractor(),
 
         "ocean": OceanExtractor(
@@ -44,10 +50,22 @@ def main():
         )
     }
 
-    # Load all topics from DATA/raw
-    topics = load_topics()
 
-    # Create processed directory
+# =====================================================
+# PROCESS STANDARD TOPICS
+# =====================================================
+
+def process_standard_topics(extractor_map):
+
+    all_topics = load_topics()
+
+    # Only process Night Lights and Ocean
+    topics = [
+        source
+        for source in all_topics
+        if source.topic.lower() in extractor_map
+    ]
+
     PROCESSED_DIR.mkdir(
         parents=True,
         exist_ok=True
@@ -59,13 +77,8 @@ def main():
 
         print(f"\n[INFO] Processing topic: {topic}")
 
-        extractor = extractor_map.get(topic)
+        extractor = extractor_map[topic]
 
-        if extractor is None:
-            print(f"[SKIP] No extractor found for topic: {topic}")
-            continue
-
-        # Separate output directory for each topic
         output_dir = PROCESSED_DIR / topic
 
         output_dir.mkdir(
@@ -76,7 +89,7 @@ def main():
         try:
 
             # -----------------------------------------
-            # Night Lights
+            # NIGHT LIGHTS
             # -----------------------------------------
 
             if topic == "night_lights":
@@ -87,7 +100,7 @@ def main():
                 )
 
             # -----------------------------------------
-            # Ocean
+            # OCEAN
             # -----------------------------------------
 
             elif topic == "ocean":
@@ -97,16 +110,17 @@ def main():
                         "No video found for Ocean"
                     )
 
-                if not COLORBAR_PATH.exists():
+                if not OCEAN_COLORBAR_PATH.is_file():
                     raise FileNotFoundError(
-                        f"Colorbar not found: {COLORBAR_PATH}"
+                        f"Ocean colorbar not found: "
+                        f"{OCEAN_COLORBAR_PATH}"
                     )
 
                 video_path = source.videos[0]
 
                 extractor.process(
                     video_path=video_path,
-                    colorbar_path=COLORBAR_PATH,
+                    colorbar_path=OCEAN_COLORBAR_PATH,
                     output_dir=output_dir
                 )
 
@@ -115,11 +129,84 @@ def main():
             print(f"[SUCCESS] {topic}")
             print(f"[OUTPUT] {output_file}")
 
-        except Exception as e:
+        except Exception as error:
 
-            print(f"[ERROR] {topic}: {e}")
+            print(f"[ERROR] {topic}: {error}")
 
             raise
+
+
+# =====================================================
+# PROCESS CO2 SEPARATELY
+# =====================================================
+
+def process_co2():
+
+    print("\n[INFO] Processing standalone topic: co2")
+
+    if not CO2_VIDEO_PATH.is_file():
+        raise FileNotFoundError(
+            f"CO2 video not found: {CO2_VIDEO_PATH}"
+        )
+
+    if not CO2_COLORBAR_PATH.is_file():
+        raise FileNotFoundError(
+            f"CO2 colorbar not found: {CO2_COLORBAR_PATH}"
+        )
+
+    output_dir = PROCESSED_DIR / "co2"
+
+    output_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    extractor = CO2Extractor(
+        processing_width=480,
+        lab_levels=32,
+        color_distance_threshold=38.0,
+        min_saturation=8,
+        min_value=18,
+        min_valid_pixels=30,
+        save_debug=True
+    )
+
+    try:
+
+        output_file = extractor.process(
+            video_path=CO2_VIDEO_PATH,
+            colorbar_path=CO2_COLORBAR_PATH,
+            output_dir=output_dir
+        )
+
+        print("[SUCCESS] co2")
+        print(f"[OUTPUT] {output_file}")
+
+    except Exception as error:
+
+        print(f"[ERROR] co2: {error}")
+
+        raise
+
+
+# =====================================================
+# MAIN
+# =====================================================
+
+def main():
+
+    PROCESSED_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    extractor_map = build_topic_extractors()
+
+    # 1. Night Lights and Ocean
+    process_standard_topics(extractor_map)
+
+    # 2. CO2
+    process_co2()
 
 
 if __name__ == "__main__":
