@@ -96,14 +96,14 @@ control; switching view preserves the same media element and time. Default motio
 starts when ready, with reduced-motion/autoplay fallbacks. Leaving the chapter or
 closing the book releases the video; hidden browser tabs pause until explicit Play.
 The JSON is not used for location measurements, and no Ocean selected-area view is
-added. The video is the unmodified official 2048 × 1024 MP4 download; no external tools
+added. The video is the unmodified official 640 × 320 M4V download; no external tools
 or application dependencies were installed. See `ocean/README.md` and
 `public/media/ocean/README.md` for lifecycle, provenance and resolution limits.
 
-The high-resolution ocean media is a local Git-ignored asset because it exceeds
-GitHub's normal file-size limit. Run `./scripts/download-ocean-video.ps1` after
-cloning or before a deployment build. The built-in PowerShell script verifies its
-checksum and installs nothing. The former low-resolution video has been removed.
+The ocean media is tracked in Git at 12,670,193 bytes, below 100 MB. Normal clones
+include it and Vite copies it into deployment output. The optional
+`./scripts/download-ocean-video.ps1` helper restores/verifies the same NASA file
+without conversion. The larger source is no longer used.
 
 CO₂ update: Chapter 1 uses the Science On a Sphere export at SVS 5436, the
 geographically suitable version of SVS 5196, as an unmodified 4096 × 2048 local

@@ -23,6 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Download with scripts/download-ocean-video.ps1 (exceeds GitHub's normal file limit).
+# Legacy high-resolution ocean asset (unused; exceeds GitHub's normal file limit).
 /public/media/ocean/ecco2-surface-flow-2048.mp4
 /public/media/ocean/ecco2-surface-flow-2048.mp4.download
