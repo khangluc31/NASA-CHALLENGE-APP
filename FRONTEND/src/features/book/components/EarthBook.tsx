@@ -6,9 +6,9 @@ import { capturePage } from '../capture-page'
 import { BOOK_CHAPTERS } from '../chapters'
 import type { EarthBookProps } from '../types'
 import { useBookNavigation } from '../hooks/useBookNavigation'
-import { DemoSonification } from '../../audio/DemoSonification'
 import { ChapterNotes } from '../../chapter/ChapterNotes'
 import { AudioPlaceholder, VisualizationPreview } from './BookPlaceholders'
+
 
 export function EarthBook(props: EarthBookProps) {
   const chapters = props.chapters ?? BOOK_CHAPTERS
@@ -72,7 +72,7 @@ function BookWithChapters(props: EarthBookProps & { chapters: NonNullable<EarthB
           <div className="visualization-slot" data-book-interactive>
             {live && props.renderVisualization ? props.renderVisualization(slot) : <VisualizationPreview chapter={chapter} />}
           </div>
-          <div className="audio-slot" data-book-interactive>{props.renderAudio ? (slot.isActive ? props.renderAudio(slot) : <AudioPlaceholder />) : <DemoSonification key={`${chapter.id}-${slot.isActive}`} disabled={!slot.isActive} />}</div>
+          <div className="audio-slot" data-book-interactive>{props.renderAudio ? props.renderAudio(slot) : <AudioPlaceholder />}</div>
         </section>
         <section ref={rightPage} className="book-page right-page" aria-label="Chapter notes" inert={busy || nav.phase === 'error'}>
           {props.renderInspector ? props.renderInspector(slot) : <ChapterNotes key={chapter.id} chapter={chapter} number={number} />}

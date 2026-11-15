@@ -8,6 +8,16 @@ import { BOOK_CHAPTERS } from '../book/chapters'
 import { CarbonDioxideInspector } from '../chapter/CarbonDioxideInspector'
 import { useCurrentViewState } from './media/useCurrentView'
 import { OceanInspector } from '../chapter/OceanInspector'
+import { DataSonification } from '../audio/DataSonification'
+import { AudioLabLeft, AudioLabRight } from '../audio-lab/AudioLabPanels'
+import type { DatasetId } from '../audio/dataset-docs'
+
+// Mỗi chương một dataset âm thanh cố định (khoá theo chapter.id).
+const CHAPTER_DATASET: Record<string, DatasetId> = {
+  'night-lights': 'night_lights',
+  'ocean-temperature': 'ocean',
+  'carbon-dioxide': 'co2',
+}
 
 interface ChapterViewState {
   view?: 'globe' | 'map'
@@ -22,7 +32,7 @@ export function useBookVisualization() {
   const carbonDioxide = useCurrentViewState()
   const ocean = useCurrentViewState()
   return {
-    renderVisualization: (slot: BookSlotProps) => <VisualizationHost
+    renderVisualization: (slot: BookSlotProps) => slot.chapter.id === 'audio-lab' ? <AudioLabLeft /> : <VisualizationHost
       {...slot}
       onCarbonDioxideViewChange={carbonDioxide.onChange}
       onOceanViewChange={ocean.onChange}
@@ -34,7 +44,16 @@ export function useBookVisualization() {
       onLocationSelect={location => setChapters(previous => ({ ...previous, [slot.chapter.id]: { ...previous[slot.chapter.id], location,
         selectionRevision: (previous[slot.chapter.id]?.selectionRevision ?? 0) + 1 } }))}
     />,
+    renderAudio: (slot: BookSlotProps) => {
+      if (slot.chapter.id === 'audio-lab') return null // Audio Lab có Transport riêng ở trang trái
+      const datasetId = CHAPTER_DATASET[slot.chapter.id]
+      if (!datasetId) return null
+      // Night Lights đồng bộ với thanh năm phía trên; CO2 & Ocean phát độc lập.
+      const syncYear = slot.chapter.id === 'night-lights' ? (chapters[slot.chapter.id]?.nightLightsYear ?? 2012) : undefined
+      return <DataSonification key={slot.chapter.id} datasetId={datasetId} syncYear={syncYear} disabled={!slot.isActive} />
+    },
     renderInspector: (slot: BookSlotProps) => {
+      if (slot.chapter.id === 'audio-lab') return <AudioLabRight />
       const state = chapters[slot.chapter.id]
       const location = state?.location
       const selected = slot.chapter.id === 'night-lights' && location
