@@ -18,6 +18,13 @@ manual testing; no development-only route is included.
 
 See [feature integration boundaries](../README.md).
 
+Ocean chapter: `layers/OceanGlobeLayer.tsx` wraps the host-owned video in a
+disposable VideoTexture on a slightly larger sphere, using the existing sphere
+UV convention and demand-rendered Canvas. It does not intercept surface picking
+or alter camera controls. Frame callbacks invalidate only while video frames
+arrive. Media ownership and Play/Pause live in `../ocean/`; switching to Map
+disposes this layer without restarting the video. See `../ocean/README.md`.
+
 ## Public interface
 
 Import `GlobeViewer` and its types from this folder's `index.ts`.

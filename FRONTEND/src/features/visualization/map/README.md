@@ -114,6 +114,14 @@ preview route in the application.
 
 ## Book embedding
 
+Ocean chapter: `layers/OceanMapLayer.tsx` draws the host-owned NASA video into a
+canvas inside an SVG foreignObject, sharing the existing map transform. It does
+not intercept pointer events. This retains pan/zoom, picking, and the existing
+canvas-copy page snapshot mechanism. Paused frames remain visible, frame callbacks
+are canceled on unmount, and switching to Globe keeps the same media/time through
+the owner in `../ocean/`. There is no coordinate-based Ocean measurement inspector.
+See `../ocean/README.md` and `public/media/ocean/README.md`.
+
 The optional `embedded` prop enables plain lower-right coordinate output and lower-left −/+ zoom tools, with a discreet coordinate-entry popover. The old navigation board is absent in the book; standalone viewers retain their full controls. The host supplies book-scoped layout styles and interaction locks. Selection and chosen view live above the slots; local camera/navigation reset on unmount. Reference backgrounds are not chapter measurements. See ../README.md for the current three-chapter contract.
 
 ## Annual Night Lights

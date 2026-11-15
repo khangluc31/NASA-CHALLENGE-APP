@@ -1,0 +1,8 @@
+.ocean-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; padding: 7px 10px 10px; flex-shrink: 0; font-size: 10px; }
+.ocean-controls button { display: inline-flex; align-items: center; gap: 6px; color: var(--book-accent); background: none; border: 0; padding: 7px 0; min-height: 30px; font: inherit; cursor: pointer; }
+.ocean-controls button:disabled { opacity: .5; cursor: default; }
+.ocean-controls button:focus-visible { outline: 2px solid var(--book-accent); outline-offset: 3px; }
+.ocean-controls__legend { display: flex; align-items: center; gap: 7px; margin-left: auto; color: var(--text); }
+.ocean-controls__legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.ocean-controls__legend i { display: inline-block; width: 55px; height: 3px; background: linear-gradient(to right, #224bff, #21b774, #ffe54a, #f14a27); }
+.ocean-controls [role=status]:empty { display: none; }
