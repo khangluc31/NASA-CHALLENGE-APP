@@ -8,6 +8,7 @@ import { BOOK_CHAPTERS } from '../book/chapters'
 import { CarbonDioxideInspector } from '../chapter/CarbonDioxideInspector'
 import { useCurrentViewState } from './media/useCurrentView'
 import { OceanInspector } from '../chapter/OceanInspector'
+import { ChapterSonification } from '../audio/ChapterSonification'
 
 interface ChapterViewState {
   view?: 'globe' | 'map'
@@ -22,6 +23,9 @@ export function useBookVisualization() {
   const carbonDioxide = useCurrentViewState()
   const ocean = useCurrentViewState()
   return {
+    renderAudio: (slot: BookSlotProps) => <ChapterSonification key={slot.chapter.id} source={{ chapter: slot.chapter.id,
+      view: slot.chapter.id === 'carbon-dioxide' ? carbonDioxide.view : slot.chapter.id === 'ocean-temperature' ? ocean.view : undefined,
+      year: chapters[slot.chapter.id]?.nightLightsYear ?? 2012 }} />,
     renderVisualization: (slot: BookSlotProps) => <VisualizationHost
       {...slot}
       onCarbonDioxideViewChange={carbonDioxide.onChange}

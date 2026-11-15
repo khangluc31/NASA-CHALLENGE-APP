@@ -2,31 +2,46 @@ import { claimForegroundAudio } from './audio-priority'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { MotionConfigContext, useReducedMotion } from 'motion/react'
 import { AudioLines, Pause, Play, Square, Volume2, VolumeX } from 'lucide-react'
-import { DEMO_CREDIT, DEMO_LABEL, DemoAudioEngine } from './demo-audio-engine'
+import type { ChapterAudioEngine } from './chapter-audio-engine'
+import { DEMO_LABEL, DemoAudioEngine } from './demo-audio-engine'
 
 function clock(seconds: number) { return `00:${String(Math.floor(seconds)).padStart(2, '0')}` }
 
+const makeDemoPlayer = (onEnded: () => void) => new DemoAudioEngine(onEnded)
 export function DemoSonification({ disabled = false }: { disabled?: boolean }) {
-  const engine = useRef<DemoAudioEngine | null>(null)
+  return <SonificationPlayer disabled={disabled} createPlayer={makeDemoPlayer} sourceLabel={DEMO_LABEL} description="Demo audio / Not NASA data sonification" />
+}
+
+export function SonificationPlayer({ disabled = false, createPlayer, sourceLabel, description, initialVolume = 0.3, initialMuted = false, onVolumeChange, onMuteChange }: {
+  disabled?: boolean
+  createPlayer: (onEnded: () => void) => DemoAudioEngine | ChapterAudioEngine
+  sourceLabel: string
+  description: string
+  initialVolume?: number
+  initialMuted?: boolean
+  onVolumeChange?: (value: number) => void
+  onMuteChange?: (value: boolean) => void
+}) {
+  const engine = useRef<DemoAudioEngine | ChapterAudioEngine | null>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
   const intent = useRef(0)
   const [status, setStatus] = useState<'ready' | 'loading' | 'playing' | 'paused' | 'error'>('ready')
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(0.3)
-  const [muted, setMuted] = useState(false)
-  const [label, setLabel] = useState(DEMO_LABEL)
+  const [volume, setVolume] = useState(initialVolume)
+  const [muted, setMuted] = useState(initialMuted)
+  const [label, setLabel] = useState(sourceLabel)
   const systemReduced = useReducedMotion()
   const config = useContext(MotionConfigContext)
   const reduced = systemReduced || config.reducedMotion === 'always'
 
   useEffect(() => {
     if (disabled) return
-    const player = new DemoAudioEngine(() => { setStatus('ready'); setProgress(player.duration) })
+    const player = createPlayer(() => { setStatus('ready'); setProgress(player.duration) })
     engine.current = player
     return () => { player.dispose(); engine.current = null }
-  }, [disabled])
-  useEffect(() => { engine.current?.setVolume(muted ? 0 : volume) }, [muted, volume])
+  }, [disabled, createPlayer])
+  useEffect(() => { engine.current?.setVolume(muted ? 0 : volume) }, [muted, volume, disabled, createPlayer])
 
   useEffect(() => {
     const element = canvas.current
@@ -120,18 +135,18 @@ export function DemoSonification({ disabled = false }: { disabled?: boolean }) {
   }
   function stop() { ++intent.current; engine.current?.stop(); setProgress(0); setStatus('ready') }
 
-  return <section className="demo-audio" aria-label="Demo sonification player">
-    <div className="flex items-center justify-between gap-2"><span className="eyebrow">SONIFICATION / DEMO AUDIO</span><AudioLines size={16} aria-hidden="true" /></div>
+  return <section className="demo-audio" aria-label="Sonification player">
+    <div className="flex items-center justify-between gap-2"><span className="eyebrow">SONIFICATION</span><AudioLines size={16} aria-hidden="true" /></div>
     <canvas ref={canvas} className="demo-waveform" width={900} height={100} aria-label={reduced ? 'Wave animation disabled by reduced motion' : 'Audio-reactive horizontal spectrum, mirrored above and below the center line'} role="img" />
     <progress className="audio-progress" value={progress} max={duration || 1} aria-label="Audio playback progress" />
     <div className="demo-audio-controls">
       <span className="audio-time">{clock(progress)} / {duration ? clock(duration) : '—'}</span>
       <button onClick={() => void toggle()} disabled={disabled || status === 'loading'}>{status === 'playing' ? <Pause size={16} /> : <Play size={16} />}{status === 'loading' ? 'Loading…' : status === 'playing' ? 'Pause' : status === 'error' ? 'Retry' : 'Play'}</button>
       <button disabled={disabled} onClick={stop} aria-label="Stop audio and return to start"><Square size={14} /> Stop</button>
-      <button disabled={disabled} onClick={() => setMuted(value => !value)} aria-label={muted ? 'Unmute audio' : 'Mute audio'} aria-pressed={muted}>{muted ? <VolumeX size={17} /> : <Volume2 size={17} />}</button>
-      <input disabled={disabled} aria-label="Audio volume" type="range" min="0" max="1" step="0.01" value={volume} onChange={event => setVolume(Number(event.target.value))} />
+      <button disabled={disabled} onClick={() => { setMuted(!muted); onMuteChange?.(!muted) }} aria-label={muted ? 'Unmute audio' : 'Mute audio'} aria-pressed={muted}>{muted ? <VolumeX size={17} /> : <Volume2 size={17} />}</button>
+      <input disabled={disabled} aria-label="Audio volume" type="range" min="0" max="1" step="0.01" value={volume} onChange={event => { const value = Number(event.target.value); setVolume(value); onVolumeChange?.(value) }} />
     </div>
-    <p className="demo-audio-status" role="status">{status === 'error' ? 'Could not load audio. Press Retry.' : status === 'loading' ? 'Loading demo clip…' : `${label}${reduced ? ' · Wave animation off' : ''}`}</p>
-    <p className="audio-disclaimer">Demo only · Not NASA data sonification. <a href={DEMO_CREDIT} target="_blank" rel="noreferrer">Clip source ↗</a></p>
+    <p className="demo-audio-status" role="status">{status === 'error' ? 'Could not play sound. Press Retry.' : status === 'loading' ? 'Preparing sound…' : `${disabled || status === 'ready' ? sourceLabel : label}${reduced ? ' · Wave animation off' : ''}`}</p>
+    <p className="audio-disclaimer">{description}</p>
   </section>
 }
