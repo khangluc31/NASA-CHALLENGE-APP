@@ -3,7 +3,7 @@ import { VisualizationPreview } from '../book/components/BookPlaceholders'
 import { GlobeViewer } from './globe'
 import type { GlobeLocation } from './globe'
 import { MapViewer } from './map'
-import { NightLightsMap } from './map/NightLightsMap'
+import { NightLightsVisualization } from './night-lights/NightLightsVisualization'
 import { OceanVisualization } from './ocean/OceanVisualization'
 import { CarbonDioxideVisualization } from './carbon-dioxide/CarbonDioxideVisualization'
 import { BLUE_MARBLE_TEXTURE } from './globe/surfaceTexture'
@@ -46,10 +46,10 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
       ? <CarbonDioxideVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} onCurrentViewChange={onCarbonDioxideViewChange} />
       : chapter.id === 'ocean-temperature'
       ? <OceanVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} onCurrentViewChange={onOceanViewChange} />
-      : activeView === 'globe'
-      ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />
       : chapter.id === 'night-lights'
-        ? <NightLightsMap key={`${chapter.id}:map`} {...common} surfaceImage={surface} year={nightLightsYear} onYearChange={onNightLightsYearChange} />
+      ? <NightLightsVisualization key={chapter.id} {...common} view={activeView === 'globe' ? 'globe' : 'map'} surfaceImage={surface} year={nightLightsYear} onYearChange={onNightLightsYearChange} />
+      : activeView === 'globe'
+        ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />
         : <MapViewer key={`${chapter.id}:map`} {...common} surfaceImage={surface} />}
   </section>
 }
