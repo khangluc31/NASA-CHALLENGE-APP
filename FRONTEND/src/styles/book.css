@@ -501,3 +501,38 @@
 .book-page .audio-lab-panel .border-lab-line,
 .book-page .audio-lab-panel .border-lab-line-soft,
 .book-page .audio-lab-panel .border-lab-log-line { border-color: #ffffff55 !important; }
+
+/* Editorial reading keeps long paragraphs and processing lists inside the notes scroll area. */
+.chapter-reading h3 { margin-top: 1.8rem; margin-bottom: .85rem; }
+.chapter-reading h3:first-child { margin-top: 0; }
+.chapter-reading h4 { margin-top: 1.4rem; margin-bottom: .75rem; font-weight: 600; }
+/* Separate reading sections without drawing rules between every paragraph. */
+.chapter-reading :is(p, ul) + h3 { border-top: 1px solid #ffffff35; padding-top: 1.4rem; }
+.chapter-reading :is(p, ul) + h4 { border-top: 1px solid #ffffff20; padding-top: 1rem; }
+.chapter-reading p { margin-bottom: .85rem; }
+.chapter-reading ul { list-style: disc; padding-left: 1.3rem; margin: .65rem 0 1.1rem; }
+.chapter-reading li { margin-bottom: .6rem; line-height: 1.6; }
+
+/* Shared reading scale and top spacing for editorial and current-view tabs. */
+.notes-body {
+  --notes-text-size: clamp(13px, 1.05vw, 15px);
+  --notes-heading-size: 16px;
+  padding-top: 20px;
+  font-size: var(--notes-text-size);
+  line-height: 1.6;
+}
+.notes-body p, .notes-body li { font-size: var(--notes-text-size); line-height: 1.6; }
+.notes-body h3, .notes-body h4 { font-size: var(--notes-heading-size); }
+@media (max-width: 900px) {
+  .notes-body { --notes-text-size: 14px; }
+}
+
+/* Science chapter copy uses sentence case and consistent reading spacing. */
+.science-notes > .eyebrow,
+.science-notes > h2,
+.science-notes .notes-source,
+.science-notes .current-view__kicker { text-transform: none; letter-spacing: normal; }
+.science-notes .chapter-reading h3 { margin: 1.8rem 0 .85rem; }
+.science-notes .chapter-reading h3:first-child { margin-top: 0; }
+.science-notes .chapter-reading h4 { margin: 1.4rem 0 .75rem; }
+.science-notes .chapter-reading p { margin-bottom: .85rem; }
