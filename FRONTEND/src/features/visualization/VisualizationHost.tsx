@@ -4,6 +4,7 @@ import { GlobeViewer } from './globe'
 import type { GlobeLocation } from './globe'
 import { MapViewer } from './map'
 import { NightLightsMap } from './map/NightLightsMap'
+import { OceanVisualization } from './ocean/OceanVisualization'
 import { BLUE_MARBLE_TEXTURE } from './globe/surfaceTexture'
 import './visualization.css'
 
@@ -37,7 +38,9 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
         {activeView === 'globe' ? 'GLOBE' : 'MAP'}
       </button> : <span className="book-visualization__mode">{activeView === 'globe' ? 'GLOBE' : 'MAP'}</span>}
     </div>
-    {activeView === 'globe'
+    {chapter.id === 'ocean-temperature'
+      ? <OceanVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} />
+      : activeView === 'globe'
       ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />
       : chapter.id === 'night-lights'
         ? <NightLightsMap key={`${chapter.id}:map`} {...common} surfaceImage={surface} year={nightLightsYear} onYearChange={onNightLightsYearChange} />

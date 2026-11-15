@@ -89,3 +89,18 @@ a new global store, book slot or audio mapping. The pure `getNightLightsArea`
 adapter derives current brightness, annual series and coverage-aware comparison.
 Selections open the inspector, notes remain accessible, and Clear returns to
 Overview. See `features/chapter/README.md`.
+
+Ocean animation update: `VisualizationHost` mounts `OceanVisualization` above its
+Globe/Map branch. Both views use one muted looping NASA video and one Play/Pause
+control; switching view preserves the same media element and time. Default motion
+starts when ready, with reduced-motion/autoplay fallbacks. Leaving the chapter or
+closing the book releases the video; hidden browser tabs pause until explicit Play.
+The JSON is not used for location measurements, and no Ocean selected-area view is
+added. The video is the unmodified official 2048 × 1024 MP4 download; no external tools
+or application dependencies were installed. See `ocean/README.md` and
+`public/media/ocean/README.md` for lifecycle, provenance and resolution limits.
+
+The high-resolution ocean media is a local Git-ignored asset because it exceeds
+GitHub's normal file-size limit. Run `./scripts/download-ocean-video.ps1` after
+cloning or before a deployment build. The built-in PowerShell script verifies its
+checksum and installs nothing. The former low-resolution video has been removed.
