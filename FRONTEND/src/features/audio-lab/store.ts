@@ -1,0 +1,387 @@
+import { create } from "zustand";
+import { subscribeWithSelector } from "zustand/middleware";
+
+import { engine, makeMockNightLights, pickFromImage } from "../../../audio";
+import type { Features, RawData, ScaleName, YearEntry } from "../../../audio";
+import type { Cursor } from "./lib/draw";
+import type { Swatch } from "./lib/swatches";
+import { LIT_THRESHOLD, summarize, validateRaw, warningsRaw } from "./lib/validate";
+
+/* ------------------------------------------------------------------ */
+/* Log                                                                 */
+/* ------------------------------------------------------------------ */
+export type LogTone = "ok" | "bad" | "dim" | "";
+export interface LogEntry {
+  id: number;
+  time: string;
+  msg: string;
+  tone: LogTone;
+}
+const MAX_LOGS = 500;
+let logId = 0;
+const makeLog = (msg: string, tone: LogTone = ""): LogEntry => ({
+  id: logId++,
+  time: new Date().toLocaleTimeString(),
+  msg,
+  tone,
+});
+
+/** Mỗi lần nạp tăng 1; kết quả của lần nạp cũ (đổi dataset quá nhanh) bị bỏ, tránh dữ liệu cũ đè dữ liệu mới. */
+let loadSeq = 0;
+
+const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e));
+
+/* ------------------------------------------------------------------ */
+/* State                                                               */
+/* ------------------------------------------------------------------ */
+interface JukeboxState {
+  /* dữ liệu */
+  rawData: RawData | null;
+  /** trạng thái nạp file JSON gần nhất, để UI hiện loading / lỗi mà không cần Log panel */
+  loadStatus: "idle" | "loading" | "ready" | "error";
+  loadError: string | null;
+  /** url của dataset đang hiển thị trên lưới (null = chưa nạp hoặc dữ liệu giả) */
+  loadedUrl: string | null;
+  /** true = JSON gốc là chuỗi số (co2, ocean) đã được adapters.ts đổi thành lưới audioColumns */
+  adapted: boolean;
+  features: Features | null;
+  years: YearEntry[];
+  yearIndex: number;
+  info: string;
+  /** Tăng mỗi khi engine đổi trạng thái ảnh hưởng cách vẽ (hue/emphasis/frame…) → lưới vẽ lại. */
+  gridVersion: number;
+
+  /* playhead / con trỏ */
+  playCol: number;
+  cursor: Cursor;
+  progress: string;
+
+  /* điều khiển */
+  url: string;
+  speed: number;
+  volume: number;
+  scale: ScaleName;
+  urgency: boolean;
+  hueByLight: boolean;
+  emphasis: boolean;
+  timeline: boolean;
+  tlYears: string;
+
+  logs: LogEntry[];
+
+  /* actions */
+  log: (msg: string, tone?: LogTone) => void;
+  loadMock: () => void;
+  loadFromUrl: () => Promise<void>;
+  /** đặt url rồi nạp luôn (dùng cho ô chọn night_lights / co2 / ocean) */
+  selectDataset: (url: string) => Promise<void>;
+  checkJson: () => void;
+  selectYear: (index: number) => void;
+
+  play: () => Promise<void>;
+  pause: () => void;
+  stop: () => void;
+  setSpeed: (v: number) => void;
+  setVolume: (v: number) => void;
+  setScale: (s: ScaleName) => void;
+  setUrgency: (on: boolean) => void;
+  setHueByLight: (on: boolean) => void;
+  setEmphasis: (on: boolean) => void;
+  setTimeline: (on: boolean) => void;
+  setTlYears: (txt: string) => void;
+  applyTimeline: () => void;
+  setUrl: (url: string) => void;
+
+  setCursor: (c: Cursor) => void;
+  probeCell: (col: number, row: number) => Promise<void>;
+  probeSwatch: (s: Swatch) => Promise<void>;
+  probeImage: (img: HTMLImageElement, ev: MouseEvent) => Promise<void>;
+}
+
+export const useJukeboxStore = create<JukeboxState>()(
+  subscribeWithSelector((set, get) => {
+    /* ---- helpers nội bộ ---- */
+    const refreshYears = () => set({ years: engine.getYears(), yearIndex: engine.frameIndex });
+
+    const showFeatures = (label: string) => {
+      const features = engine.features;
+      if (!features) return;
+      set((s) => ({
+        features,
+        cursor: { col: 0, row: 0 },
+        playCol: -1,
+        info: summarize(features, engine.getYears().length),
+        gridVersion: s.gridVersion + 1,
+      }));
+      get().log(`Loaded: ${label}`, "ok");
+    };
+
+    const setData = (raw: RawData, label: string) => {
+      // Nạp engine TRƯỚC khi đụng vào state: nếu load() ném lỗi thì store vẫn khớp với những gì engine đang giữ.
+      // engine tự nhận night_lights (có audioColumns), co2 / ocean (chuỗi số, được adapters.ts đổi thành lưới) hoặc dạng cũ.
+      engine.load(raw);
+      set({
+        // engine.data là bản ĐÃ đổi (có audioColumns); co2/ocean gốc không có nên validate/chọn năm phải dùng bản này
+        rawData: engine.data ?? raw,
+        adapted: engine.data !== null && engine.data !== raw,
+        timeline: false, // engine.load() luôn tắt timeline, store phải khớp
+      });
+      refreshYears();
+      showFeatures(label);
+    };
+
+    /** Đổi một tuỳ chọn của engine rồi, nếu đã có dữ liệu, vẽ lại lưới + log nhãn. */
+    const redrawIfLoaded = (label: string) => {
+      if (engine.features) showFeatures(label);
+    };
+
+    return {
+      rawData: null,
+      loadStatus: "idle",
+      loadError: null,
+      loadedUrl: null,
+      adapted: false,
+      features: null,
+      years: [],
+      yearIndex: 0,
+      info: "No data loaded.",
+      gridVersion: 0,
+
+      playCol: -1,
+      cursor: { col: 0, row: 0 },
+      progress: "0%",
+
+      url: "/data/night_lights.json",
+      speed: 1,
+      volume: 0.8,
+      scale: "pentatonic",
+      urgency: false,
+      hueByLight: false,
+      emphasis: false,
+      timeline: false,
+      tlYears: "",
+
+      logs: [makeLog("Ready. Click 'Load mock data', then Play.", "dim")],
+
+      /* ---------------- log ---------------- */
+      log: (msg, tone = "") => set((s) => ({ logs: [...s.logs, makeLog(msg, tone)].slice(-MAX_LOGS) })),
+
+      /* ---------------- nguồn dữ liệu ---------------- */
+      loadMock: () => {
+        loadSeq++; // huỷ mọi lần nạp file đang chờ
+        setData(makeMockNightLights(), "mock data (new format, 3 years)");
+        set({ loadStatus: "ready", loadError: null, loadedUrl: null });
+      },
+
+      loadFromUrl: async () => {
+        const { log } = get();
+        const url = get().url.trim();
+        const seq = ++loadSeq;
+        set({ loadStatus: "loading", loadError: null });
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`HTTP ${res.status} loading ${url}`);
+          const text = await res.text();
+          if (seq !== loadSeq) return; // đã có lần nạp mới hơn
+          const mb = text.length / 1048576;
+          const raw = JSON.parse(text) as RawData;
+          log(`Loaded ${mb.toFixed(1)} MB`, "dim");
+          if (mb > 5)
+            log(
+              `Warning: ${mb.toFixed(1)} MB file. Audio only needs frames[].audioColumns (much smaller); ask for a web-trimmed export.`,
+              "dim",
+            );
+          // Contract (contracts.md) chỉ áp cho night_lights có sẵn audioColumns; co2/ocean là chuỗi số nên bỏ qua bước này
+          if (raw.frames?.some((f) => f.audioColumns)) {
+            const errs = validateRaw(raw);
+            if (errs.length) log(`JSON has ${errs.length} errors, click "check JSON" to see them. Loading anyway.`, "bad");
+          }
+          setData(raw, url);
+          set({ loadStatus: "ready", loadedUrl: url });
+          if (get().adapted) log("Data is a numeric series: converted to an audio grid (adapters.ts).", "dim");
+        } catch (e) {
+          if (seq !== loadSeq) return;
+          set({ loadStatus: "error", loadError: errMsg(e) });
+          log("Could not load: " + errMsg(e), "bad");
+        }
+      },
+
+      selectDataset: async (url) => {
+        set({ url });
+        await get().loadFromUrl();
+      },
+
+      checkJson: () => {
+        const { rawData, adapted, log } = get();
+        if (!rawData) return log("No data loaded.", "bad");
+        if (adapted) return log("co2/ocean data went through the adapter; not checked against the night_lights contract.", "dim");
+        if (!Array.isArray(rawData.frames))
+          return log("Legacy data (columns); not checked against the new contract.", "dim");
+
+        const errs = validateRaw(rawData);
+        if (!errs.length) log("JSON valid per contracts.md ✔", "ok");
+        else {
+          log(`${errs.length} errors:`, "bad");
+          errs.slice(0, 15).forEach((m) => log("  " + m, "bad"));
+        }
+        warningsRaw(rawData).forEach((m) => log("Warning: " + m, "dim"));
+      },
+
+      selectYear: (index) => {
+        set({ yearIndex: index });
+        engine.setFrame(index);
+        showFeatures(`year ${get().rawData?.frames?.[index]?.year ?? index}`);
+      },
+
+      setUrl: (url) => set({ url }),
+
+      /* ---------------- transport ---------------- */
+      play: async () => {
+        if (!get().features) return get().log("Load data first.", "bad");
+        await engine.play();
+        get().log("▶ play");
+      },
+      pause: () => {
+        engine.pause();
+        get().log("⏸ pause");
+      },
+      stop: () => {
+        engine.stop();
+        get().log("⏹ stop");
+      },
+      setSpeed: (v) => {
+        engine.setSpeed(v);
+        set({ speed: v });
+      },
+      setVolume: (v) => {
+        engine.setVolume(v);
+        set({ volume: v });
+      },
+
+      /* ---------------- tuỳ chọn ---------------- */
+      setScale: (scale) => {
+        engine.setScale(scale);
+        set({ scale });
+        get().log("Scale: " + scale);
+      },
+      setUrgency: (on) => {
+        engine.setUrgencyMode(on);
+        set({ urgency: on });
+        get().log("Urgent: " + (on ? "ON" : "off"));
+      },
+      setHueByLight: (on) => {
+        // mờ = lam đậm (230°), sáng = vàng rực (58°). Chỉ để nghe thử, chưa phải quyết định cuối.
+        engine.setHueMapper(on ? (light) => 230 - 172 * light : null);
+        set({ hueByLight: on });
+        redrawIfLoaded(on ? "hue by brightness: ON" : "fixed hue");
+        get().log(
+          "Hue by brightness: " + (on ? "ON (dim=deep blue, bright=solar gold)" : "off (fixed hue 45)"),
+        );
+      },
+      setEmphasis: (on) => {
+        engine.setChangeEmphasis(on);
+        set({ emphasis: on });
+        redrawIfLoaded(on ? "emphasize change: ON" : "emphasize change: off");
+        get().log(
+          "Emphasize change: " +
+            (on ? "ON (yellow = brighter, blue = darker, green = baseline)" : "off"),
+        );
+      },
+
+      /* ---------------- timeline ---------------- */
+      setTimeline: (on) => {
+        set({ timeline: on });
+        get().applyTimeline();
+      },
+      setTlYears: (txt) => set({ tlYears: txt }),
+      applyTimeline: () => {
+        const { timeline: on, tlYears, log } = get();
+        let idx: number[] | null = null;
+        const txt = tlYears.trim();
+        if (on && txt) {
+          const want = txt.split(/[\s,;]+/).map(Number);
+          idx = engine.getYears().filter((y) => y.year !== undefined && want.includes(y.year)).map((y) => y.index);
+        }
+        engine.setTimeline(on, idx);
+        refreshYears();
+        redrawIfLoaded(on ? `timeline ${engine.timelineIndexes?.length ?? 0} years` : "timeline off");
+        log(
+          on
+            ? `Timeline ON: ${(engine.timelineIndexes ?? []).map((i) => engine.data?.frames?.[i]?.year).join(", ")}`
+            : "Timeline off",
+        );
+      },
+
+      /* ---------------- nghe thử ---------------- */
+      setCursor: (cursor) => set({ cursor }),
+
+      probeCell: async (col, row) => {
+        const cell = get().features?.columns[col]?.rows[row];
+        if (!cell) return;
+        const v = await engine.playCell(col, row);
+        if (!v) return;
+        const note = cell.light > LIT_THRESHOLD ? "" : "  (dark cell, very quiet)";
+        get().log(
+          `cell (${col},${row}) hue=${cell.hue} light=${cell.light} -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}${note}`,
+        );
+      },
+
+      probeSwatch: async ({ name, hue, sat, light }) => {
+        const v = await engine.playColor({ hue, sat, light, rowFrac: 0.5 });
+        get().log(
+          `${name} -> ${v.label} | cutoff ${v.cutoff}Hz, Q ${v.q}, attack ${v.attack.toFixed(3)}s, FM ${v.modIndex.toFixed(2)}, vel ${v.velocity.toFixed(2)}`,
+        );
+      },
+
+      probeImage: async (img, ev) => {
+        const grid = { cols: 96, rows: 16, crop: [0, 0, img.naturalWidth, img.naturalHeight] } as const;
+        const c = pickFromImage(img, ev, grid);
+        const v = await engine.playColor(c);
+        get().log(
+          `pixel hue=${c.hue.toFixed(0)} sat=${c.sat.toFixed(2)} V=${c.light.toFixed(2)} cell(${c.col},${c.row}) -> ${v.osc}, MIDI ${v.midi}, vel ${v.velocity.toFixed(2)}`,
+        );
+      },
+    };
+  }),
+);
+
+/* ------------------------------------------------------------------ */
+/* Nối callback của engine vào store                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * engine là singleton; onFrame / onPlayhead trả về hàm huỷ, nên gọi trong useEffect
+ * và trả cleanup (an toàn với React StrictMode mount 2 lần).
+ */
+export function bindEngineToStore(): () => void {
+  const offFrame = engine.onFrame((fi, year, change) => {
+    const features = engine.features;
+    useJukeboxStore.setState((s) => ({
+      features,
+      yearIndex: fi,
+      info: features ? summarize(features, engine.getYears().length) : s.info,
+      gridVersion: s.gridVersion + 1,
+    }));
+    useJukeboxStore
+      .getState()
+      .log(
+        `Year ${year}` +
+          (change ? `: ${change.up} brighter, ${change.down} darker (vs ${change.since})` : ""),
+        "ok",
+      );
+  });
+
+  const offPlayhead = engine.onPlayhead((i, p, info) => {
+    useJukeboxStore.setState({
+      playCol: i,
+      progress: info
+        ? `${info.year ?? ""}${info.timeline ? ` (${info.yearPos + 1}/${info.yearCount})` : ""} · col ${i} · total ${(info.total * 100).toFixed(0)}%`
+        : `col ${i} · ${(p * 100).toFixed(0)}%`,
+    });
+  });
+
+  return () => {
+    offFrame();
+    offPlayhead();
+  };
+}
