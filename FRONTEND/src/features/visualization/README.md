@@ -1,7 +1,7 @@
 # Visualization — FE B
 
 FE B owns this feature. Follow [the project guideline](../../../guideline/README.md)
-before adding implementation. Globe and map foundations are integrated through the book’s visualization slot. Night Lights now has an annual video-derived brightness layer; Ocean/CO₂ layers and scientific media playback remain unimplemented.
+before adding implementation. Globe and map foundations are integrated through the book’s visualization slot. Night Lights has annual imagery and a brightness inspector; Ocean and CO₂ use native NASA spherical video layers. Scientific data-to-sound mapping remains separate.
 
 ## Structure
 
@@ -104,3 +104,32 @@ The high-resolution ocean media is a local Git-ignored asset because it exceeds
 GitHub's normal file-size limit. Run `./scripts/download-ocean-video.ps1` after
 cloning or before a deployment build. The built-in PowerShell script verifies its
 checksum and installs nothing. The former low-resolution video has been removed.
+
+CO₂ update: Chapter 1 uses the Science On a Sphere export at SVS 5436, the
+geographically suitable version of SVS 5196, as an unmodified 4096 × 2048 local
+video. Play/Pause, looping, reduced-motion handling and cleanup are shared with
+Ocean through `media/`; both use `globe/layers/GlobeVideoLayer`. The original NASA
+colorbar is shown in a compact legend disclosure. The globe remains interactive,
+but the video supplies neither independent atmospheric depth nor local ppm
+samples. No CO₂ selected-area inspector is introduced. See
+`carbon-dioxide/README.md` and `public/media/carbon-dioxide/README.md`.
+
+## Compact white viewer controls
+
+Book viewers use white book text tokens instead of a separate cyan palette.
+ViewerTools composes a single zoom/playback/coordinate row and optional secondary
+legend or timeline via feature-local footerActions/footerSecondary props. Outer
+visualization/audio geometry stays unchanged. Embedded globes start at 3.1 radii
+to use scene space better; source geometry/projection stay fixed.
+
+Only multi-view chapters show top-right Switch view text; single-view labels,
+numeric coordinate-entry popovers and persistent hints are removed from the book.
+Click/tap selects; keyboard users focus the scene, navigate with arrows, and press
+Enter to select the focus-only center crosshair. Navigation alone never selects.
+Standalone viewers retain full controls and forms. Retries are regular-weight white text
+with semantic button behavior, no box/border/underline, and visible focus/disabled
+states. CO2's original colorbar is always visible with ppm ticks. Ocean keeps its
+temperature legend in the shared row; Night Lights keeps the compact scrubber.
+Narrow footers wrap without reducing interactive targets.
+
+Footer alignment refinement: Ocean places the temperature legend on a second row, below zoom/playback/coordinates. Night Lights removes the redundant endpoint labels and keeps only the current year and range control. Both embedded map footers reserve the same 36px action row and 26px secondary row, with no row gap; the range overrides the standalone form input minimum height. On narrow screens both action rows wrap identically. Switch view and retry actions use regular weight. CO2 layout and its always-visible legend are unchanged.

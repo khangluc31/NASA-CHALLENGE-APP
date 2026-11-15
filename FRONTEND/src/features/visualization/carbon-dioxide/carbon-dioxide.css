@@ -1,0 +1,6 @@
+.co2-legend { display: flex; flex-wrap: wrap; align-items: start; gap: 8px; min-height: 26px; margin: 0; padding: 2px 0 3px; color: var(--book-ink); font-size: 10px; }
+.co2-legend figcaption { margin-right: auto; }
+.co2-legend figcaption, .co2-legend > span { line-height: 10px; }
+.co2-legend__scale { flex: 1 0 160px; max-width: 180px; }
+.co2-legend__scale svg { display: block; width: 100%; height: 5px; }
+.co2-legend__ticks { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; font-size: 10px; line-height: 16px; }
