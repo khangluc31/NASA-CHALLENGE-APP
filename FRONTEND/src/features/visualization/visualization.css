@@ -37,7 +37,7 @@
 .book-visualization :is(button, input):focus-visible { outline: 2px solid var(--book-ink); outline-offset: 2px; }
 .book-visualization .map-viewer__surface:focus, .book-visualization .globe-viewer__scene:focus { outline: none; }
 .book-visualization .map-viewer__surface:focus-visible, .book-visualization .globe-viewer__scene:focus-visible { outline: 2px solid var(--book-ink); outline-offset: -2px; }
-.book-visualization .globe-viewer__scene:focus-visible::after { content: '+'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; color: #fff; text-shadow: 0 0 3px #000; font-size: 24px; }
+.book-visualization .globe-viewer__scene[data-selectable=true]:focus-visible::after { content: '+'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; color: #fff; text-shadow: 0 0 3px #000; font-size: 24px; }
 .map-viewer__aim { opacity: 0; stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 1px #000); }
 .map-viewer__surface:focus-visible .map-viewer__aim { opacity: 1; }
 .book-visualization [role=status] p { margin: 4px 8px; }

@@ -75,9 +75,10 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
     <p className={embedded ? 'viewer-instructions-sr' : undefined} id={instructionsId}>Drag to rotate; scroll or pinch to zoom. Focus the globe and use arrow keys to rotate, +/− to zoom, or Home to reset.
       {onLocationSelect && (embedded ? ' Click or tap to select. With keyboard focus, Enter selects the center crosshair; arrows rotate the view.' : ' Click the surface or enter coordinates to select a location.')}</p>
     <div className="globe-viewer__scene" aria-describedby={instructionsId} aria-label="Interactive globe" role="group"
+      data-selectable={Boolean(onLocationSelect)}
       tabIndex={embedded ? 0 : undefined} aria-disabled={locked} onKeyDown={event => {
         if (event.target !== event.currentTarget || event.altKey || event.ctrlKey || event.metaKey) return
-        if (event.key === 'Enter') { event.preventDefault(); if (canSelect) keyboardSelection.current?.select(); return }
+        if (event.key === 'Enter' && onLocationSelect) { event.preventDefault(); if (canSelect) keyboardSelection.current?.select(); return }
         const actions: Record<string, CameraAction> = {
           ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
           '+': 'in', '=': 'in', '-': 'out', Home: 'reset',
@@ -98,7 +99,7 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
           radius: 1, interactionLocked: locked, selectedLocation: selection,
         })}
         <GlobeCameraControls ref={camera} locked={locked} />
-        <GlobeKeyboardSelection ref={keyboardSelection} onSelect={canSelect ? onLocationSelect : undefined} />
+        {onLocationSelect && <GlobeKeyboardSelection ref={keyboardSelection} onSelect={canSelect ? onLocationSelect : undefined} />}
       </Canvas>
     </div>
     <div role="status" aria-live="polite">
@@ -108,9 +109,10 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
       }}>Retry Image</button></p>}
       {texture.status !== 'error' && contentState.status !== 'ready' && <p>{contentState.message}</p>}
       {interactionLocked && <p>Globe interaction is paused during the page transition.</p>}
-      <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
+      {(onLocationSelect || selection) && <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>}
     </div>
     {embedded && <ViewerTools locked={locked || !canvasReady} location={selection} onZoom={direction => camera.current?.act(direction)}
+      showCoordinates={Boolean(onLocationSelect || selection)}
       actions={footerActions} secondary={footerSecondary} />}
     {embedded && layerDescription && <p className="viewer-instructions-sr">{layerDescription}</p>}
     {!embedded && <details className="viewer-options" open>

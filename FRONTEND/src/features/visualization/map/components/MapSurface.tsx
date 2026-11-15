@@ -87,7 +87,7 @@ export function MapSurface({ imageUrl, view, locked, instructionsId, onSelect, o
 
   function keyDown(event: KeyboardEvent<SVGSVGElement>) {
     if (event.target !== event.currentTarget || event.altKey || event.ctrlKey || event.metaKey) return
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && onSelect) {
       event.preventDefault()
       if (!locked && onSelect) onSelect(mapPointToLocation({ x: (MAP_WIDTH / 2 - view.x) / view.zoom, y: (MAP_HEIGHT / 2 - view.y) / view.zoom }))
       return
@@ -116,6 +116,6 @@ export function MapSurface({ imageUrl, view, locked, instructionsId, onSelect, o
         </g>}
       {children}
     </g>
-    <path className="map-viewer__aim" d="M 350 180 H 370 M 360 170 V 190" pointerEvents="none" aria-hidden="true" />
+    {onSelect && <path className="map-viewer__aim" d="M 350 180 H 370 M 360 170 V 190" pointerEvents="none" aria-hidden="true" />}
   </svg>
 }
