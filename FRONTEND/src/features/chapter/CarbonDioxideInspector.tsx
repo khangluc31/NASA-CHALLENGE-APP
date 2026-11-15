@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { getCarbonDioxideFrame, parseCarbonDioxide } from '../../data/adapters/carbonDioxide'
 import type { CarbonDioxideData } from '../../data/adapters/carbonDioxide'
 import type { CarbonDioxideView } from '../visualization/carbon-dioxide/useCurrentView'
-import './carbon-dioxide-inspector.css'
+import './current-view.css'
 
 type Result = { status: 'loading' | 'error' } | { status: 'ready'; data: CarbonDioxideData }
 
@@ -19,9 +19,9 @@ export function CarbonDioxideInspector({ view, disabled }: { view?: CarbonDioxid
     return () => controller.abort()
   }, [attempt])
   const frame = view?.status === 'paused' && result.status === 'ready' ? getCarbonDioxideFrame(result.data, view.time, view.duration) : null
-  return <div className="co2-view" data-book-interactive>
-    <header><p className="co2-view__kicker">Current view</p><h3>Atmospheric carbon dioxide</h3></header>
-    <p className="co2-view__context">Approximate estimates from animation colors</p>
+  return <div className="current-view" data-book-interactive>
+    <header><p className="current-view__kicker">Current view</p><h3>Atmospheric carbon dioxide</h3></header>
+    <p className="current-view__context">Approximate estimates from animation colors</p>
     <p>Switch to Map view to explore the full distribution alongside these estimates.</p>
     <div role="status" aria-live="polite">
       {!view || view.status === 'loading' ? <p>Loading the animation…</p>
@@ -31,14 +31,14 @@ export function CarbonDioxideInspector({ view, disabled }: { view?: CarbonDioxid
         : result.status === 'error' ? <><p>View estimates could not be loaded.</p><button type="button" disabled={disabled} onClick={() => { setResult({ status: 'loading' }); setAttempt(value => value + 1) }}>Retry estimates</button></>
         : !frame || frame.mean === null || frame.lower === null || frame.upper === null ? <p>Frame estimates unavailable.</p>
         : <>
-          <section className="co2-view__reading" aria-label="Approximate mean carbon dioxide">
-            <span>Estimated mean</span><div className="co2-view__value"><strong>{frame.mean.toFixed(1)}</strong><span> ppm</span></div>
+          <section className="current-view__reading" aria-label="Approximate mean carbon dioxide">
+            <span>Estimated mean</span><div className="current-view__value"><strong>{frame.mean.toFixed(1)}</strong><span> ppm</span></div>
           </section>
-          <dl className="co2-view__range"><div><dt>Lower estimate · 1st percentile</dt><dd>{frame.lower.toFixed(1)} ppm</dd></div>
+          <dl className="current-view__range"><div><dt>Lower estimate · 1st percentile</dt><dd>{frame.lower.toFixed(1)} ppm</dd></div>
             <div><dt>Upper estimate · 99th percentile</dt><dd>{frame.upper.toFixed(1)} ppm</dd></div></dl>
         </>}
     </div>
-    <footer className="co2-view__footnote"><p>These estimates summarize color-matched pixels across the source animation frame. They are not a global atmospheric mean or location-specific measurements.</p>
+    <footer className="current-view__footnote"><p>These estimates summarize color-matched pixels across the source animation frame. They are not a global atmospheric mean or location-specific measurements.</p>
       <p>Surface blending and atmospheric opacity affect the extracted colors. Switching views, rotating the globe or panning the map does not change these estimates.</p></footer>
   </div>
 }

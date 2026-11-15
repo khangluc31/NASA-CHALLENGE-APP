@@ -7,14 +7,20 @@ import { OceanGlobeLayer } from '../globe/layers/OceanGlobeLayer'
 import { OceanMapLayer } from '../map/layers/OceanMapLayer'
 import { useOceanPlayback } from './useOceanPlayback'
 import { VideoPlaybackControls } from '../media/VideoPlaybackControls'
+import { useCurrentView } from '../media/useCurrentView'
+import type { VideoCurrentView } from '../media/useCurrentView'
 
-type Props = Pick<GlobeViewerProps, 'selectedLocation' | 'onLocationSelect' | 'interactionLocked' | 'label'> & { view: 'globe' | 'map' }
-export function OceanVisualization({ view, ...props }: Props) {
+type Props = Pick<GlobeViewerProps, 'selectedLocation' | 'onLocationSelect' | 'interactionLocked' | 'label'> & {
+  view: 'globe' | 'map'
+  onCurrentViewChange?: (view: VideoCurrentView) => void
+}
+export function OceanVisualization({ view, onCurrentViewChange, ...props }: Props) {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null)
   const systemReduced = useReducedMotion()
   const motion = useContext(MotionConfigContext)
   const reduced = motion.reducedMotion === 'always' || (motion.reducedMotion !== 'never' && Boolean(systemReduced))
   const playback = useOceanPlayback(video, Boolean(props.interactionLocked), reduced)
+  useCurrentView(video, playback.status, props.interactionLocked, onCurrentViewChange)
   const contentState = playback.status === 'ready' ? { status: 'ready' as const }
     : playback.status === 'error' ? { status: 'error' as const, message: 'Ocean could not be loaded.' }
       : { status: 'loading' as const, message: 'Loading ocean animation…' }

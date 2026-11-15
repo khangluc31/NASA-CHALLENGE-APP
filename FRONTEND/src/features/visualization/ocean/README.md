@@ -4,7 +4,8 @@
 branch. It owns one hidden, muted, inline, looping HTML video element. Switching
 view replaces only the renderer and retains the same video, position and user
 play/pause intent. The app has one Play/Pause control, no seeking UI or ocean
-selected-area inspector. The demo audio remains a separate existing feature.
+selected-area inspector. Pausing opens Current view with approximate mean and
+10th–90th percentile temperature estimates, independent of coordinate selection. The demo audio remains a separate existing feature.
 
 `useOceanPlayback` handles readiness, errors, retry, autoplay rejection and
 transition locks. Default behavior is autoplay after readiness; reduced-motion
@@ -48,3 +49,12 @@ renderer never owns or changes media playback.
 ```sh
 node --experimental-strip-types --test src/features/visualization/ocean/videoFrames.test.mjs
 ```
+
+## Paused temperature summary
+
+Ocean and CO₂ share `media/useCurrentView` for presented-frame observation and
+state above disposable slots. CO₂ keeps compatibility exports. OceanInspector
+uses the same `chapter/current-view.css` layout as CO₂, with concise explanatory
+text; technical extraction details remain in `public/data/ocean/README.md`.
+Existing coordinate pins remain separate from frame summaries. Resuming shows a
+pause prompt; view switches retain the same video, paused reading and notes tab.

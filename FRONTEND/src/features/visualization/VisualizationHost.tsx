@@ -9,6 +9,7 @@ import { CarbonDioxideVisualization } from './carbon-dioxide/CarbonDioxideVisual
 import { BLUE_MARBLE_TEXTURE } from './globe/surfaceTexture'
 import './visualization.css'
 import type { CarbonDioxideView } from './carbon-dioxide/useCurrentView'
+import type { VideoCurrentView } from './media/useCurrentView'
 
 interface HostProps extends BookSlotProps {
   view?: 'globe' | 'map'
@@ -18,9 +19,10 @@ interface HostProps extends BookSlotProps {
   nightLightsYear?: number
   onNightLightsYearChange?: (year: number) => void
   onCarbonDioxideViewChange?: (view: CarbonDioxideView) => void
+  onOceanViewChange?: (view: VideoCurrentView) => void
 }
 
-export function VisualizationHost({ chapter, isActive, interactionDisabled, view, location, onViewChange, onLocationSelect, nightLightsYear, onNightLightsYearChange, onCarbonDioxideViewChange }: HostProps) {
+export function VisualizationHost({ chapter, isActive, interactionDisabled, view, location, onViewChange, onLocationSelect, nightLightsYear, onNightLightsYearChange, onCarbonDioxideViewChange, onOceanViewChange }: HostProps) {
   if (chapter.viewer === 'media') return <VisualizationPreview chapter={chapter} />
   const views = chapter.supportedViews ?? [chapter.viewer]
   const activeView = view && views.includes(view) ? view : chapter.viewer
@@ -43,7 +45,7 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
     {chapter.id === 'carbon-dioxide'
       ? <CarbonDioxideVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} onCurrentViewChange={onCarbonDioxideViewChange} />
       : chapter.id === 'ocean-temperature'
-      ? <OceanVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} />
+      ? <OceanVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} onCurrentViewChange={onOceanViewChange} />
       : activeView === 'globe'
       ? <GlobeViewer key={`${chapter.id}:globe`} {...common} surfaceTexture={surface} />
       : chapter.id === 'night-lights'
