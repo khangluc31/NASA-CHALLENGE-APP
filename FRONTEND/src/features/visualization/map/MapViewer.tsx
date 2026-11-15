@@ -22,7 +22,7 @@ export function MapViewer({ className = '', label = 'Interactive map', ...props 
 }
 
 function MapContent({ embedded = false, interactionLocked = false, selectedLocation = null, onLocationSelect,
-  surfaceImage = BLUE_MARBLE_TEXTURE, contentState = { status: 'ready' }, layers, layerDescription }: MapViewerProps) {
+  surfaceImage = BLUE_MARBLE_TEXTURE, contentState = { status: 'ready' }, layers, layerDescription, footerActions, footerSecondary }: MapViewerProps) {
   const [imageAttempt, setImageAttempt] = useState(0)
   const image = useMapSurfaceImage(surfaceImage?.path, imageAttempt)
   const locked = interactionLocked || contentState.status === 'loading' || image.status !== 'ready'
@@ -44,7 +44,7 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
     if (isMapLocation(location)) onLocationSelect?.(location)
   }
 
-  const coordinateForm = onLocationSelect && <form onSubmit={submitLocation}>
+  const coordinateForm = !embedded && onLocationSelect && <form onSubmit={submitLocation}>
     <fieldset disabled={!canSelect}>
       <legend>Select geographic coordinates</legend>
       <div className="map-viewer__controls">
@@ -61,7 +61,7 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
   return <>
     <p className={embedded ? 'viewer-instructions-sr' : undefined} id={instructionsId}>Drag to pan; pinch to zoom. Focus the map to zoom with the scroll wheel.
       Use arrow keys to pan, +/− to zoom, and Home to reset, or use the buttons below.
-      {onLocationSelect && ' Click the map or enter coordinates to select a location.'}</p>
+      {onLocationSelect && (embedded ? ' Click or tap to select. With keyboard focus, Enter selects the center crosshair; arrows pan the view.' : ' Click the map or enter coordinates to select a location.')}</p>
     <div className="map-viewer__viewport">
     <MapSurface imageUrl={image.status === 'ready' ? image.url : undefined}
       view={navigation.view} locked={locked} instructionsId={instructionsId}
@@ -77,13 +77,13 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
     <div role="status" aria-live="polite">
       {image.status === 'loading' && <p>Loading reference map…</p>}
       {image.status === 'error' && <p>The reference image could not be loaded or is not a 2:1 world image.
-        {' '}<button type="button" disabled={interactionLocked} onClick={() => setImageAttempt((value) => value + 1)}>Retry image</button></p>}
+        {' '}<button type="button" className="viewer-retry" disabled={interactionLocked} onClick={() => setImageAttempt((value) => value + 1)}>Retry image</button></p>}
       {contentState.status !== 'ready' && <p>{contentState.message}</p>}
       {interactionLocked && <p>Map interaction is paused during the page transition.</p>}
       <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
     </div>
     {embedded && <ViewerTools locked={locked} location={selection} onZoom={navigation.act}
-      hint="Drag to pan · Click to select">{coordinateForm}</ViewerTools>}
+      actions={footerActions} secondary={footerSecondary} />}
     {embedded && layerDescription && <p className="viewer-instructions-sr">{layerDescription}</p>}
     {!embedded && <details className="viewer-options" open>
       <summary>Controls &amp; image credits</summary>

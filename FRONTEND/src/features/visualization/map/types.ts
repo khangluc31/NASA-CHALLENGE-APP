@@ -21,6 +21,8 @@ export interface MapLayerContext {
 
 export interface MapViewerProps {
   embedded?: boolean
+  footerActions?: ReactNode
+  footerSecondary?: ReactNode
   className?: string
   label?: string
   interactionLocked?: boolean

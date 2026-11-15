@@ -19,10 +19,11 @@ UVs. Background imagery is NASA's original composite, not our January 2004
 reference texture. Geographic orientation, coastlines, pause and zoom were
 visually checked. The original sequence restarts without a seam correction.
 
-The original colorbar is retained intact. The UI displays its useful area through
-an SVG viewBox (x=180, y=300, width=1560, height=420), showing the 380–460 ppm
-labels and the color/opacity transfer function. No colors or numeric values are
-reconstructed. Checkerboard areas illustrate transparency, not CO₂ absence.
+The original colorbar is retained intact. The always-visible strip uses an SVG
+viewBox (x=238, y=323, width=1444, height=216) for the color/opacity band, with
+readable DOM ticks matching the source's 380, 400, 420, 440 and 460 ppm labels.
+No color gradient is reconstructed. Checkerboard areas illustrate transparency,
+not CO₂ absence.
 
 This is historical rendered model imagery. The spherical image has no independent
 altitude/volume exploration. Selected coordinates remain pins, not ppm samples;

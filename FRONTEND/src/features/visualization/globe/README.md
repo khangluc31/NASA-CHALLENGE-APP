@@ -34,6 +34,13 @@ disposes this layer without restarting the video. See `../ocean/README.md`.
 
 ## Public interface
 
+Book-control update: embedded viewers no longer expose numeric coordinate entry
+or persistent drag hints. Click/tap selects. With scene keyboard focus, arrows
+rotate and Enter explicitly selects the sphere at the view-center crosshair.
+Navigation alone never selects. `footerActions`/`footerSecondary` compose the
+compact footer. Embedded camera starts at 3.1 radii; standalone remains 3.4 and
+retains its numeric form. Retry actions are regular-weight text buttons. See ../README.md.
+
 Import `GlobeViewer` and its types from this folder's `index.ts`.
 
 - Mount only the active viewer; keep its key stable during same-chapter reading.

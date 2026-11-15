@@ -19,13 +19,15 @@ export function OceanVisualization({ view, ...props }: Props) {
     : playback.status === 'error' ? { status: 'error' as const, message: 'Ocean animation could not be loaded.' }
       : { status: 'loading' as const, message: 'Loading ocean animation…' }
   const common = { ...props, embedded: true, contentState,
+    footerActions: <VideoPlaybackControls label="ocean animation" playback={playback} locked={props.interactionLocked} />,
+    footerSecondary: <div className="ocean-temperature-legend" aria-label="Surface temperature: blue 0 degrees Celsius to red 32 degrees Celsius">
+      <span>Surface temperature</span><span>0°C</span><i aria-hidden="true" /><span>32°C</span>
+    </div>,
     layerDescription: 'NASA ECCO2 modeled surface currents colored by sea surface temperature. Blue: 0°C; green: 10–20°C; yellow: about 25°C; red: 32°C. Historical animation repeats; selected coordinates do not supply measurements.' }
   return <>
     <video ref={setVideo} hidden muted loop playsInline preload="auto" data-ocean-video aria-hidden="true" />
     {view === 'globe' ? <GlobeViewer {...common} layers={video ? context => <OceanGlobeLayer {...context} video={video} /> : undefined} />
       : <MapViewer {...common} layers={video ? context => <OceanMapLayer {...context} video={video} /> : undefined} />}
-    <VideoPlaybackControls label="ocean animation" playback={playback} locked={props.interactionLocked}>
-      <span className="video-controls__legend">Surface temperature <span aria-hidden="true">0°C <i /> 32°C</span></span>
-    </VideoPlaybackControls>
+
   </>
 }

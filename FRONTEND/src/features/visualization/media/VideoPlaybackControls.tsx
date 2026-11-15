@@ -16,7 +16,7 @@ export function VideoPlaybackControls({ label, playback, locked, children }: {
       {playback.playing ? 'Pause' : 'Play'}
     </button>
     {children}
-    {playback.status === 'error' && <button type="button" disabled={locked} onClick={playback.retry}>Retry animation</button>}
+    {playback.status === 'error' && <button type="button" className="viewer-retry" disabled={locked} onClick={playback.retry}>Retry animation</button>}
     <span role="status" aria-live="polite">{playback.blocked ? 'Press Play to start the animation.' : playback.buffering ? 'Buffering…' : ''}</span>
   </div>
 }

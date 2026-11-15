@@ -11,6 +11,8 @@ import type { CameraAction, GlobeCameraHandle } from './components/GlobeCameraCo
 import { GlobeErrorBoundary } from './components/GlobeErrorBoundary'
 import { BLUE_MARBLE_TEXTURE } from './surfaceTexture'
 import { ViewerTools } from '../ViewerTools'
+import { GlobeKeyboardSelection } from './components/GlobeKeyboardSelection'
+import type { GlobeKeyboardSelectionHandle } from './components/GlobeKeyboardSelection'
 import './globe.css'
 
 const CAMERA_ACTIONS: { action: CameraAction; label: string }[] = [
@@ -30,10 +32,11 @@ export function GlobeViewer({ className = '', label = 'Interactive globe', ...pr
 }
 
 function GlobeContent({ embedded = false, interactionLocked = false, selectedLocation = null, onLocationSelect,
-  surfaceTexture = BLUE_MARBLE_TEXTURE, layers, contentState = { status: 'ready' }, layerDescription }: GlobeViewerProps) {
+  surfaceTexture = BLUE_MARBLE_TEXTURE, layers, contentState = { status: 'ready' }, layerDescription, footerActions, footerSecondary }: GlobeViewerProps) {
   const [textureAttempt, setTextureAttempt] = useState(0)
   const texture = useSurfaceTexture(surfaceTexture?.path, textureAttempt)
   const camera = useRef<GlobeCameraHandle>(null)
+  const keyboardSelection = useRef<GlobeKeyboardSelectionHandle>(null)
   const instructionsId = useId()
   const latitudeId = useId()
   const longitudeId = useId()
@@ -53,7 +56,7 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
     if (isGlobeLocation(location)) onLocationSelect?.(location)
   }
 
-  const coordinateForm = onLocationSelect && <form onSubmit={submitLocation}>
+  const coordinateForm = !embedded && onLocationSelect && <form onSubmit={submitLocation}>
     <fieldset disabled={!canSelect}>
       <legend>Select geographic coordinates</legend>
       <div className="globe-viewer__controls">
@@ -69,10 +72,11 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
 
   return <>
     <p className={embedded ? 'viewer-instructions-sr' : undefined} id={instructionsId}>Drag to rotate; scroll or pinch to zoom. Focus the globe and use arrow keys to rotate, +/− to zoom, or Home to reset.
-      {onLocationSelect && ' Click the surface or enter coordinates to select a location.'}</p>
+      {onLocationSelect && (embedded ? ' Click or tap to select. With keyboard focus, Enter selects the center crosshair; arrows rotate the view.' : ' Click the surface or enter coordinates to select a location.')}</p>
     <div className="globe-viewer__scene" aria-describedby={instructionsId} aria-label="Interactive globe" role="group"
       tabIndex={embedded ? 0 : undefined} aria-disabled={locked} onKeyDown={event => {
         if (event.target !== event.currentTarget || event.altKey || event.ctrlKey || event.metaKey) return
+        if (event.key === 'Enter') { event.preventDefault(); if (canSelect) keyboardSelection.current?.select(); return }
         const actions: Record<string, CameraAction> = {
           ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
           '+': 'in', '=': 'in', '-': 'out', Home: 'reset',
@@ -80,10 +84,10 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
         const action = actions[event.key]
         if (action) { event.preventDefault(); if (!locked) camera.current?.act(action) }
       }}>
-      <Canvas camera={{ position: [0, 0, 3.4], fov: 45, near: 0.01, far: 30 }}
+      <Canvas camera={{ position: [0, 0, embedded ? 3.1 : 3.4], fov: 45, near: 0.01, far: 30 }}
         dpr={[1, 1.5]} frameloop="demand" gl={{ preserveDrawingBuffer: embedded }}
         onCreated={() => setCanvasReady(true)}
-        fallback={<p role="alert">This browser does not support WebGL. Coordinate selection is available below.</p>}>
+        fallback={<p role="alert">This browser does not support WebGL. Try the map view where available.</p>}>
         <ContextMonitor onLost={() => setContextLost(true)} />
         <ambientLight intensity={1} />
         <directionalLight position={[3, 3, 3]} intensity={2} />
@@ -93,11 +97,12 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
           radius: 1, interactionLocked: locked, selectedLocation: selection,
         })}
         <GlobeCameraControls ref={camera} locked={locked} />
+        <GlobeKeyboardSelection ref={keyboardSelection} onSelect={canSelect ? onLocationSelect : undefined} />
       </Canvas>
     </div>
     <div role="status" aria-live="polite">
       {texture.status === 'loading' && <p>Loading globe texture…</p>}
-      {texture.status === 'error' && <p>{texture.message} <button type="button" disabled={interactionLocked} onClick={() => {
+      {texture.status === 'error' && <p>{texture.message} <button type="button" className="viewer-retry" disabled={interactionLocked} onClick={() => {
         setTextureAttempt((value) => value + 1)
       }}>Retry texture</button></p>}
       {contentState.status !== 'ready' && <p>{contentState.message}</p>}
@@ -105,7 +110,7 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
       <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
     </div>
     {embedded && <ViewerTools locked={locked || !canvasReady} location={selection} onZoom={direction => camera.current?.act(direction)}
-      hint="Drag to rotate · Click to select">{coordinateForm}</ViewerTools>}
+      actions={footerActions} secondary={footerSecondary} />}
     {embedded && layerDescription && <p className="viewer-instructions-sr">{layerDescription}</p>}
     {!embedded && <details className="viewer-options" open>
       <summary>Controls &amp; image credits</summary>

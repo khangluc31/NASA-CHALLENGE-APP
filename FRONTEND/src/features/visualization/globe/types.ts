@@ -17,8 +17,10 @@ export type GlobeContentState =
   | { status: 'loading' | 'empty' | 'missing' | 'error'; message: string }
 
 export interface GlobeViewerProps {
-  /** Compact book layout with inline zoom and optional coordinate entry. */
+  /** Compact book layout with model-based selection and a shared footer. */
   embedded?: boolean
+  footerActions?: ReactNode
+  footerSecondary?: ReactNode
   className?: string
   label?: string
   interactionLocked?: boolean

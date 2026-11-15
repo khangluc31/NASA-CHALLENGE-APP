@@ -13,7 +13,7 @@ export class GlobeErrorBoundary extends Component<
     if (this.state.failed) {
       return <div role="alert">
         <p>The globe could not be displayed. WebGL may be unavailable.</p>
-        <button type="button" onClick={this.props.onRetry}>Retry globe</button>
+        <button type="button" className="viewer-retry" onClick={this.props.onRetry}>Retry globe</button>
       </div>
     }
     return this.props.children

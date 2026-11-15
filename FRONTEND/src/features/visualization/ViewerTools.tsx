@@ -6,22 +6,18 @@ interface ViewerToolsProps {
   locked: boolean
   location: GlobeLocation | null
   onZoom: (direction: 'in' | 'out') => void
-  hint: string
-  children?: ReactNode
+  actions?: ReactNode
+  secondary?: ReactNode
 }
 
-/** Small controls in the scene footer; coordinate entry is optional. */
-export function ViewerTools({ locked, location, onZoom, hint, children }: ViewerToolsProps) {
-  return <div className="viewer-tools">
+/** One compact action row, with an optional legend or timeline below it. */
+export function ViewerTools({ locked, location, onZoom, actions, secondary }: ViewerToolsProps) {
+  return <footer className="viewer-footer"><div className="viewer-tools">
     <div className="viewer-tools__actions">
       <button type="button" disabled={locked} aria-label="Zoom out" title="Zoom out" onClick={() => onZoom('out')}>−</button>
       <button type="button" disabled={locked} aria-label="Zoom in" title="Zoom in" onClick={() => onZoom('in')}>+</button>
-      <span className="viewer-tools__hint">{hint}</span>
-      {children && <details className="viewer-tools__coordinates">
-        <summary aria-disabled={locked}>Select coordinates</summary>
-        <div className="viewer-tools__entry">{children}</div>
-      </details>}
     </div>
+    <div className="viewer-tools__chapter-actions">{actions}</div>
     <CoordinateReadout location={location} />
-  </div>
+  </div>{secondary}</footer>
 }

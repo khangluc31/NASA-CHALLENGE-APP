@@ -113,3 +113,23 @@ colorbar is shown in a compact legend disclosure. The globe remains interactive,
 but the video supplies neither independent atmospheric depth nor local ppm
 samples. No CO₂ selected-area inspector is introduced. See
 `carbon-dioxide/README.md` and `public/media/carbon-dioxide/README.md`.
+
+## Compact white viewer controls
+
+Book viewers use white book text tokens instead of a separate cyan palette.
+ViewerTools composes a single zoom/playback/coordinate row and optional secondary
+legend or timeline via feature-local footerActions/footerSecondary props. Outer
+visualization/audio geometry stays unchanged. Embedded globes start at 3.1 radii
+to use scene space better; source geometry/projection stay fixed.
+
+Only multi-view chapters show top-right Switch view text; single-view labels,
+numeric coordinate-entry popovers and persistent hints are removed from the book.
+Click/tap selects; keyboard users focus the scene, navigate with arrows, and press
+Enter to select the focus-only center crosshair. Navigation alone never selects.
+Standalone viewers retain full controls and forms. Retries are regular-weight white text
+with semantic button behavior, no box/border/underline, and visible focus/disabled
+states. CO2's original colorbar is always visible with ppm ticks. Ocean keeps its
+temperature legend in the shared row; Night Lights keeps the compact scrubber.
+Narrow footers wrap without reducing interactive targets.
+
+Footer alignment refinement: Ocean places the temperature legend on a second row, below zoom/playback/coordinates. Night Lights removes the redundant endpoint labels and keeps only the current year and range control. Both embedded map footers reserve the same 36px action row and 26px secondary row, with no row gap; the range overrides the standalone form input minimum height. On narrow screens both action rows wrap identically. Switch view and retry actions use regular weight. CO2 layout and its always-visible legend are unchanged.
