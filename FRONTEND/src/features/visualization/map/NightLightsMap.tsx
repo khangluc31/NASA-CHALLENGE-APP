@@ -34,7 +34,7 @@ export function NightLightsMap({ year: controlledYear, onYearChange, ...props }:
         {failed && <button type="button" className="viewer-retry" disabled={props.interactionLocked} onClick={() => {
           if (result.status === 'error') retry()
           if (imagery.result.status === 'error') imagery.retry()
-        }}>Retry lights</button>}
+        }}>Retry Image</button>}
       </div>
       <p className="viewer-instructions-sr" role="status" aria-live="polite">{!ready ? 'Brightness sample unavailable.' : !props.selectedLocation ? 'Select a location to inspect brightness.'
         : sample?.value == null ? `${frame?.year}: no covered sample at this location.`
@@ -42,9 +42,10 @@ export function NightLightsMap({ year: controlledYear, onYearChange, ...props }:
     </div>)
 
   return <MapViewer {...props}
+      loadErrorMessage="Night Light could not be loaded."
       footerSecondary={controls}
       contentState={ready ? { status: 'ready' } : failed
-        ? { status: 'error', message: 'Night Lights could not be loaded.' }
+        ? { status: 'error', message: 'Night Light could not be loaded.' }
         : { status: 'loading', message: 'Loading night lights…' }}
       layers={images ? (context) => <NightLightsLayer {...context} year={year} images={images} /> : undefined}
       layerDescription="NASA annual night-light imagery from 2012 to 2023. Moving the year slider blends adjacent annual images; transitions do not represent additional observations. The extracted grid provides a separate coarse brightness lookup." />

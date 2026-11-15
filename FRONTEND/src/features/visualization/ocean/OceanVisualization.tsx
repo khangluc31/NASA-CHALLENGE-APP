@@ -16,9 +16,9 @@ export function OceanVisualization({ view, ...props }: Props) {
   const reduced = motion.reducedMotion === 'always' || (motion.reducedMotion !== 'never' && Boolean(systemReduced))
   const playback = useOceanPlayback(video, Boolean(props.interactionLocked), reduced)
   const contentState = playback.status === 'ready' ? { status: 'ready' as const }
-    : playback.status === 'error' ? { status: 'error' as const, message: 'Ocean animation could not be loaded.' }
+    : playback.status === 'error' ? { status: 'error' as const, message: 'Ocean could not be loaded.' }
       : { status: 'loading' as const, message: 'Loading ocean animation…' }
-  const common = { ...props, embedded: true, contentState,
+  const common = { ...props, embedded: true, contentState, loadErrorMessage: 'Ocean could not be loaded.',
     footerActions: <VideoPlaybackControls label="ocean animation" playback={playback} locked={props.interactionLocked} />,
     footerSecondary: <div className="ocean-temperature-legend" aria-label="Surface temperature: blue 0 degrees Celsius to red 32 degrees Celsius">
       <span>Surface temperature</span><span>0°C</span><i aria-hidden="true" /><span>32°C</span>

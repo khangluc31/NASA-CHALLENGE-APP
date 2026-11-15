@@ -15,14 +15,15 @@ import './map.css'
 export function MapViewer({ className = '', label = 'Interactive map', ...props }: MapViewerProps) {
   const [attempt, setAttempt] = useState(0)
   return <section className={`map-viewer ${className}`} aria-label={label}>
-    <MapErrorBoundary key={attempt} onRetry={() => setAttempt((value) => value + 1)}>
+    <MapErrorBoundary key={attempt} message={props.loadErrorMessage} locked={props.interactionLocked} onRetry={() => setAttempt((value) => value + 1)}>
       <MapContent {...props} />
     </MapErrorBoundary>
   </section>
 }
 
 function MapContent({ embedded = false, interactionLocked = false, selectedLocation = null, onLocationSelect,
-  surfaceImage = BLUE_MARBLE_TEXTURE, contentState = { status: 'ready' }, layers, layerDescription, footerActions, footerSecondary }: MapViewerProps) {
+  surfaceImage = BLUE_MARBLE_TEXTURE, contentState = { status: 'ready' }, layers, layerDescription, footerActions, footerSecondary,
+  loadErrorMessage = 'Map could not be loaded.' }: MapViewerProps) {
   const [imageAttempt, setImageAttempt] = useState(0)
   const image = useMapSurfaceImage(surfaceImage?.path, imageAttempt)
   const locked = interactionLocked || contentState.status === 'loading' || image.status !== 'ready'
@@ -76,9 +77,9 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
     </div>
     <div role="status" aria-live="polite">
       {image.status === 'loading' && <p>Loading reference map…</p>}
-      {image.status === 'error' && <p>The reference image could not be loaded or is not a 2:1 world image.
-        {' '}<button type="button" className="viewer-retry" disabled={interactionLocked} onClick={() => setImageAttempt((value) => value + 1)}>Retry image</button></p>}
-      {contentState.status !== 'ready' && <p>{contentState.message}</p>}
+      {image.status === 'error' && <p>{loadErrorMessage}
+        {' '}<button type="button" className="viewer-retry" disabled={interactionLocked} onClick={() => setImageAttempt((value) => value + 1)}>Retry Image</button></p>}
+      {image.status !== 'error' && contentState.status !== 'ready' && <p>{contentState.message}</p>}
       {interactionLocked && <p>Map interaction is paused during the page transition.</p>}
       <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
     </div>

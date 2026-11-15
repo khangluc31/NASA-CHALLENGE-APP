@@ -21,6 +21,7 @@ export function CarbonDioxideVisualization(props: Props) {
   return <>
     <video ref={setVideo} hidden muted loop playsInline preload="auto" data-co2-video aria-hidden="true" />
     <GlobeViewer {...props} embedded
+      loadErrorMessage="Carbon dioxide could not be loaded."
       footerActions={<VideoPlaybackControls label="carbon dioxide animation" playback={playback} locked={props.interactionLocked} />}
       footerSecondary={<figure className="co2-legend" role="img" aria-labelledby={legendId}>
         <figcaption id={legendId}>CO₂<span className="viewer-instructions-sr">: NASA color and opacity scale, 380–460 parts per million. Transparent regions still contain CO₂.</span></figcaption>
@@ -31,7 +32,7 @@ export function CarbonDioxideVisualization(props: Props) {
         <span aria-hidden="true">ppm</span>
       </figure>}
       contentState={playback.status === 'ready' ? { status: 'ready' } : playback.status === 'error'
-        ? { status: 'error', message: 'Carbon dioxide animation could not be loaded.' }
+        ? { status: 'error', message: 'Carbon dioxide could not be loaded.' }
         : { status: 'loading', message: 'Loading carbon dioxide animation…' }}
       layers={video ? context => <GlobeVideoLayer {...context} video={video} /> : undefined}
       layerDescription="NASA DYAMOND modeled atmospheric carbon dioxide for January–March 2020. NASA's color and opacity scale spans 380–460 parts per million. Sparse or transparent regions still contain carbon dioxide. This spherical video texture does not supply altitude or measurements at selected coordinates." />

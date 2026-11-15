@@ -25,14 +25,15 @@ const CAMERA_ACTIONS: { action: CameraAction; label: string }[] = [
 export function GlobeViewer({ className = '', label = 'Interactive globe', ...props }: GlobeViewerProps) {
   const [attempt, setAttempt] = useState(0)
   return <section className={`globe-viewer ${className}`} aria-label={label}>
-    <GlobeErrorBoundary key={attempt} onRetry={() => setAttempt((value) => value + 1)}>
+    <GlobeErrorBoundary key={attempt} message={props.loadErrorMessage} locked={props.interactionLocked} onRetry={() => setAttempt((value) => value + 1)}>
       <GlobeContent {...props} />
     </GlobeErrorBoundary>
   </section>
 }
 
 function GlobeContent({ embedded = false, interactionLocked = false, selectedLocation = null, onLocationSelect,
-  surfaceTexture = BLUE_MARBLE_TEXTURE, layers, contentState = { status: 'ready' }, layerDescription, footerActions, footerSecondary }: GlobeViewerProps) {
+  surfaceTexture = BLUE_MARBLE_TEXTURE, layers, contentState = { status: 'ready' }, layerDescription, footerActions, footerSecondary,
+  loadErrorMessage = 'Globe could not be loaded.' }: GlobeViewerProps) {
   const [textureAttempt, setTextureAttempt] = useState(0)
   const texture = useSurfaceTexture(surfaceTexture?.path, textureAttempt)
   const camera = useRef<GlobeCameraHandle>(null)
@@ -102,10 +103,10 @@ function GlobeContent({ embedded = false, interactionLocked = false, selectedLoc
     </div>
     <div role="status" aria-live="polite">
       {texture.status === 'loading' && <p>Loading globe texture…</p>}
-      {texture.status === 'error' && <p>{texture.message} <button type="button" className="viewer-retry" disabled={interactionLocked} onClick={() => {
+      {texture.status === 'error' && <p>{loadErrorMessage} <button type="button" className="viewer-retry" disabled={interactionLocked} onClick={() => {
         setTextureAttempt((value) => value + 1)
-      }}>Retry texture</button></p>}
-      {contentState.status !== 'ready' && <p>{contentState.message}</p>}
+      }}>Retry Image</button></p>}
+      {texture.status !== 'error' && contentState.status !== 'ready' && <p>{contentState.message}</p>}
       {interactionLocked && <p>Globe interaction is paused during the page transition.</p>}
       <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
     </div>

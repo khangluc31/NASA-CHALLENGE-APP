@@ -2,7 +2,7 @@ import { Component } from 'react'
 import type { ReactNode } from 'react'
 
 export class GlobeErrorBoundary extends Component<
-  { children: ReactNode; onRetry: () => void },
+  { children: ReactNode; onRetry: () => void; message?: string; locked?: boolean },
   { failed: boolean }
 > {
   state = { failed: false }
@@ -12,8 +12,8 @@ export class GlobeErrorBoundary extends Component<
   render() {
     if (this.state.failed) {
       return <div role="alert">
-        <p>The globe could not be displayed. WebGL may be unavailable.</p>
-        <button type="button" className="viewer-retry" onClick={this.props.onRetry}>Retry globe</button>
+        <p>{this.props.message ?? 'Globe could not be loaded.'}</p>
+        <button type="button" className="viewer-retry" disabled={this.props.locked} onClick={this.props.onRetry}>Retry Image</button>
       </div>
     }
     return this.props.children

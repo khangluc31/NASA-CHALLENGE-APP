@@ -23,6 +23,8 @@ export interface GlobeViewerProps {
   footerSecondary?: ReactNode
   className?: string
   label?: string
+  /** Chapter-specific copy for image and renderer failures. */
+  loadErrorMessage?: string
   interactionLocked?: boolean
   selectedLocation?: GlobeLocation | null
   onLocationSelect?: (location: GlobeLocation | null) => void
