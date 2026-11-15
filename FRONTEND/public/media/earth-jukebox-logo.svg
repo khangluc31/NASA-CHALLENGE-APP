@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="24 24 464 464" fill="none" role="img" aria-labelledby="ej-title ej-desc">
+  <title id="ej-title">Earth Information Jukebox</title>
+  <desc id="ej-desc">Black circular logo with seven square-cornered white crosses arranged in three staggered rows and six small white squares, inspired by a pixel-art jukebox pattern.</desc>
+  <defs>
+    <!-- A 88 × 88 cross with a 22-unit stem and square corners. -->
+    <path id="ej-cross" d="M-11-44H11V-11H44V11H11V44H-11V11H-44V-11H-11Z"/>
+  </defs>
+
+  <circle cx="256" cy="256" r="232" fill="#000000"/>
+
+  <g fill="#FFFFFF" transform="translate(256 256) scale(1.2) translate(-256 -256)">
+    <!-- Staggered rows: 2 / 3 / 2 crosses. -->
+    <use href="#ej-cross" x="196" y="190"/>
+    <use href="#ej-cross" x="316" y="190"/>
+    <use href="#ej-cross" x="136" y="256"/>
+    <use href="#ej-cross" x="256" y="256"/>
+    <use href="#ej-cross" x="376" y="256"/>
+    <use href="#ej-cross" x="196" y="322"/>
+    <use href="#ej-cross" x="316" y="322"/>
+
+    <!-- Square accents aligned with the middle row. -->
+    <path d="M125 146h22v22h-22z M245 146h22v22h-22z M365 146h22v22h-22z M125 344h22v22h-22z M245 344h22v22h-22z M365 344h22v22h-22z"/>
+  </g>
+</svg>
