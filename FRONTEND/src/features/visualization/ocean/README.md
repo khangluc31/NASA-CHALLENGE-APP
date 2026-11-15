@@ -5,7 +5,10 @@ branch. It owns one hidden, muted, inline, looping HTML video element. Switching
 view replaces only the renderer and retains the same video, position and user
 play/pause intent. The app has one Play/Pause control, no seeking UI or ocean
 selected-area inspector. Pausing opens Current view with approximate mean and
-10th–90th percentile temperature estimates, independent of coordinate selection. The demo audio remains a separate existing feature.
+10th–90th percentile temperature estimates. Both viewers omit geographic
+selection: no pins, coordinate readouts, selection crosshairs or selection hints.
+Rotation, pan, zoom and keyboard navigation remain available. The demo audio
+remains a separate existing feature.
 
 `useOceanPlayback` handles readiness, errors, retry, autoplay rejection and
 transition locks. Default behavior is autoplay after readiness; reduced-motion
@@ -20,7 +23,7 @@ available and offers retry. Only 2:1 media is accepted.
 to draw/invalidate without React updates on each frame. Paused renderers draw a
 single current frame and stop scheduling work. All callbacks/listeners are cleaned
 up on view changes and unmount. `OceanMapLayer` draws into a canvas inside the
-map SVG transform; it shares geographic picking/navigation and the existing book
+map SVG transform; it shares map navigation and the existing book
 canvas snapshot mechanism. `OceanGlobeLayer` owns a disposable VideoTexture on a
 slightly larger sphere, with no picking interception. It invalidates the existing
 demand-rendered R3F canvas only as frames arrive. Source pixels keep their colors
@@ -56,5 +59,5 @@ Ocean and CO₂ share `media/useCurrentView` for presented-frame observation and
 state above disposable slots. CO₂ keeps compatibility exports. OceanInspector
 uses the same `chapter/current-view.css` layout as CO₂, with concise explanatory
 text; technical extraction details remain in `public/data/ocean/README.md`.
-Existing coordinate pins remain separate from frame summaries. Resuming shows a
+Frame summaries are independent of globe rotation and map navigation. Resuming shows a
 pause prompt; view switches retain the same video, paused reading and notes tab.

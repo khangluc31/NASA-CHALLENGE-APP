@@ -21,7 +21,8 @@ Playback is the only clock. The shared pause observer uses a presented-frame med
 timestamp where supported and otherwise the video playback position. The adapter
 rejects mismatched durations and out-of-range times; missing values and zero-match
 coverage remain unavailable. Globe/Map switches preserve the same source video
-and frame summary. Geographic selection is independent of these estimates.
+and frame summary. Geographic selection is disabled in both Ocean views; frame estimates remain
+independent of globe rotation and map navigation.
 
 No calendar dates are inferred, and the interface does not expose frame numbers,
 playback timestamps, extraction settings or raw coverage metadata. The source's

@@ -30,7 +30,8 @@ introduced. Deep zoom still has a finite source-resolution limit.
 
 The original sequence repeats at its endpoint. Its join is intentionally not
 made seamless. The ocean JSON is not used to claim local temperatures or current
-speed; selection remains a coordinate pin only. No ocean inspector is provided.
+speed; geographic selection is disabled in both views. Pausing opens Current view with
+approximate frame temperature estimates; no local measurement inspector is provided.
 
 ## Download and build setup
 
