@@ -81,9 +81,10 @@ function MapContent({ embedded = false, interactionLocked = false, selectedLocat
         {' '}<button type="button" className="viewer-retry" disabled={interactionLocked} onClick={() => setImageAttempt((value) => value + 1)}>Retry Image</button></p>}
       {image.status !== 'error' && contentState.status !== 'ready' && <p>{contentState.message}</p>}
       {interactionLocked && <p>Map interaction is paused during the page transition.</p>}
-      <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>
+      {(onLocationSelect || selection) && <p className={embedded ? 'viewer-instructions-sr' : undefined}>{selection ? `Selected: ${selection.latitude.toFixed(3)}° latitude, ${selection.longitude.toFixed(3)}° longitude.` : 'No location selected.'}</p>}
     </div>
     {embedded && <ViewerTools locked={locked} location={selection} onZoom={navigation.act}
+      showCoordinates={Boolean(onLocationSelect || selection)}
       actions={footerActions} secondary={footerSecondary} />}
     {embedded && layerDescription && <p className="viewer-instructions-sr">{layerDescription}</p>}
     {!embedded && <details className="viewer-options" open>

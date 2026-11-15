@@ -40,6 +40,11 @@ Shared playback extraction: `useOceanPlayback`, `OceanGlobeLayer` and the former
 Play/Pause/retry UI uses `media/VideoPlaybackControls` with the same layout and
 legend. Media identity, time retention on view switches and cleanup are unchanged.
 
+`map/layers/OceanMapLayer` now delegates to the shared `MapVideoLayer`, also used
+by CO₂. The canvas retains the video's native dimensions; frame subscriptions,
+pan/zoom, snapshots and renderer cleanup keep the existing behavior. The shared
+renderer never owns or changes media playback.
+
 ```sh
 node --experimental-strip-types --test src/features/visualization/ocean/videoFrames.test.mjs
 ```

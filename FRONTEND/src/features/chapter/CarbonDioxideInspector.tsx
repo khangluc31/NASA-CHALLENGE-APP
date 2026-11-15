@@ -22,6 +22,7 @@ export function CarbonDioxideInspector({ view, disabled }: { view?: CarbonDioxid
   return <div className="co2-view" data-book-interactive>
     <header><p className="co2-view__kicker">Current view</p><h3>Atmospheric carbon dioxide</h3></header>
     <p className="co2-view__context">Approximate estimates from animation colors</p>
+    <p>Switch to Map view to explore the full distribution alongside these estimates.</p>
     <div role="status" aria-live="polite">
       {!view || view.status === 'loading' ? <p>Loading the animation…</p>
         : view.status === 'error' ? <p>Current view unavailable. Retry the animation to inspect its estimates.</p>
@@ -38,6 +39,6 @@ export function CarbonDioxideInspector({ view, disabled }: { view?: CarbonDioxid
         </>}
     </div>
     <footer className="co2-view__footnote"><p>These estimates summarize color-matched pixels across the source animation frame. They are not a global atmospheric mean or location-specific measurements.</p>
-      <p>Surface blending and atmospheric opacity affect the extracted colors. Rotating the globe does not change these estimates.</p></footer>
+      <p>Surface blending and atmospheric opacity affect the extracted colors. Switching views, rotating the globe or panning the map does not change these estimates.</p></footer>
   </div>
 }

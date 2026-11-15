@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { observeCurrentView } from './useCurrentView.ts'
+import { observeVideoFrames } from '../media/videoFrames.ts'
 
 class Video extends EventTarget {
+  readyState = 2
+  ended = false
   paused = true
   currentTime = 0
   duration = 39.2
@@ -19,6 +22,39 @@ class Video extends EventTarget {
   play() { this.paused = false; this.dispatchEvent(new Event('play')) }
   pause() { this.paused = true; this.dispatchEvent(new Event('pause')) }
 }
+
+test('renderer replacement preserves playback intent, paused frame and inspector subscription', () => {
+  const video = new Video()
+  const states = []
+  const stopInspector = observeCurrentView(video, value => states.push(value))
+  let globeDraws = 0
+  let mapDraws = 0
+  const stopGlobe = observeVideoFrames(video, () => globeDraws++)
+  video.play()
+  video.present(10)
+  stopGlobe()
+  const previousGlobeDraws = globeDraws
+  const stopMap = observeVideoFrames(video, () => mapDraws++)
+  assert.equal(video.paused, false)
+  assert.equal(video.currentTime, 10.02)
+  video.present(11)
+  assert.equal(globeDraws, previousGlobeDraws)
+  assert.ok(mapDraws > 1)
+  video.pause()
+  assert.deepEqual(states.at(-1), { status: 'paused', time: 11, duration: 39.2 })
+  const previousStateCount = states.length
+  stopMap()
+  const stopReplacement = observeVideoFrames(video, () => {})
+  assert.equal(video.paused, true)
+  assert.equal(video.currentTime, 11.02)
+  assert.equal(states.length, previousStateCount)
+  assert.equal(video.callbacks.size, 0)
+  video.play()
+  assert.deepEqual(states.at(-1), { status: 'playing' })
+  stopReplacement()
+  stopInspector()
+  assert.equal(video.callbacks.size, 0)
+})
 
 test('publishes a frozen presented timestamp on pause without per-frame state updates', () => {
   const video = new Video()

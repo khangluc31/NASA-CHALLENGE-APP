@@ -41,7 +41,7 @@ export function VisualizationHost({ chapter, isActive, interactionDisabled, view
       </button>
     </div>}
     {chapter.id === 'carbon-dioxide'
-      ? <CarbonDioxideVisualization key={chapter.id} {...common} onCurrentViewChange={onCarbonDioxideViewChange} />
+      ? <CarbonDioxideVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} onCurrentViewChange={onCarbonDioxideViewChange} />
       : chapter.id === 'ocean-temperature'
       ? <OceanVisualization key={chapter.id} {...common} view={activeView === 'map' ? 'map' : 'globe'} />
       : activeView === 'globe'
