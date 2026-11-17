@@ -1,0 +1,39 @@
+topic: night_lights
+svs_id: 5475
+title: "Change in Night Lights 2012-2023"
+unit: "relative brightness"
+colorbar: null
+
+extractors:
+  - night_lights
+
+sampling:
+  method: midpoint
+  offset: 30
+  
+segments:
+  annual:
+    start_year: 2012
+    first_frame: 0
+    frames_per_year: 60
+    count: 12
+
+  change:
+    first: 1000
+    last: 1259
+
+mask_boxes: # vung can loai bo nhu chu 2012, 2023
+  - [1000, 1085, 640, 1000]
+  - [1000, 1085, 1665, 2020]
+  - [1000, 1085, 2730, 3085]
+  - [1000, 1085, 3745, 4096]
+
+legend_bar: # vi tri legend bar 
+  y0: 1034
+  y1: 1053
+  x0: 655
+  x1: 982
+
+cell_aggregate: p97
+lit_threshold: 0.12
+tophat_kernel: 15
